@@ -1,6 +1,7 @@
 {
   "type": "module",
   "scripts": {
+    "install": "npm ci",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"

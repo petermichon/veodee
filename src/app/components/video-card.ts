@@ -1,6 +1,8 @@
 function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
-  const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${video.id}&format=json`
+  const urlParam = `https://www.youtube.com/watch?v=${video.id}&format=json`
+  const oembedUrl = `https://www.youtube.com/oembed?url=${urlParam}`
   const thumbnailUrl = `https://img.youtube.com/vi/${video.id}/maxresdefault.jpg`
+
   // const thumbnailUrl = ``;
   // mqdefault.jpg
   // hqdefault.jpg
@@ -10,20 +12,13 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
 
   const videoElem = document.createElement('a')
   videoElem.className =
-    'relative overflow-hidden bg-white p-0 hover:scale-100 transition-all duration-180 md:rounded-lg bg-white text-black dark:bg-neutral-900 dark:text-white'
+    'relative overflow-hidden bg-white p-0 hover:scale-100 transition-all duration-180 md:rounded-lg bg-white text-black dark:bg-neutral-950 dark:text-white'
 
   let url = `/video?v=${video.id}`
   if (video.time != '0') {
     url += `&t=${video.time}`
   }
   videoElem.href = url
-
-  // {
-  //   const img = document.createElement("div");
-  //   img.className = "rounded-xl w-full aspect-video bg-gray-300";
-  //   // img.className = "cursor-pointer rounded-3xl object-cover aspect-[16/9]";
-  //   singleVideo.appendChild(img);
-  // }
 
   const imgcontainer = document.createElement('div')
   imgcontainer.className =
@@ -32,22 +27,27 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
 
   const textloading1 = document.createElement('div')
   textloading1.className =
-    'h-7 m-3 rounded-lg animate-pulse z-10 bg-gray-200 dark:bg-neutral-700'
+    'h-12 my-2 rounded-lg bg-gray-200 dark:bg-neutral-800'
   videoElem.appendChild(textloading1)
 
   const authorloading = document.createElement('div')
   authorloading.className =
-    'h-2 m-2 w-1/4 rounded-full animate-pulse bg-gray-200 dark:bg-neutral-700'
+    'h-2 m-2 w-1/4 rounded-full animate-pulse bg-gray-200 dark:bg-neutral-800'
   videoElem.appendChild(authorloading)
 
   {
     const separator = document.createElement('div')
-    separator.className = 'h-1 sm:hidden bg-gray-200 dark:bg-neutral-700'
+    separator.className = 'h-1 bg-gray-200 dark:bg-neutral-900'
+    // sm:hidden
     videoElem.appendChild(separator)
   }
 
   fetch(oembedUrl)
     .then((res) => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`)
+      }
+
       return res.json()
     })
     .then((data) => {
@@ -67,7 +67,10 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
         const img = document.createElement('img')
         img.src = thumbnailUrl
         img.className =
-          'absolute inset-0 w-full h-full object-cover z-0 opacity-20 blur-3xl scale-80 saturate-1000 contrast-100 brightness-100 dark:contrast-20'
+          'absolute inset-0 w-full h-full object-cover opacity-50 blur-3xl scale-80 saturate-1000 contrast-100 brightness-100 dark:contrast-20'
+        // 'absolute inset-0 w-full h-full object-cover opacity-50 blur-3xl scale-100 saturate-200 contrast-100 brightness-100 dark:contrast-50'
+        // 'absolute inset-0 w-full h-full object-cover opacity-100 blur-2xl scale-100 saturate-100 contrast-100 brightness-100 dark:contrast-100'
+
         img.loading = 'lazy'
         videoElem.appendChild(img)
       }
@@ -78,7 +81,6 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
         p.className =
           'relative text-sm text-black line-clamp-2 items-center align-center m-2 z-1 min-h-[3rem] leading-[1.5rem] text-black dark:text-white'
         p.style = "font-family: 'Roboto', sans-serif"
-        // singleVideo.appendChild(p);
         textloading1.replaceWith(p)
       }
 
@@ -89,7 +91,6 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
           'relative bottom-0 text-xs m-2 line-clamp-2 z-1 text-gray-500 dark:text-gray-400'
         p.style = "font-family: 'Roboto', sans-serif"
         p.style.cursor = 'pointer'
-        // singleVideo.appendChild(p);
         authorloading.replaceWith(p)
       }
 

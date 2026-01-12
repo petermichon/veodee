@@ -1,7 +1,4 @@
 {
-  "tasks": {
-    "install": "cd website && npm ci && cd .."
-  },
   "lint": {
     "rules": {
       "include": [],

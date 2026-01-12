@@ -2,18 +2,6 @@
 
 ## Improvements
 
-### HTTPS certificates `server`
-
-Add support for running the server without HTTPS certificates.
-
-### Reverse proxy `server`
-
-Add support for running the server behind a reverse proxy. One reason to do this is to access the server through the normal HTTPS port 443.
-
-### Redirect HTTP
-
-Redirect 'http://' to 'https://'.
-
 ### Logo `general`
 
 Add a better logo.
@@ -29,6 +17,10 @@ Clean up the PWA install card.
 ### Navigation `general`
 
 Add navigation to /feed and /video. On desktop, the navigation should be on the top or on the left side of the page. On mobile, the navigation should be on the bottom of the page.
+
+### Fix thumbnails `feed`
+
+When max-res is not available, fallback to sd, hd, mq and default.
 
 ### Save video time `video`
 
@@ -63,3 +55,7 @@ Add twitch integration for live streams (and videos?).
 ### Alternative players `video`
 
 Add support for alternative players for playing YouTube videos. The user will be able to choose which player to use from a list of players.
+
+### Music page `general`
+
+Add a page to listen to music.

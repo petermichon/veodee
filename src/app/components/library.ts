@@ -1,78 +1,80 @@
-import { newFeedElement } from './feed.ts'
+import { goToPage } from '../pages.ts'
+import { newAddVideoButton } from './addVideoButton.ts'
+import { newImportButton } from './importButton.ts'
 import { newVideoCardElement } from './video-card.ts'
 
 type Video = { id: string; time: string }
 
 function newLibraryElement(): HTMLElement {
-  let libElem = document.createElement('div')
+  const libElem = document.createElement('div')
+  libElem.className = 'flex flex-row w-full'
 
-  const storageVideos = localStorage.getItem('videos') || '[]'
-  const videos: Video[] = JSON.parse(storageVideos)
-  libElem = newFeedElement(videos)
   {
-    const importButton = newImportButton()
-    libElem.appendChild(importButton)
-  }
-  {
-    // const addOneButton = newAddOneButton()
-    // libElem.appendChild(addOneButton)
-  }
-  {
-    // const removeAllButton = newRemoveAllButton()
-    // libElem.appendChild(removeAllButton)
+    const panel = document.createElement('div')
+    panel.className =
+      'w-53.5 flex flex-col gap-10 flex-shrink-0 overflow-y-auto h-screen py-4 p-2 text-white font-bold rounded-lg bg-neutral-950 text-sm scrollbar-dark'
+    // 'grid grid-rows-[auto_1fr_auto] overflow-y-auto'
+    {
+      const importButton = newImportButton()
+      panel.appendChild(importButton)
+    }
+    libElem.appendChild(panel)
+
+    {
+      const videosManager = document.createElement('div')
+      videosManager.className = 'flex flex-col h-screen'
+
+      {
+        const actions = document.createElement('div')
+        actions.className =
+          'flex flex-row text-sm text-white font-bold p-4 bg-neutral-950'
+        {
+          const addVideoButton = newAddVideoButton()
+          actions.appendChild(addVideoButton)
+        }
+        videosManager.appendChild(actions)
+      }
+
+      const localVideos = localStorage.getItem('videos') || '[]'
+      const videos: Video[] = JSON.parse(localVideos)
+
+      {
+        const videoFeed = document.createElement('div')
+        videoFeed.className =
+          // 'sm:p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-0 sm:gap-3 bg-white text-black dark:bg-neutral-900 dark:text-white'
+          // 'grid grid-flow-row auto-cols-max gap-2 overflow-x-auto p-2'
+          'bg-neutral-950 p-2 grid grid-flow-row grid-cols-3 auto-rows-max gap-2 overflow-x-auto overflow-auto max-h-screen w-full scrollbar-dark'
+        videosManager.appendChild(videoFeed)
+
+        {
+          for (const video of videos) {
+            const videoCard = newVideoCardElement(video)
+            videoFeed.appendChild(videoCard)
+
+            videoCard.addEventListener('click', (event: PointerEvent) => {
+              if (event.button === 0) {
+                event.preventDefault()
+              }
+
+              let tParam = ''
+              if (video.time !== '0') {
+                tParam = `&t=${video.time}`
+              }
+
+              const url = `/video?v=${video.id}` + tParam
+
+              history.pushState({}, '', url)
+              goToPage('/video')
+            })
+          }
+        }
+      }
+
+      libElem.appendChild(videosManager)
+    }
   }
 
   return libElem
-}
-
-function newImportButton(): HTMLElement {
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.className =
-    'text-white font-bold px-4 py-1 rounded-3xl bg-neutral-800 hover:bg-neutral-700 cursor-pointer'
-  input.style.fontFamily = "'Roboto', sans-serif"
-  // input.textContent = 'Import'
-
-  input.addEventListener('change', (event: Event) => {
-    const target = event.target as HTMLInputElement
-    const file = target.files?.[0]
-    if (!file) {
-      return
-    }
-
-    const reader = new FileReader()
-
-    reader.onload = (event: ProgressEvent<FileReader>) => {
-      const text = event.target!.result as string
-      // console.log('File contents:', text)
-      // Replace videos
-      localStorage.setItem('videos', text)
-    }
-
-    // Optional: handle errors
-    reader.onerror = (event: ProgressEvent<FileReader>) => {
-      console.error('Error reading file')
-    }
-
-    // Read the file as text (you can also use readAsDataURL, readAsArrayBuffer, etc.)
-    reader.readAsText(file)
-  })
-  return input
-}
-
-function newAddOneButton(): HTMLElement {
-  const button = document.createElement('button')
-  button.className =
-    'text-white font-bold px-4 py-1 rounded-3xl bg-neutral-800 hover:bg-neutral-700 cursor-pointer'
-  button.style.fontFamily = "'Roboto', sans-serif"
-  button.textContent = 'Add video'
-  button.addEventListener('click', () => {
-    const videoId = prompt('Enter video ID')
-    if (videoId) {
-      addVideo({ id: videoId, time: '0' })
-    }
-  })
-  return button
 }
 
 function newRemoveAllButton(): HTMLElement {
@@ -88,15 +90,6 @@ function newRemoveAllButton(): HTMLElement {
     }
   })
   return button
-}
-
-function addVideo(video: { id: string; time: string }) {
-  const storageVideos = localStorage.getItem('videos') || '[]'
-  const videos: Video[] = JSON.parse(storageVideos)
-  videos.push(video)
-  // videos.push({ id: 'hFOkrLuf94M', time: '0' })
-  // videos.push({ id: 'saVzevTylc4', time: '0' })
-  localStorage.setItem('videos', JSON.stringify(videos))
 }
 
 export { newLibraryElement }

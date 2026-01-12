@@ -10,7 +10,6 @@ function newFeedElement(videos: { id: string; time: string }[]) {
     feedElem.appendChild(videoFeed)
 
     {
-      // videos.forEach((video: Video) => {
       for (const video of videos) {
         const videoCard = newVideoCardElement(video)
         videoFeed.appendChild(videoCard)

@@ -5,7 +5,7 @@ function main() {
 
   // console.log(pathname)
 
-  globalThis.addEventListener('popstate', (event) => {
+  globalThis.addEventListener('popstate', (event: PopStateEvent) => {
     goToPage(globalThis.location.pathname)
   })
 
