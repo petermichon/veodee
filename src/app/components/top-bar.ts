@@ -1,7 +1,7 @@
 function newTopBar() {
   const topBarElem = document.createElement('div')
   topBarElem.className =
-    'flex p-3 bg-white text-black dark:bg-neutral-900 dark:text-white'
+    'flex p-3 bg-white text-black dark:bg-neutral-950 dark:text-white'
 
   {
     const logo = document.createElement('a')
@@ -23,7 +23,7 @@ function newTopBar() {
 
       topBarElem.dispatchEvent(customEvent)
     })
-    topBarElem.appendChild(logo)
+    // topBarElem.appendChild(logo)
 
     {
       const img = document.createElement('img')

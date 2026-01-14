@@ -1,3 +1,9 @@
+type VideoData = {
+  title: string
+  author_name: string
+  author_url: string
+}
+
 function newVideoHeader(id: string): HTMLElement {
   const video = { id: id, time: '0' }
 
@@ -12,7 +18,10 @@ function newVideoHeader(id: string): HTMLElement {
       "font-family: 'Roboto', sans-serif font-variant-numeric: tabular-nums;"
     videoHeader.appendChild(pTitle)
 
-    const pAuthor = document.createElement('p')
+    const pAuthor = document.createElement('a')
+    pAuthor.href = ''
+    pAuthor.target = '_blank'
+    pAuthor.rel = 'noopener noreferrer'
     pAuthor.textContent = ''
     pAuthor.className =
       'text-sm font-bold line-clamp-2 pt-2 pl-6 text-black dark:text-white'
@@ -24,20 +33,23 @@ function newVideoHeader(id: string): HTMLElement {
     {
       const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${video.id}&format=json`
 
-      fetch(oembedUrl)
-        .then((res) => {
-          return res.json()
-        })
-        .then((data) => {
-          pTitle.textContent = data.title
-          pAuthor.textContent = data.author_name
+      // if (res.status === 200) {
+      fetch(oembedUrl).then((response) => {
+        if (!response.ok) {
+          return
+        }
+        response.json().then((video: VideoData) => {
+          pTitle.textContent = video.title
+          pAuthor.textContent = video.author_name + ' ↗'
+          pAuthor.href = video.author_url
 
           // send loaded signal
           const event = new CustomEvent('video-loaded', {
-            detail: { video: { title: data.title } },
+            detail: { video: { title: video.title } },
           })
           videoHeader.dispatchEvent(event)
         })
+      })
     }
   }
 

@@ -1,6 +1,6 @@
 function newFooter(): HTMLElement {
   const footer = document.createElement('div')
-  footer.className = 'h-20 bg-white dark:bg-neutral-900'
+  footer.className = 'h-full bg-white dark:bg-neutral-950'
   return footer
 }
 
