@@ -4,7 +4,7 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
   const hq = 'hqdefault'
   const mq = 'mqdefault'
   // const thumbnailUrl = `https://img.youtube.com/vi/${video.id}/${maxres}.jpg`
-  const thumbnailUrl = `https://i.ytimg.com/vi_webp/${video.id}/${maxres}.webp`
+  const thumbnailUrl = `https://i.ytimg.com/vi_webp/${video.id}/${hq}.webp`
 
   const videoElem = document.createElement('a')
   videoElem.className =
@@ -38,17 +38,26 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
     videoElem.appendChild(separator)
   }
 
-  const a = fetchData(video)
-  a.then((data) => {
+  const data = fetchData(video)
+  data.then((data) => {
     {
       const img = document.createElement('img')
-      img.src = thumbnailUrl
-      img.className =
-        'sm:rounded-md relative w-full h-full aspect-video object-cover opacity-0 transition-opacity duration-500 z-1'
-      img.loading = 'lazy'
+      img.src = `https://i.ytimg.com/vi_webp/${video.id}/${maxres}.webp`
       img.onload = () => {
+        const notFound = img.naturalWidth === 120
+        if (notFound) {
+          img.src = `https://i.ytimg.com/vi_webp/${video.id}/${hq}.webp`
+          img.onload = () => {
+            // ...
+            img.classList.add('opacity-100')
+          }
+          return
+        }
         img.classList.add('opacity-100')
       }
+      img.className =
+        'sm:rounded-md relative w-full h-full aspect-video object-cover opacity-0 transition-opacity duration-0'
+      img.loading = 'lazy'
       imgcontainer.appendChild(img)
     }
 
@@ -61,7 +70,7 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
       // 'absolute inset-0 w-full h-full object-cover opacity-100 blur-2xl scale-100 saturate-100 contrast-100 brightness-100 dark:contrast-100'
 
       img.loading = 'lazy'
-      videoElem.appendChild(img)
+      // videoElem.appendChild(img)
     }
 
     {

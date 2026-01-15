@@ -1,4 +1,3 @@
-import { goToPage } from '../pages.ts'
 import { newAddVideoButton } from './addVideoButton.ts'
 import { newVideoCardElement } from './video-card.ts'
 
@@ -6,7 +5,8 @@ type Video = { id: string; time: string }
 
 export function newPlaylistEditor(): HTMLElement {
   const videosManager = document.createElement('div')
-  videosManager.className = 'flex flex-col w-full' // max-h-screen
+  videosManager.className =
+    'flex flex-col w-full overflow-y-scroll scrollbar-dark' // max-h-screen
 
   {
     const actions = document.createElement('div')
@@ -20,14 +20,17 @@ export function newPlaylistEditor(): HTMLElement {
   }
 
   const localVideos = localStorage.getItem('videos') || '[]'
-  const videos: Video[] = JSON.parse(localVideos)
+  let videos: Video[] = []
+  try {
+    videos = JSON.parse(localVideos)
+  } catch (e) {
+    // ...
+  }
 
   {
     const videoFeed = document.createElement('div')
     videoFeed.className =
-      // 'sm:p-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 p-0 sm:gap-3 bg-white text-black dark:bg-neutral-900 dark:text-white'
-      // 'grid grid-flow-row auto-cols-max gap-2 overflow-x-auto p-2'
-      'p-2 grid grid-flow-row grid-cols-3 auto-rows-max gap-2 overflow-x-auto overflow-auto max-h-screen w-full scrollbar-dark bg-neutral-950'
+      'p-2 grid grid-flow-row grid-cols-4 gap-2 w-full bg-neutral-950' // max-h-screen auto-rows-max
     videosManager.appendChild(videoFeed)
 
     {
@@ -44,6 +47,12 @@ export function newPlaylistEditor(): HTMLElement {
 
         videoFeed.appendChild(videoCard)
       }
+    }
+
+    {
+      const footer = document.createElement('div')
+      footer.className = 'h-full bg-neutral-950'
+      videosManager.appendChild(footer)
     }
   }
 
