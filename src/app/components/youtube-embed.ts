@@ -1,6 +1,7 @@
 function newYoutubeEmbed(video: { id: string; time: string }): HTMLElement {
   const embedContainer = document.createElement('div')
-  embedContainer.className = 'relative w-full aspect-video lg:aspect-[2.15/1]'
+  embedContainer.className =
+    'relative w-full aspect-video lg:aspect-[2.15/1] bg-black'
 
   {
     // const url = `https://www.youtube.com/embed/${video.id}?start=${video.time}`

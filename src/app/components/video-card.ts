@@ -35,7 +35,7 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
     const separator = document.createElement('div')
     separator.className = 'h-1 bg-gray-200 dark:bg-neutral-900'
     // sm:hidden
-    videoElem.appendChild(separator)
+    // videoElem.appendChild(separator)
   }
 
   const data = fetchData(video)
@@ -46,9 +46,13 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
       img.onload = () => {
         const notFound = img.naturalWidth === 120
         if (notFound) {
-          img.src = `https://i.ytimg.com/vi_webp/${video.id}/${hq}.webp`
+          img.src = `https://i.ytimg.com/vi_webp/${video.id}/${sd}.webp`
           img.onload = () => {
-            // ...
+            // ---
+            // Other fallbacks
+            // ---
+
+            // Replace with remove hidden ?
             img.classList.add('opacity-100')
           }
           return

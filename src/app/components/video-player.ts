@@ -1,4 +1,3 @@
-import { goToPage } from '../pages.ts'
 import { newFooter } from './footer.ts'
 import { newFullscreenButton } from './fullscreenButton.ts'
 import { newShareButton } from './share-button.ts'
@@ -13,7 +12,7 @@ export function newVideoPlayer(video: Video): HTMLElement {
   }
 
   let url = `/video?v=${video.id}`
-  if (video.time != '0') {
+  if (video.time !== '0') {
     url += `&t=${video.time}`
   }
 
@@ -24,8 +23,7 @@ export function newVideoPlayer(video: Video): HTMLElement {
     const topBar = document.createElement('div')
     topBar.className = 'h-full bg-neutral-950' // h-41
     const videoElement = document.createElement('div')
-    videoElement.className =
-      'w-full aspect-video lg:aspect-[2.15/1] bg-neutral-800 rounded-md'
+    videoElement.className = 'w-full aspect-video lg:aspect-[2.15/1] bg-black'
     const videoHeader = newVideoHeader(video.id)
     const shareButton = newShareButton(global.url)
     const fullscreenButton = newFullscreenButton()
@@ -34,7 +32,7 @@ export function newVideoPlayer(video: Video): HTMLElement {
     topBar.addEventListener('logo-click', (event: Event) => {
       history.pushState({}, '', `/`)
       // document.title = 'Narval'
-      goToPage('/')
+      // goToPage('/')
     })
 
     videoHeader.addEventListener('video-loaded', (event: Event) => {

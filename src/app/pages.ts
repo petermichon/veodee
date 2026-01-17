@@ -49,4 +49,4 @@ function goToPage(pathname: string) {
   handler()
 }
 
-export { goToPage }
+// export { goToPage }

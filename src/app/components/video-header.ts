@@ -24,7 +24,7 @@ function newVideoHeader(id: string): HTMLElement {
     pAuthor.rel = 'noopener noreferrer'
     pAuthor.textContent = ''
     pAuthor.className =
-      'text-sm font-bold line-clamp-2 pt-2 pl-6 text-black dark:text-white'
+      'text-sm font-bold line-clamp-2 pt-2 pl-6 text-black dark:text-white hover:underline'
     pAuthor.style =
       "font-family: 'Roboto', sans-serif font-variant-numeric: tabular-nums;"
     // pAuthor.style.cursor = 'pointer'
@@ -32,15 +32,17 @@ function newVideoHeader(id: string): HTMLElement {
 
     {
       const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${video.id}&format=json`
+      if (video.id === '') {
+        return videoHeader
+      }
 
-      // if (res.status === 200) {
       fetch(oembedUrl).then((response) => {
         if (!response.ok) {
           return
         }
         response.json().then((video: VideoData) => {
           pTitle.textContent = video.title
-          pAuthor.textContent = video.author_name + ' ↗'
+          pAuthor.textContent = video.author_name // + ' ↗'
           pAuthor.href = video.author_url
 
           // send loaded signal
