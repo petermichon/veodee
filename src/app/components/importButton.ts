@@ -1,4 +1,4 @@
-export function newImportButton(): HTMLElement {
+export function newImportButton(): HTMLButtonElement {
   const button = document.createElement('button')
   button.textContent = '➤ Import'
   button.className =

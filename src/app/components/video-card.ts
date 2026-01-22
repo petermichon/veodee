@@ -4,11 +4,12 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
   const hq = 'hqdefault'
   const mq = 'mqdefault'
   // const thumbnailUrl = `https://img.youtube.com/vi/${video.id}/${maxres}.jpg`
-  const thumbnailUrl = `https://i.ytimg.com/vi_webp/${video.id}/${hq}.webp`
+  // const thumbnailUrl = `https://i.ytimg.com/vi_webp/${video.id}/${hq}.webp`
 
   const videoElem = document.createElement('a')
   videoElem.className =
-    'relative overflow-hidden p-0 hover:scale-100 transition-all duration-180 md:rounded-lg bg-white text-black dark:bg-neutral-950 dark:text-white'
+    'flex flex-col sm:w-52.5 overflow-hidden md:rounded-lg bg-neutral-950' //  aspect-square
+  // videoElem.style.display = 'flex'
 
   let url = `/video?v=${video.id}`
   if (video.time != '0') {
@@ -16,34 +17,53 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
   }
   videoElem.href = url
 
-  const imgcontainer = document.createElement('div')
-  imgcontainer.className =
-    'rounded-md aspect-video relative bg-gray-50 dark:bg-neutral-800'
-  videoElem.appendChild(imgcontainer)
-
-  const textloading1 = document.createElement('div')
-  textloading1.className =
-    'h-12 my-2 rounded-lg bg-gray-200 dark:bg-neutral-800'
-  videoElem.appendChild(textloading1)
-
-  const authorloading = document.createElement('div')
-  authorloading.className =
-    'h-2 m-2 w-1/4 rounded-full animate-pulse bg-gray-200 dark:bg-neutral-800'
-  videoElem.appendChild(authorloading)
-
   {
-    const separator = document.createElement('div')
-    separator.className = 'h-1 bg-gray-200 dark:bg-neutral-900'
-    // sm:hidden
-    // videoElem.appendChild(separator)
-  }
+    const imgcontainer = document.createElement('div')
+    imgcontainer.className = 'rounded-md bg-gray-50 dark:bg-neutral-800'
+    videoElem.appendChild(imgcontainer)
 
-  const data = fetchData(video)
-  data.then((data) => {
+    const videoCardHeader = document.createElement('div')
+    videoCardHeader.className = 'flex flex-col gap-2  h-20 py-2 mr-2' // p-2
+    videoElem.appendChild(videoCardHeader)
+    {
+      const textloading1 = document.createElement('div')
+      textloading1.className = 'h-14 rounded-lg bg-gray-200 dark:bg-neutral-950' // dark:bg-neutral-800
+      videoCardHeader.appendChild(textloading1)
+
+      const authorloading = document.createElement('div')
+      authorloading.className =
+        'h-0 w-20 rounded-full bg-gray-200 dark:bg-neutral-800' // animate-pulse
+      videoCardHeader.appendChild(authorloading)
+
+      const data = fetchData(video)
+      data.then((data) => {
+        {
+          const p = document.createElement('p')
+          p.textContent = data.title
+          p.className =
+            'text-sm line-clamp-2 items-center align-center text-white' // leading-tight min-h-[3rem] leading-[1.5rem]
+          p.style = "font-family: 'Roboto', sans-serif"
+          textloading1.replaceWith(p)
+        }
+
+        {
+          const p = document.createElement('p')
+          p.textContent = data.author_name
+          p.className = 'text-xs line-clamp-1 text-gray-500 dark:text-gray-400'
+          p.style = "font-family: 'Roboto', sans-serif"
+          p.style.cursor = 'pointer'
+          authorloading.replaceWith(p)
+        }
+
+        // videoElem.style.cursor = 'pointer'
+      })
+    }
+
     {
       const img = document.createElement('img')
       img.src = `https://i.ytimg.com/vi_webp/${video.id}/${maxres}.webp`
       img.onload = () => {
+        // Ugly detection of not found picture
         const notFound = img.naturalWidth === 120
         if (notFound) {
           img.src = `https://i.ytimg.com/vi_webp/${video.id}/${sd}.webp`
@@ -51,23 +71,24 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
             // ---
             // Other fallbacks
             // ---
-
             // Replace with remove hidden ?
-            img.classList.add('opacity-100')
+            img.classList.remove('opacity-0')
+            // img.classList.add('opacity-100')
           }
           return
         }
-        img.classList.add('opacity-100')
+        img.classList.remove('opacity-0')
+        // img.classList.add('opacity-100')
       }
       img.className =
-        'sm:rounded-md relative w-full h-full aspect-video object-cover opacity-0 transition-opacity duration-0'
+        'sm:rounded-md relative w-full h-full aspect-video object-cover opacity-0 transition-opacity duration-180'
       img.loading = 'lazy'
       imgcontainer.appendChild(img)
     }
 
     {
       const img = document.createElement('img')
-      img.src = thumbnailUrl
+      // img.src = thumbnailUrl
       img.className =
         'absolute inset-0 w-full h-full object-cover opacity-50 blur-3xl scale-80 saturate-1000 contrast-100 brightness-100 dark:contrast-20'
       // 'absolute inset-0 w-full h-full object-cover opacity-50 blur-3xl scale-100 saturate-200 contrast-100 brightness-100 dark:contrast-50'
@@ -78,26 +99,12 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
     }
 
     {
-      const p = document.createElement('p')
-      p.textContent = data.title
-      p.className =
-        'relative text-sm text-black line-clamp-2 items-center align-center m-2 z-1 min-h-[3rem] leading-[1.5rem] text-black dark:text-white'
-      p.style = "font-family: 'Roboto', sans-serif"
-      textloading1.replaceWith(p)
+      const separator = document.createElement('div')
+      separator.className = 'h-1 bg-gray-200 dark:bg-neutral-900 sm:hidden'
+      // sm:hidden
+      // videoElem.appendChild(separator)
     }
-
-    {
-      const p = document.createElement('p')
-      p.textContent = data.author_name
-      p.className =
-        'relative bottom-0 text-xs m-2 line-clamp-2 z-1 text-gray-500 dark:text-gray-400'
-      p.style = "font-family: 'Roboto', sans-serif"
-      p.style.cursor = 'pointer'
-      authorloading.replaceWith(p)
-    }
-
-    videoElem.style.cursor = 'pointer'
-  })
+  }
 
   return videoElem
 }

@@ -1,4 +1,5 @@
-function newShareButton(textToCopy: string): HTMLElement {
+// function newShareButton(textToCopy: string): HTMLElement {
+function newShareButton(): HTMLButtonElement {
   const copyButton = document.createElement('button')
 
   copyButton.className =
@@ -9,8 +10,10 @@ function newShareButton(textToCopy: string): HTMLElement {
 
   // Add click event listener
   copyButton.addEventListener('click', () => {
+    const url = globalThis.document.location.href
     navigator.clipboard
-      .writeText(textToCopy)
+      // .writeText(textToCopy)
+      .writeText(url)
       .then(() => {})
       .catch((err) => {
         console.error('Clipboard copy failed:', err)

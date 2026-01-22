@@ -1,32 +1,18 @@
-import { newAddVideoButton } from './addVideoButton.ts'
-
-type Video = { id: string; time: string }
-
-export function newPlaylistEditor(videoFeed: HTMLElement): HTMLElement {
+export function newPlaylistEditor(
+  actions: HTMLDivElement,
+  videoFeed: HTMLElement
+): HTMLDivElement {
   const videosManager = document.createElement('div')
   videosManager.className =
     'flex flex-col w-full overflow-y-scroll scrollbar-dark' // max-h-screen
 
-  {
-    const actions = document.createElement('div')
-    actions.className =
-      'flex flex-row text-sm text-white font-bold p-4 bg-neutral-950'
-    {
-      const addVideoButton = newAddVideoButton()
-      actions.appendChild(addVideoButton)
-    }
-    videosManager.appendChild(actions)
-  }
+  videosManager.appendChild(actions)
 
-  {
-    videosManager.appendChild(videoFeed)
-  }
+  videosManager.appendChild(videoFeed)
 
-  {
-    const footer = document.createElement('div')
-    footer.className = 'h-full bg-neutral-950'
-    videosManager.appendChild(footer)
-  }
+  const footer = document.createElement('div')
+  footer.className = 'h-full bg-neutral-950'
+  videosManager.appendChild(footer)
 
   return videosManager
 }

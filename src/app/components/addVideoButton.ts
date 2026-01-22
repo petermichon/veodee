@@ -1,6 +1,6 @@
 type Video = { id: string; time: string }
 
-export function newAddVideoButton(): HTMLElement {
+export function newAddVideoButton(): HTMLButtonElement {
   const button = document.createElement('button')
   button.className =
     'text-white font-bold px-4 py-1 rounded-3xl bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-600 cursor-pointer'
