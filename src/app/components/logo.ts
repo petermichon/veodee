@@ -1,15 +1,9 @@
 export function newLogo(): HTMLElement {
   const logo = document.createElement('a')
   logo.className =
-    'flex cursor-pointer w-full h-full items-center justify-center'
+    'flex w-full h-full items-center justify-center cursor-pointer'
 
   logo.href = '/'
-
-  logo.addEventListener('click', (e) => {
-    if (e.button === 0) {
-      e.preventDefault()
-    }
-  })
 
   {
     const img = document.createElement('img')

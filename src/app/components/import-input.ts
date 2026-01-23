@@ -1,21 +1,4 @@
-export function newImportButton(): HTMLButtonElement {
-  const button = document.createElement('button')
-  button.textContent = '➤ Import'
-  button.className =
-    'text-white text-sm font-medium px-4 py-2 rounded-lg bg-neutral-950 hover:bg-neutral-800 active:bg-neutral-700 cursor-pointer'
-
-  {
-    const input = newInput()
-    button.addEventListener('click', () => {
-      input.click()
-    })
-    button.appendChild(input)
-  }
-
-  return button
-}
-
-function newInput(): HTMLInputElement {
+export function newInput(): HTMLInputElement {
   const input = document.createElement('input')
   input.type = 'file'
   // input.multiple = true

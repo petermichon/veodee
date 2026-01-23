@@ -1,4 +1,4 @@
-export function newMenuPlayer(): HTMLButtonElement {
+function newMenuPlayer(): HTMLButtonElement {
   const player = document.createElement('button')
   player.className =
     'text-left px-3 flex flex-row ml-3 mr-6 h-10 items-center rounded-lg cursor-pointer' // bg-neutral-950 hover:bg-neutral-800 active:bg-neutral-700

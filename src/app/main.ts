@@ -1,23 +1,21 @@
+import { DOMEditor } from './dom-editor.ts'
+
 import { newPageLayout } from './components/page-layout.ts'
 import { newPlaylistEditor } from './components/playlist-editor.ts'
 import { newVideoPlayer } from './components/video-player.ts'
-import { newMenuCollections } from './components/menu-collections.ts'
-import { newMenuPlayer } from './components/menu-player.ts'
 import { newVideoCardElement } from './components/video-card.ts'
-import { newAddVideoButton } from './components/addVideoButton.ts'
-import { newImportButton } from './components/importButton.ts'
+import { newInput } from './components/import-input.ts'
 import { newLogo } from './components/logo.ts'
-
-import { DOMEditor } from './dom-editor.ts'
-import { newShareButton } from './components/share-button.ts'
 import { newFooter } from './components/footer.ts'
 import { newYoutubeEmbed } from './components/youtube-embed.ts'
+import { newVideoHeader } from './components/video-header.ts'
+import { newDefaultButton } from './components/default-button.ts'
+import { addVideo } from './add-video.ts'
+import { newMenuButton } from './menu-button.ts'
 
 type Video = { id: string; time: string }
 
 function main() {
-  globalThis.document.title = 'Narval - Library'
-
   const app = globalThis.document.getElementById('app')!
   const domEditor = new DOMEditor(app)
 
@@ -40,6 +38,11 @@ function main() {
     }
     {
       const logo = newLogo()
+      logo.addEventListener('click', (e) => {
+        e.preventDefault()
+        globalThis.history.pushState({}, '', '/')
+        updatePageContent()
+      })
       top.appendChild(logo)
     }
     navBar.appendChild(top)
@@ -48,20 +51,49 @@ function main() {
   let playerButton: HTMLButtonElement
   {
     const menuNav = document.createElement('div')
-    menuNav.className = 'flex flex-col'
+    menuNav.className = 'flex flex-col py-3'
 
     {
-      collectionsButton = newMenuCollections()
+      const icon = document.createElement('div')
+      icon.className = 'w-16.5 text-2xl'
+      icon.textContent = '➤'
+
+      const text = document.createElement('div')
+      text.className = 'w-full text-[13px] font-medium' // font-[700]
+      text.textContent = 'Collections'
+
+      collectionsButton = newMenuButton(icon, text)
+
       const collectionMenuAction = (event: PointerEvent) => {
         globalThis.history.pushState({}, '', '/')
         updatePageContent()
       }
       collectionsButton.addEventListener('click', collectionMenuAction)
+
       menuNav.appendChild(collectionsButton)
     }
 
+    // {
+    //   collectionsButton = newMenuCollections()
+    //   const collectionMenuAction = (event: PointerEvent) => {
+    //     globalThis.history.pushState({}, '', '/')
+    //     updatePageContent()
+    //   }
+    //   collectionsButton.addEventListener('click', collectionMenuAction)
+    //   menuNav.appendChild(collectionsButton)
+    // }
+
     {
-      playerButton = newMenuPlayer()
+      const icon = document.createElement('div')
+      icon.className = 'w-16.5 text-2xl'
+      icon.textContent = '➤'
+
+      const text = document.createElement('div')
+      text.className = 'w-full text-[13px] font-medium' // font-[700]
+      text.textContent = 'Player'
+
+      playerButton = newMenuButton(icon, text)
+
       const playerMenuAction = (event: PointerEvent) => {
         globalThis.history.pushState({}, '', '/video?v=')
         updatePageContent()
@@ -93,6 +125,8 @@ function main() {
     const search = globalThis.document.location.search
 
     if (pathname === '/') {
+      globalThis.document.title = 'Narval'
+
       // ---
       const localVideos = localStorage.getItem('videos') || '[]'
       let videos: Video[] = []
@@ -144,12 +178,30 @@ function main() {
       actions.className =
         'flex flex-row text-sm text-white font-bold p-4 bg-neutral-950'
       {
-        const addButton = newAddVideoButton()
-        actions.appendChild(addButton)
+        // const addButton = newAddVideoButton()
+        const button = newDefaultButton()
+        button.textContent = 'Add video'
+
+        button.addEventListener('click', () => {
+          const videoId = prompt('Enter YouTube video ID')
+          if (videoId) {
+            addVideo({ id: videoId, time: '0' })
+          }
+        })
+        actions.appendChild(button)
       }
       {
-        const importButton = newImportButton()
-        actions.appendChild(importButton)
+        // const importButton = newImportButton()
+        const button = newDefaultButton()
+        button.textContent = 'Import'
+        {
+          const input = newInput()
+          button.addEventListener('click', () => {
+            input.click()
+          })
+          button.appendChild(input)
+        }
+        actions.appendChild(button)
       }
       {
         const playlistEditor = newPlaylistEditor(actions, videoFeedContainer)
@@ -202,13 +254,56 @@ function main() {
       const time = urlSearchParams.get('t') || '0'
       const video = { id: id, time: time }
       // pageContent = newVideoPlayer(video)
+
+      const videoElement = document.createElement('div')
+      videoElement.className = 'w-full aspect-video lg:aspect-[2.15/1] bg-black'
       if (video.id !== '') {
-        const embed = newYoutubeEmbed(video) // <-------------
-        // videoElement.replaceWith(embed)
+        const embed = newYoutubeEmbed(video)
+        // Use replaceWith instead
+        videoElement.replaceChildren(embed)
       }
-      const shareButton = newShareButton()
+
+      const videoHeader = newVideoHeader(video.id)
+      // const shareButton = newShareButton()
+      const shareButton = newDefaultButton()
+      {
+        shareButton.textContent = 'Share'
+        shareButton.addEventListener('click', () => {
+          const url = globalThis.document.location.href
+          navigator.clipboard
+            .writeText(url)
+            // .then(() => {})
+            .catch((err) => {
+              console.error('Clipboard copy failed:', err)
+            })
+        })
+      }
+      // const fullscreenButton = newFullscreenButton()
+      const fullscreenButton = newDefaultButton()
+      {
+        fullscreenButton.textContent = 'Fullscreen'
+        fullscreenButton.addEventListener('click', (event: Event) => {
+          if (document.fullscreenElement) {
+            document.exitFullscreen()
+          } else {
+            document.documentElement.requestFullscreen({
+              navigationUI: 'hide',
+            })
+            // videoElement.requestFullscreen()
+            // document.documentElement.requestFullscreen()
+          }
+        })
+      }
       const footer = newFooter()
-      const videoPlayer = newVideoPlayer(video, shareButton, footer)
+
+      const videoPlayer = newVideoPlayer(
+        video,
+        shareButton,
+        footer,
+        videoHeader,
+        fullscreenButton,
+        videoElement
+      )
       pageContent.replaceWith(videoPlayer)
       pageContent = videoPlayer // Update reference
 

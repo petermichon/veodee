@@ -1,4 +1,4 @@
-export function newMenuCollections(): HTMLButtonElement {
+function newMenuCollections(): HTMLButtonElement {
   const collectionsButton = document.createElement('button')
   collectionsButton.className =
     'text-left px-3 flex flex-row mt-3 ml-3 mr-6 h-10 items-center rounded-lg cursor-pointer' // bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-600

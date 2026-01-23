@@ -41,6 +41,7 @@ function newVideoHeader(id: string): HTMLElement {
   {
     const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${video.id}&format=json`
     if (video.id === '') {
+      globalThis.document.title = 'Narval - Player'
       return videoHeader
     }
 
@@ -52,12 +53,13 @@ function newVideoHeader(id: string): HTMLElement {
         pTitle.textContent = video.title
         pAuthor.textContent = video.author_name // + ' ↗'
         pAuthor.href = video.author_url
+        globalThis.document.title = video.title
 
         // send loaded signal
-        const event = new CustomEvent('video-loaded', {
-          detail: { video: { title: video.title } },
-        })
-        videoHeader.dispatchEvent(event)
+        // const event = new CustomEvent('video-loaded', {
+        //   detail: { video: { title: video.title } },
+        // })
+        // videoHeader.dispatchEvent(event)
       })
     })
   }
