@@ -11,7 +11,7 @@ import { newYoutubeEmbed } from './components/youtube-embed.ts'
 import { newVideoHeader } from './components/video-header.ts'
 import { newDefaultButton } from './components/default-button.ts'
 import { addVideo } from './add-video.ts'
-import { newMenuButton } from './menu-button.ts'
+import { newMenuButton } from './components/menu-button.ts'
 
 type Video = { id: string; time: string }
 
@@ -23,8 +23,16 @@ function main() {
   // let pageContent = newPlaylistEditor()
 
   const navBar = document.createElement('div')
+  // navBar.className = 'overflow-hidden hover:overflow-y-auto bg-neutral-950'
+  // navBar.style = 'scrollbar-gutter: stable;'
+
+  // navBar.className =
+  //   'overflow-y-auto bg-neutral-950 scrollbar-neutral-950 hover-scrollbar-neutral-400'
+
   navBar.className =
-    'w-60 flex flex-col flex-shrink-0 overflow-y-auto text-white font-bold text-sm bg-neutral-950 scrollbar-dark scrollbar-invisible hover-scrollbar-visible'
+    'w-60 flex flex-col flex-shrink-0 font-bold text-sm overflow-y-auto bg-neutral-950 scrollbar-neutral-950 hover-scrollbar-neutral-400 '
+  // w-60 flex flex-col flex-shrink-0 font-bold text-sm overflow-y-auto
+  // scrollbar-transparent
   // 'grid grid-rows-[auto_1fr_auto] overflow-y-auto'
   {
     const top = document.createElement('div')
@@ -54,9 +62,28 @@ function main() {
     menuNav.className = 'flex flex-col py-3'
 
     {
+      // const icon = document.createElement('div')
+      // icon.className = 'w-16.5 text-2xl'
+      // icon.textContent = '➤'
       const icon = document.createElement('div')
-      icon.className = 'w-16.5 text-2xl'
-      icon.textContent = '➤'
+      icon.style =
+        'width: 100%; height: 100%; display: block; fill: currentcolor;' // 'h-fit w-8 mr-1'
+      {
+        const svg = `
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            height="24"
+            viewBox="0 0 24 24"
+            width="24"
+            style="pointer-events: none; display: inherit; width: 100%; height: 100%;"
+          >
+            <path
+              d="M17.895 3.553A1.001 1.001 0 0 0 17 3H7c-.379 0-.725.214-.895.553l-4 8a1 1 0 0 0 0 .895l4 8c.17.338.516.552.895.552h10c.379 0 .725-.214.895-.553l4-8a1 1 0 0 0 0-.895l-4-7.999zM19.382 11h-7.764l-3-6h7.764l3 6zm-3 8H8.618l3-6h7.764l-3 6z"
+            ></path>
+          </svg>
+        `
+        icon.innerHTML = svg
+      }
 
       const text = document.createElement('div')
       text.className = 'w-full text-[13px] font-medium' // font-[700]
@@ -85,7 +112,7 @@ function main() {
 
     {
       const icon = document.createElement('div')
-      icon.className = 'w-16.5 text-2xl'
+      icon.className = 'w-6.5 text-2xl' // w-16.5
       icon.textContent = '➤'
 
       const text = document.createElement('div')
@@ -103,8 +130,14 @@ function main() {
       menuNav.appendChild(playerButton)
     }
 
-    // {
-    //   const dummy = newMenuPlayer()
+    // for (let i = 0; i < 24; i++) {
+    //   const icon = document.createElement('div')
+    //   icon.className = 'w-16.5 text-2xl'
+    //   icon.textContent = '➤'
+    //   const text = document.createElement('div')
+    //   text.className = 'w-full text-[13px] font-medium'
+    //   text.textContent = 'Player'
+    //   const dummy = newMenuButton(icon, text)
     //   menuNav.appendChild(dummy)
     // }
 
@@ -176,32 +209,30 @@ function main() {
       }
       const actions = document.createElement('div')
       actions.className =
-        'flex flex-row text-sm text-white font-bold p-4 bg-neutral-950'
+        'flex flex-row gap-2 text-sm font-bold pt-4 py-2 px-2 bg-neutral-950' // overflow-x-scroll scrollbar-none
       {
-        // const addButton = newAddVideoButton()
-        const button = newDefaultButton()
-        button.textContent = 'Add video'
+        const addButton = newDefaultButton()
+        addButton.textContent = 'Add video'
 
-        button.addEventListener('click', () => {
+        addButton.addEventListener('click', () => {
           const videoId = prompt('Enter YouTube video ID')
           if (videoId) {
             addVideo({ id: videoId, time: '0' })
           }
         })
-        actions.appendChild(button)
+        actions.appendChild(addButton)
       }
       {
-        // const importButton = newImportButton()
-        const button = newDefaultButton()
-        button.textContent = 'Import'
+        const importButton = newDefaultButton()
+        importButton.textContent = 'Import'
         {
           const input = newInput()
-          button.addEventListener('click', () => {
+          importButton.addEventListener('click', () => {
             input.click()
           })
-          button.appendChild(input)
+          importButton.appendChild(input)
         }
-        actions.appendChild(button)
+        actions.appendChild(importButton)
       }
       {
         const playlistEditor = newPlaylistEditor(actions, videoFeedContainer)

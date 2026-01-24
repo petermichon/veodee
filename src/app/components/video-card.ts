@@ -41,7 +41,7 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
           const p = document.createElement('p')
           p.textContent = data.title
           p.className =
-            'text-sm line-clamp-2 items-center align-center text-white' // leading-tight min-h-[3rem] leading-[1.5rem]
+            'text-sm line-clamp-2 items-center align-center' // leading-tight min-h-[3rem] leading-[1.5rem]
           p.style = "font-family: 'Roboto', sans-serif"
           textloading1.replaceWith(p)
         }

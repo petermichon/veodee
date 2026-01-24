@@ -1,22 +1,21 @@
 @import 'tailwindcss';
 
-.scrollbar-dark {
+.scrollbar-neutral-400 {
   /* scrollbar-color: #ababab #171717; */
   scrollbar-color: #a3a3a3 #0a0a0a; /* neutral-400 neutral-950 */
 }
 
-.scrollbar-invisible {
+.scrollbar-neutral-950 {
+  /* scrollbar-color: #ababab #171717; */
+  scrollbar-color: #0a0a0a #0a0a0a; /* neutral-400 neutral-950 */
+}
+
+.hover-scrollbar-neutral-400:hover {
+  scrollbar-color: #a3a3a3 #0a0a0a; /* neutral-950 neutral-950 */
+}
+
+.scrollbar-none {
+  /* scrollbar-gutter: stable; */
   scrollbar-width: none;
   /* -ms-overflow-style: none; */ /* IE/Edge ? */
-}
-
-.hover-scrollbar-visible:hover {
-  scrollbar-width: auto;
-  /* -ms-overflow-style: auto; */ /* IE/Edge ? */
-}
-
-@media (pointer: coarse) {
-  .hover-scrollbar-visible {
-    scrollbar-width: thin;
-  }
 }

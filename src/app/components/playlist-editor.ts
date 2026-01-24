@@ -4,7 +4,7 @@ export function newPlaylistEditor(
 ): HTMLDivElement {
   const videosManager = document.createElement('div')
   videosManager.className =
-    'flex flex-col w-full overflow-y-scroll scrollbar-dark' // max-h-screen
+    'flex flex-col w-full overflow-y-scroll scrollbar-neutral-400' // max-h-screen
 
   videosManager.appendChild(actions)
 
@@ -20,7 +20,7 @@ export function newPlaylistEditor(
 function newRemoveAllButton(): HTMLElement {
   const button = document.createElement('button')
   button.className =
-    'text-white font-bold px-4 py-1 rounded-3xl bg-neutral-800 hover:bg-neutral-700 cursor-pointer'
+    'font-bold px-4 py-1 rounded-3xl bg-neutral-800 hover:bg-neutral-700 cursor-pointer'
   button.style.fontFamily = "'Roboto', sans-serif"
   button.textContent = 'Clear videos'
   button.addEventListener('click', () => {

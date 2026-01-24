@@ -3,7 +3,7 @@ export function newPageLayout(
   panel: HTMLElement
 ): HTMLElement {
   const playlistElem = document.createElement('div')
-  playlistElem.className = 'flex flex-row h-screen'
+  playlistElem.className = 'flex flex-row h-screen text-neutral-100'
 
   playlistElem.appendChild(panel)
 

@@ -10,10 +10,9 @@ function newVideoHeader(id: string): HTMLElement {
   const pTitle = document.createElement('p')
   {
     pTitle.textContent = ''
-    pTitle.className =
-      'font-bold text-black line-clamp-2 dark:text-white text-[19px]'
+    pTitle.className = 'font-bold line-clamp-2 text-[19px]'
     // line-clamp-2
-    // pt-3 pl-6
+    // pt-3 pl-6Z
     // tracking-[-0.0px] transform scale-y-100
     pTitle.style =
       "font-family: 'Roboto', sans-serif font-variant-numeric: tabular-nums;"
@@ -24,8 +23,7 @@ function newVideoHeader(id: string): HTMLElement {
     pAuthor.target = '_blank'
     pAuthor.rel = 'noopener noreferrer'
     pAuthor.textContent = ''
-    pAuthor.className =
-      'w-fit line-clamp-1 text-sm font-bold text-black dark:text-white'
+    pAuthor.className = 'w-fit line-clamp-1 text-sm font-bold'
     // hover:underline
     // pt-2 pl-6
     pAuthor.style =

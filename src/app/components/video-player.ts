@@ -1,5 +1,3 @@
-// import { newYoutubeEmbed } from './youtube-embed.ts'
-
 type Video = { id: string; time: string }
 
 export function newVideoPlayer(
@@ -16,7 +14,8 @@ export function newVideoPlayer(
   // }
 
   const page = globalThis.document.createElement('div')
-  page.className = 'flex flex-col w-full overflow-y-scroll scrollbar-dark'
+  page.className =
+    'flex flex-col w-full overflow-y-scroll scrollbar-neutral-400'
 
   {
     const topBar = document.createElement('div')
@@ -42,7 +41,7 @@ export function newVideoPlayer(
       {
         const actionsMenu = document.createElement('div')
         actionsMenu.className =
-          'flex flex-grow gap-2 items-center overflow-x-scroll scrollbar-dark h-fit scrollbar-invisible'
+          'flex flex-grow gap-2 items-center overflow-x-scroll scrollbar-neutral-400 h-fit scrollbar-none'
         // 'flex flex-row items-center justify-end w-full'
 
         actionsMenu.appendChild(shareButton)
