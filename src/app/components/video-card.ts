@@ -1,3 +1,10 @@
+type VideoData = {
+  title: string
+  author_name: string
+  author_url: string
+  thumbnail_url: string
+}
+
 function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
   const maxres = 'maxresdefault'
   const sd = 'sddefault'
@@ -19,7 +26,8 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
 
   {
     const imgcontainer = document.createElement('div')
-    imgcontainer.className = 'rounded-md bg-gray-50 dark:bg-neutral-800'
+    imgcontainer.className =
+      'rounded-md bg-gray-50 dark:bg-neutral-800 aspect-video'
     videoElem.appendChild(imgcontainer)
 
     const videoCardHeader = document.createElement('div')
@@ -36,12 +44,11 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
       videoCardHeader.appendChild(authorloading)
 
       const data = fetchData(video)
-      data.then((data) => {
+      data.then((data: VideoData) => {
         {
           const p = document.createElement('p')
           p.textContent = data.title
-          p.className =
-            'text-sm line-clamp-2 items-center align-center' // leading-tight min-h-[3rem] leading-[1.5rem]
+          p.className = 'text-sm line-clamp-2 items-center align-center' // leading-tight min-h-[3rem] leading-[1.5rem]
           p.style = "font-family: 'Roboto', sans-serif"
           textloading1.replaceWith(p)
         }
@@ -55,40 +62,55 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
           authorloading.replaceWith(p)
         }
 
+        {
+          const img = document.createElement('img')
+          // img.src = `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`
+          img.src = data.thumbnail_url
+          img.className = 'aspect-video object-cover w-full opacity-0'
+          img.onload = () => {
+            img.classList.remove('opacity-0')
+            // img.classList.add('opacity-100')
+          }
+          img.loading = 'lazy'
+          imgcontainer.appendChild(img)
+        }
+
         // videoElem.style.cursor = 'pointer'
       })
     }
 
-    {
-      const img = document.createElement('img')
-      img.src = `https://i.ytimg.com/vi_webp/${video.id}/${maxres}.webp`
-      img.onload = () => {
-        // Ugly detection of not found picture
-        const notFound = img.naturalWidth === 120
-        if (notFound) {
-          img.src = `https://i.ytimg.com/vi_webp/${video.id}/${sd}.webp`
-          img.onload = () => {
-            // ---
-            // Other fallbacks
-            // ---
-            // Replace with remove hidden ?
-            img.classList.remove('opacity-0')
-            // img.classList.add('opacity-100')
-          }
-          return
-        }
-        img.classList.remove('opacity-0')
-        // img.classList.add('opacity-100')
-      }
-      img.className =
-        'sm:rounded-md relative w-full h-full aspect-video object-cover opacity-0 transition-opacity duration-180'
-      img.loading = 'lazy'
-      imgcontainer.appendChild(img)
-    }
+    // Force max resolution, fallback if not found
+    // {
+    //   const img = document.createElement('img')
+    //   img.src = `https://i.ytimg.com/vi_webp/${video.id}/${maxres}.webp`
+    //   img.onload = () => {
+    //     // Ugly detection of not found picture
+    //     const notFound = img.naturalWidth === 120
+    //     if (notFound) {
+    //       img.src = `https://i.ytimg.com/vi_webp/${video.id}/${sd}.webp`
+    //       img.onload = () => {
+    //         // ---
+    //         // Other fallbacks
+    //         // ---
+    //         // Replace with remove hidden ?
+    //         img.classList.remove('opacity-0')
+    //         // img.classList.add('opacity-100')
+    //       }
+    //       return
+    //     }
+    //     img.classList.remove('opacity-0')
+    //     // img.classList.add('opacity-100')
+    //   }
+    //   img.className =
+    //     'sm:rounded-md relative w-full h-full aspect-video object-cover opacity-0 transition-opacity duration-180'
+    //   img.loading = 'lazy'
+    //   imgcontainer.appendChild(img)
+    // }
 
     {
       const img = document.createElement('img')
       // img.src = thumbnailUrl
+      img.src = 'https://i.ytimg.com/vi/_YLk0kJ3Naw/hqdefault.jpg'
       img.className =
         'absolute inset-0 w-full h-full object-cover opacity-50 blur-3xl scale-80 saturate-1000 contrast-100 brightness-100 dark:contrast-20'
       // 'absolute inset-0 w-full h-full object-cover opacity-50 blur-3xl scale-100 saturate-200 contrast-100 brightness-100 dark:contrast-50'
@@ -116,9 +138,16 @@ async function fetchData(video: { id: string }): Promise<any> {
   try {
     const response = await fetch(oembedUrl)
     if (!response.ok) {
-      return {}
+      const v: VideoData = {
+        title: '',
+        author_name: '',
+        author_url: '',
+        thumbnail_url: '',
+      }
+      return v
+      // return {}
     }
-    const data = await response.json()
+    const data: VideoData = await response.json()
     return data
   } catch (error) {
     // console.error('Fetch failed:', error)

@@ -2,6 +2,7 @@ type VideoData = {
   title: string
   author_name: string
   author_url: string
+  thumbnail_url: string
 }
 
 function newVideoHeader(id: string): HTMLElement {
@@ -37,7 +38,8 @@ function newVideoHeader(id: string): HTMLElement {
   videoHeader.appendChild(pAuthor)
 
   {
-    const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${video.id}&format=json`
+    const videoUrl = `https://www.youtube.com/watch?v=${video.id}`
+    const oembedUrl = `https://www.youtube.com/oembed?url=${videoUrl}&format=json`
     if (video.id === '') {
       globalThis.document.title = 'Narval - Player'
       return videoHeader

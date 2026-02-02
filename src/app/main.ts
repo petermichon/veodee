@@ -1,5 +1,7 @@
 import { DOMEditor } from './dom-editor.ts'
 
+import { addVideo } from './add-video.ts'
+
 import { newPageLayout } from './components/page-layout.ts'
 import { newPlaylistEditor } from './components/playlist-editor.ts'
 import { newVideoPlayer } from './components/video-player.ts'
@@ -10,7 +12,6 @@ import { newFooter } from './components/footer.ts'
 import { newYoutubeEmbed } from './components/youtube-embed.ts'
 import { newVideoHeader } from './components/video-header.ts'
 import { newDefaultButton } from './components/default-button.ts'
-import { addVideo } from './add-video.ts'
 import { newMenuButton } from './components/menu-button.ts'
 
 type Video = { id: string; time: string }

@@ -34,6 +34,12 @@ When fetching video data like titles, thumbnails, and the video itself, YouTube 
 
 Before connecting, add a friendly reminder that the user is about to connect to the internet and share some of their data with the video provider.
 
+### Empty thumbnail `feed`
+
+Video OEmbed can be Forbidden or Bad request. If it's the case, they don't include any data in the response.
+
+Add a fallback thumbnail and/or text in such case.
+
 ## New Features
 
 ### Fullscreen `video`
