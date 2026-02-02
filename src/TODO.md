@@ -14,14 +14,6 @@ Add an icon to the website.
 
 Clean up the PWA install card.
 
-### Navigation `general`
-
-Add navigation to /feed and /video. On desktop, the navigation should be on the top or on the left side of the page. On mobile, the navigation should be on the bottom of the page.
-
-### Fix thumbnails `feed`
-
-When max-res is not available, fallback to sd, hd, mq and default.
-
 ### Save video time `video`
 
 Add a way to save the current video time to the URL.
