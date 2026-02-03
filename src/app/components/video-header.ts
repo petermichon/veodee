@@ -18,24 +18,61 @@ function newVideoHeader(id: string): HTMLElement {
     pTitle.style =
       "font-family: 'Roboto', sans-serif font-variant-numeric: tabular-nums;"
   }
-  const pAuthor = document.createElement('a')
-  {
-    pAuthor.href = ''
-    pAuthor.target = '_blank'
-    pAuthor.rel = 'noopener noreferrer'
-    pAuthor.textContent = ''
-    pAuthor.className = 'w-fit line-clamp-1 text-sm font-bold'
-    // hover:underline
-    // pt-2 pl-6
-    pAuthor.style =
-      "font-family: 'Roboto', sans-serif font-variant-numeric: tabular-nums;"
-    // pAuthor.style.cursor = 'pointer'
-  }
+
+  const author = document.createElement('a')
+  const authorText = document.createElement('div')
 
   const videoHeader = document.createElement('div')
   videoHeader.className = 'flex flex-col gap-2 mr-3 overflow-hidden'
   videoHeader.appendChild(pTitle)
-  videoHeader.appendChild(pAuthor)
+  {
+    author.className = 'flex flex-row gap-1 items-center group w-fit' // #ff1d33
+    author.href = ''
+    author.target = '_blank'
+    author.rel = 'noopener noreferrer'
+    {
+      {
+        authorText.textContent = ''
+        authorText.className = 'w-fit line-clamp-1 text-sm font-bold'
+        // hover:underline
+        // pt-2 pl-6
+        authorText.style =
+          "font-family: 'Roboto', sans-serif font-variant-numeric: tabular-nums;"
+        // pAuthor.style.cursor = 'pointer'
+      }
+      author.appendChild(authorText)
+
+      {
+        const icon = document.createElement('div')
+        icon.className = 'text-neutral-500 group-hover:text-neutral-400'
+        // mb-0.25
+        // icon.style = 'width: 100%; height: 100%; display: block; fill: currentcolor;'
+        icon.style.fill = 'currentcolor'
+        {
+          const svg = `
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M15 3h6v6"/>
+              <path d="M10 14 21 3"/>
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            </svg>
+          `
+          icon.innerHTML = svg
+        }
+        author.appendChild(icon)
+      }
+    }
+    videoHeader.appendChild(author)
+  }
 
   {
     const videoUrl = `https://www.youtube.com/watch?v=${video.id}`
@@ -51,8 +88,8 @@ function newVideoHeader(id: string): HTMLElement {
       }
       response.json().then((video: VideoData) => {
         pTitle.textContent = video.title
-        pAuthor.textContent = video.author_name // + ' ↗'
-        pAuthor.href = video.author_url
+        authorText.textContent = video.author_name // + ' ↗'
+        author.href = video.author_url
         globalThis.document.title = video.title
 
         // send loaded signal
