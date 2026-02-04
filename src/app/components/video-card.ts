@@ -14,8 +14,7 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
   // const thumbnailUrl = `https://i.ytimg.com/vi_webp/${video.id}/${hq}.webp`
 
   const videoElem = document.createElement('a')
-  videoElem.className =
-    'flex flex-col sm:w-52.5 overflow-hidden md:rounded-lg bg-neutral-950' //  aspect-square
+  videoElem.className = 'flex flex-col sm:w-52.5 md:rounded-lg bg-neutral-950' //  aspect-square
   // videoElem.style.display = 'flex'
 
   let url = `/video?v=${video.id}`
@@ -27,7 +26,7 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
   {
     const imgcontainer = document.createElement('div')
     imgcontainer.className =
-      'rounded-md bg-gray-50 dark:bg-neutral-800 aspect-video'
+      'bg-gray-50 dark:bg-neutral-800 aspect-video rounded-md' // overflow-hidden
     videoElem.appendChild(imgcontainer)
 
     const videoCardHeader = document.createElement('div')
@@ -67,7 +66,7 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
           // img.src = `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`
           img.src = data.thumbnail_url
           img.className =
-            'aspect-video object-cover w-full opacity-0 transition-opacity duration-200'
+            'rounded-md aspect-video object-cover w-full opacity-0 transition-opacity duration-200'
           img.onload = () => {
             img.classList.remove('opacity-0')
             // img.classList.add('opacity-100')
