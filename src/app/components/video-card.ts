@@ -49,7 +49,7 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
           const p = document.createElement('p')
           p.textContent = data.title
           p.className = 'text-sm line-clamp-2 items-center align-center' // leading-tight min-h-[3rem] leading-[1.5rem]
-          p.style = "font-family: 'Roboto', sans-serif"
+          // p.style = "font-family: 'Roboto', sans-serif"
           textloading1.replaceWith(p)
         }
 
@@ -57,7 +57,7 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
           const p = document.createElement('p')
           p.textContent = data.author_name
           p.className = 'text-xs line-clamp-1 text-gray-500 dark:text-gray-400'
-          p.style = "font-family: 'Roboto', sans-serif"
+          // p.style = "font-family: 'Roboto', sans-serif"
           p.style.cursor = 'pointer'
           authorloading.replaceWith(p)
         }
@@ -66,7 +66,8 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
           const img = document.createElement('img')
           // img.src = `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`
           img.src = data.thumbnail_url
-          img.className = 'aspect-video object-cover w-full opacity-0'
+          img.className =
+            'aspect-video object-cover w-full opacity-0 transition-opacity duration-200'
           img.onload = () => {
             img.classList.remove('opacity-0')
             // img.classList.add('opacity-100')

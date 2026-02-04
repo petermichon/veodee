@@ -25,7 +25,7 @@ export function newVideoPlayer(
 
     // topBar.addEventListener('logo-click', (event: Event) => {
     //   history.pushState({}, '', `/`)
-    //   // document.title = 'Narval'
+    //   // document.title = 'Veodee'
     //   // goToPage('/')
     // })
 

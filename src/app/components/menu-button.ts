@@ -4,14 +4,9 @@ export function newMenuButton(
 ): HTMLButtonElement {
   const button = document.createElement('button')
   button.className =
-    'flex flex-row text-left px-3 ml-3 mr-6 h-10 items-center rounded-lg cursor-pointer' // bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-600
+    'flex flex-row gap-3 text-left h-10 items-center justify-center rounded-lg cursor-pointer'
   {
-    const wrapper = document.createElement('span')
-    wrapper.className = 'flex flex-row h-9 mr-5.5'
-    {
-      wrapper.appendChild(icon)
-    }
-    button.appendChild(wrapper)
+    button.appendChild(icon)
   }
   {
     button.appendChild(text)

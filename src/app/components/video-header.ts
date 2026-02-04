@@ -15,8 +15,8 @@ function newVideoHeader(id: string): HTMLElement {
     // line-clamp-2
     // pt-3 pl-6Z
     // tracking-[-0.0px] transform scale-y-100
-    pTitle.style =
-      "font-family: 'Roboto', sans-serif font-variant-numeric: tabular-nums;"
+    // pTitle.style =
+    //   "font-family: 'Roboto', sans-serif font-variant-numeric: tabular-nums;"
   }
 
   const author = document.createElement('a')
@@ -36,8 +36,7 @@ function newVideoHeader(id: string): HTMLElement {
         authorText.className = 'w-fit line-clamp-1 text-sm font-bold'
         // hover:underline
         // pt-2 pl-6
-        authorText.style =
-          "font-family: 'Roboto', sans-serif font-variant-numeric: tabular-nums;"
+        // authorText.style = "font-family: 'Roboto', sans-serif font-variant-numeric: tabular-nums;"
         // pAuthor.style.cursor = 'pointer'
       }
       author.appendChild(authorText)
@@ -78,7 +77,7 @@ function newVideoHeader(id: string): HTMLElement {
     const videoUrl = `https://www.youtube.com/watch?v=${video.id}`
     const oembedUrl = `https://www.youtube.com/oembed?url=${videoUrl}&format=json`
     if (video.id === '') {
-      globalThis.document.title = 'Narval - Player'
+      globalThis.document.title = 'Player - Veodee'
       return videoHeader
     }
 

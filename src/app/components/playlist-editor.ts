@@ -21,7 +21,7 @@ function newRemoveAllButton(): HTMLElement {
   const button = document.createElement('button')
   button.className =
     'font-bold px-4 py-1 rounded-3xl bg-neutral-800 hover:bg-neutral-700 cursor-pointer'
-  button.style.fontFamily = "'Roboto', sans-serif"
+  // button.style.fontFamily = "'Roboto', sans-serif"
   button.textContent = 'Clear videos'
   button.addEventListener('click', () => {
     const answer = confirm('Delete all videos ?')

@@ -31,19 +31,34 @@ function main() {
   //   'overflow-y-auto bg-neutral-950 scrollbar-neutral-950 hover-scrollbar-neutral-400'
 
   navBar.className =
-    'w-60 flex flex-col flex-shrink-0 font-bold text-sm overflow-y-auto bg-neutral-950 scrollbar-neutral-950 hover-scrollbar-neutral-400 '
+    'w-60 flex flex-col flex-shrink-0 text-sm overflow-y-auto bg-neutral-950 scrollbar-neutral-950 hover-scrollbar-neutral-400 '
   // w-60 flex flex-col flex-shrink-0 font-bold text-sm overflow-y-auto
   // scrollbar-transparent
   // 'grid grid-rows-[auto_1fr_auto] overflow-y-auto'
   {
     const top = document.createElement('div')
-    top.className = 'ml-4 mr-7 flex flex-row h-14'
+    top.className = 'flex flex-row items-center ml-4 mr-7 h-14'
     {
-      const menuButton = document.createElement('button')
-      menuButton.className =
-        'p-3 rounded-full cursor-pointer hover:bg-neutral-700 active:bg-neutral-600 text-xl'
-      menuButton.textContent = '➤'
-      top.appendChild(menuButton)
+      // const menuButton = document.createElement('button')
+      // menuButton.className =
+      //   'p-3 rounded-full cursor-pointer hover:bg-neutral-700 active:bg-neutral-600 text-xl'
+      // menuButton.textContent = '➤'
+      // top.appendChild(menuButton)
+      const icon = document.createElement('div')
+      icon.className =
+        'h-fit w-fit p-2 rounded-full cursor-pointer hover:bg-neutral-700 active:bg-neutral-600 text-xl' // h-fit m-3
+      // icon.style.width = '100%'
+      // icon.style.height = '100%'
+      // icon.style.display = 'block'
+      icon.style.fill = 'currentcolor'
+
+      {
+        const svg = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg>
+        `
+        icon.innerHTML = svg
+      }
+      top.appendChild(icon)
     }
     {
       const logo = newLogo()
@@ -60,35 +75,29 @@ function main() {
   let playerButton: HTMLButtonElement
   {
     const menuNav = document.createElement('div')
-    menuNav.className = 'flex flex-col py-3'
+    menuNav.className = 'flex flex-col py-3 ml-3 mr-6'
 
     {
-      // const icon = document.createElement('div')
-      // icon.className = 'w-16.5 text-2xl'
-      // icon.textContent = '➤'
       const icon = document.createElement('div')
-      icon.style =
-        'width: 100%; height: 100%; display: block; fill: currentcolor;' // 'h-fit w-8 mr-1'
+      icon.className = 'h-fit m-3' // 'h-fit w-8 mr-1'
+      // icon.style.width = '100%'
+      // icon.style.height = '100%'
+      // icon.style.display = 'block'
+      icon.style.fill = 'currentcolor'
+
       {
         const svg = `
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="24"
-            viewBox="0 0 24 24"
-            width="24"
-            style="pointer-events: none; display: inherit; width: 100%; height: 100%;"
-          >
-            <path
-              d="M17.895 3.553A1.001 1.001 0 0 0 17 3H7c-.379 0-.725.214-.895.553l-4 8a1 1 0 0 0 0 .895l4 8c.17.338.516.552.895.552h10c.379 0 .725-.214.895-.553l4-8a1 1 0 0 0 0-.895l-4-7.999zM19.382 11h-7.764l-3-6h7.764l3 6zm-3 8H8.618l3-6h7.764l-3 6z"
-            ></path>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect width="8" height="18" x="3" y="3" rx="1"/>
+            <path d="M7 3v18"/><path d="M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z"/>
           </svg>
         `
         icon.innerHTML = svg
       }
 
       const text = document.createElement('div')
-      text.className = 'w-full text-[13px] font-medium' // font-[700]
-      text.textContent = 'Collections'
+      text.className = 'w-full text-[14px]' // font-[700]
+      text.textContent = 'Collection'
 
       collectionsButton = newMenuButton(icon, text)
 
@@ -113,11 +122,36 @@ function main() {
 
     {
       const icon = document.createElement('div')
-      icon.className = 'w-6.5 text-2xl' // w-16.5
-      icon.textContent = '➤'
+      icon.className = 'h-fit m-3' // mr-5.5 // 'h-fit w-8 mr-1'
+      // icon.style.width = '100%'
+      // icon.style.height = '100%'
+      // icon.style.display = 'block'
+      icon.style.fill = 'currentcolor'
+      {
+        const svg = `
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="lucide lucide-circle-play-icon lucide-circle-play"
+          >
+            <path
+              d="M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"
+            />
+            <circle cx="12" cy="12" r="10" />
+          </svg>
+        `
+        icon.innerHTML = svg
+      }
 
       const text = document.createElement('div')
-      text.className = 'w-full text-[13px] font-medium' // font-[700]
+      text.className = 'w-full text-[14px]' // font-[700]
       text.textContent = 'Player'
 
       playerButton = newMenuButton(icon, text)
@@ -159,7 +193,7 @@ function main() {
     const search = globalThis.document.location.search
 
     if (pathname === '/') {
-      globalThis.document.title = 'Narval'
+      globalThis.document.title = 'Veodee'
 
       // ---
       const localVideos = localStorage.getItem('videos') || '[]'
@@ -264,18 +298,20 @@ function main() {
         // })
 
         collectionsButton.classList.remove('bg-neutral-950')
-        collectionsButton.classList.remove('hover:bg-neutral-800')
-        collectionsButton.classList.remove('active:bg-neutral-700')
         collectionsButton.classList.add('bg-neutral-800')
+        collectionsButton.classList.remove('hover:bg-neutral-800')
         collectionsButton.classList.add('hover:bg-neutral-700')
+        collectionsButton.classList.remove('active:bg-neutral-700')
         collectionsButton.classList.add('active:bg-neutral-600')
+        // collectionsButton.classList.add('font-semibold')
 
         playerButton.classList.remove('bg-neutral-800')
-        playerButton.classList.remove('hover:bg-neutral-700')
-        playerButton.classList.remove('active:bg-neutral-600')
         playerButton.classList.add('bg-neutral-950')
+        playerButton.classList.remove('hover:bg-neutral-700')
         playerButton.classList.add('hover:bg-neutral-800')
+        playerButton.classList.remove('active:bg-neutral-600')
         playerButton.classList.add('active:bg-neutral-700')
+        // playerButton.classList.remove('font-semibold')
         // ---
       }
     }
@@ -341,18 +377,20 @@ function main() {
 
       // ---
       playerButton.classList.remove('bg-neutral-950')
-      playerButton.classList.remove('hover:bg-neutral-800')
-      playerButton.classList.remove('active:bg-neutral-700')
       playerButton.classList.add('bg-neutral-800')
+      playerButton.classList.remove('hover:bg-neutral-800')
       playerButton.classList.add('hover:bg-neutral-700')
+      playerButton.classList.remove('active:bg-neutral-700')
       playerButton.classList.add('active:bg-neutral-600')
+      // playerButton.classList.add('font-semibold')
 
       collectionsButton.classList.remove('bg-neutral-800')
-      collectionsButton.classList.remove('hover:bg-neutral-700')
-      collectionsButton.classList.remove('active:bg-neutral-600')
       collectionsButton.classList.add('bg-neutral-950')
+      collectionsButton.classList.remove('hover:bg-neutral-700')
       collectionsButton.classList.add('hover:bg-neutral-800')
+      collectionsButton.classList.remove('active:bg-neutral-600')
       collectionsButton.classList.add('active:bg-neutral-700')
+      // collectionsButton.classList.remove('font-semibold')
       // ---
     }
   }

@@ -3,7 +3,7 @@ export function newInput(): HTMLInputElement {
   input.type = 'file'
   // input.multiple = true
   input.className = 'hidden'
-  input.style.fontFamily = "'Roboto', sans-serif"
+  // input.style.fontFamily = "'Roboto', sans-serif"
   // input.textContent = 'Import'
 
   input.addEventListener('change', (event: Event) => {
