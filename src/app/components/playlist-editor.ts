@@ -4,7 +4,7 @@ export function newPlaylistEditor(
 ): HTMLDivElement {
   const videosManager = document.createElement('div')
   videosManager.className =
-    'flex flex-col w-full overflow-y-scroll scrollbar-neutral-400' // max-h-screen
+    'h-screen flex flex-col w-full overflow-y-scroll scrollbar-neutral-400' // max-h-screen
 
   videosManager.appendChild(actions)
 

@@ -1,13 +1,13 @@
 export class DOMEditor {
   private app: HTMLElement
+  private page: HTMLElement
 
-  constructor(app: HTMLElement) {
+  constructor(app: HTMLElement, page: HTMLElement) {
     this.app = app
+    this.page = page
   }
 
-  public replaceContent(e: HTMLElement) {
-    // this.app.innerHTML = ''
-    // this.app.appendChild(e)
-    this.app.replaceChildren(e)
+  public replaceContent() {
+    this.app.replaceChildren(this.page)
   }
 }

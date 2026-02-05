@@ -8,7 +8,7 @@ type VideoData = {
 function newVideoHeader(id: string): HTMLElement {
   const video = { id: id, time: '0' }
 
-  const pTitle = document.createElement('p')
+  const pTitle = document.createElement('span')
   {
     pTitle.textContent = ''
     pTitle.className = 'font-bold line-clamp-2 text-[19px]'
@@ -48,6 +48,7 @@ function newVideoHeader(id: string): HTMLElement {
         // icon.style = 'width: 100%; height: 100%; display: block; fill: currentcolor;'
         icon.style.fill = 'currentcolor'
         {
+          // This is edited, prefer original.
           const svg = `
             <svg
               xmlns="http://www.w3.org/2000/svg"

@@ -1,187 +1,135 @@
-import { DOMEditor } from './dom-editor.ts'
-
 import { addVideo } from './add-video.ts'
 
-import { newPageLayout } from './components/page-layout.ts'
 import { newPlaylistEditor } from './components/playlist-editor.ts'
 import { newVideoPlayer } from './components/video-player.ts'
 import { newVideoCardElement } from './components/video-card.ts'
 import { newInput } from './components/import-input.ts'
-import { newLogo } from './components/logo.ts'
 import { newFooter } from './components/footer.ts'
 import { newYoutubeEmbed } from './components/youtube-embed.ts'
 import { newVideoHeader } from './components/video-header.ts'
 import { newDefaultButton } from './components/default-button.ts'
-import { newMenuButton } from './components/menu-button.ts'
-
-type Video = { id: string; time: string }
 
 function main() {
+  let content = document.createElement('div')
+  const collectionButton = document.createElement('a')
+  const playerButton = document.createElement('a')
+
+  // ---
+
+  const page = document.createElement('div')
+  const sidebar = document.createElement('div')
+  const top = document.createElement('div')
+  const menuIcon = document.createElement('div')
+  const logo = document.createElement('a')
+  const logoImg = document.createElement('img')
+  const menuNav = document.createElement('div')
+  const collectionButtonIcon = document.createElement('div')
+  const collectionButtonText = document.createElement('span')
+  const playerButtonIcon = document.createElement('div')
+  const playerButtonText = document.createElement('span')
+
+  // ---
+
+  page.replaceChildren(sidebar, content)
+  sidebar.replaceChildren(top, menuNav)
+  top.replaceChildren(menuIcon, logo)
+  logo.replaceChildren(logoImg)
+  collectionButton.replaceChildren(collectionButtonIcon, collectionButtonText)
+  playerButton.replaceChildren(playerButtonIcon, playerButtonText)
+  menuNav.replaceChildren(collectionButton, playerButton)
+
+  // ---
+
+  // <-- Inject styling and interactivity here
+
+  // ---
+
   const app = globalThis.document.getElementById('app')!
-  const domEditor = new DOMEditor(app)
+  app.replaceChildren(page)
 
-  let pageContent: HTMLDivElement = document.createElement('div')
-  // let pageContent = newPlaylistEditor()
+  // ---
 
-  const navBar = document.createElement('div')
-  // navBar.className = 'overflow-hidden hover:overflow-y-auto bg-neutral-950'
-  // navBar.style = 'scrollbar-gutter: stable;'
+  page.style.display = 'flex'
+  page.style.flexDirection = 'row'
+  page.style.fontFamily = 'sans-serif' // system-ui sans-serif monospace
+  page.style.fontWeight = '500'
+  page.style.color = 'oklch(97% 0 0)' // neutral-50
 
-  // navBar.className =
-  //   'overflow-y-auto bg-neutral-950 scrollbar-neutral-950 hover-scrollbar-neutral-400'
+  sidebar.className =
+    'flex flex-col h-screen flex-shrink-0 text-sm overflow-y-auto bg-neutral-950 scrollbar-neutral-950 hover-scrollbar-neutral-400 w-60' // w-60 w-16
 
-  navBar.className =
-    'w-60 flex flex-col flex-shrink-0 text-sm overflow-y-auto bg-neutral-950 scrollbar-neutral-950 hover-scrollbar-neutral-400 '
-  // w-60 flex flex-col flex-shrink-0 font-bold text-sm overflow-y-auto
-  // scrollbar-transparent
-  // 'grid grid-rows-[auto_1fr_auto] overflow-y-auto'
-  {
-    const top = document.createElement('div')
-    top.className = 'flex flex-row items-center ml-4 mr-7 h-14'
-    {
-      // const menuButton = document.createElement('button')
-      // menuButton.className =
-      //   'p-3 rounded-full cursor-pointer hover:bg-neutral-700 active:bg-neutral-600 text-xl'
-      // menuButton.textContent = '➤'
-      // top.appendChild(menuButton)
-      const icon = document.createElement('div')
-      icon.className =
-        'h-fit w-fit p-2 rounded-full cursor-pointer hover:bg-neutral-700 active:bg-neutral-600 text-xl' // h-fit m-3
-      // icon.style.width = '100%'
-      // icon.style.height = '100%'
-      // icon.style.display = 'block'
-      icon.style.fill = 'currentcolor'
+  top.className = 'flex flex-row items-center ml-4 mr-7 h-14'
 
-      {
-        const svg = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg>
-        `
-        icon.innerHTML = svg
-      }
-      top.appendChild(icon)
-    }
-    {
-      const logo = newLogo()
-      logo.addEventListener('click', (e) => {
-        e.preventDefault()
-        globalThis.history.pushState({}, '', '/')
-        updatePageContent()
-      })
-      top.appendChild(logo)
-    }
-    navBar.appendChild(top)
-  }
-  let collectionsButton: HTMLButtonElement
-  let playerButton: HTMLButtonElement
-  {
-    const menuNav = document.createElement('div')
-    menuNav.className = 'flex flex-col py-3 ml-3 mr-6'
+  menuIcon.className =
+    'h-fit w-fit p-2 rounded-full cursor-pointer hover:bg-neutral-700 active:bg-neutral-600 text-xl' // h-fit m-3
+  // icon.style.width = '100%'
+  // icon.style.height = '100%'
+  // icon.style.display = 'block'
+  menuIcon.style.fill = 'currentcolor'
+  menuIcon.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu-icon lucide-menu"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg>
+  `
 
-    {
-      const icon = document.createElement('div')
-      icon.className = 'h-fit m-3' // 'h-fit w-8 mr-1'
-      // icon.style.width = '100%'
-      // icon.style.height = '100%'
-      // icon.style.display = 'block'
-      icon.style.fill = 'currentcolor'
+  logo.className = 'ml-4 flex w-full h-full items-center cursor-pointer'
+  logo.href = '/'
+  logo.addEventListener('click', (e) => {
+    e.preventDefault()
+    globalThis.history.pushState({}, '', '/')
+    updatePageContent()
+  })
 
-      {
-        const svg = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect width="8" height="18" x="3" y="3" rx="1"/>
-            <path d="M7 3v18"/><path d="M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z"/>
-          </svg>
-        `
-        icon.innerHTML = svg
-      }
+  logoImg.className = 'h-6'
+  logoImg.src = './logo-white.png'
 
-      const text = document.createElement('div')
-      text.className = 'w-full text-[14px]' // font-[700]
-      text.textContent = 'Collection'
+  menuNav.className = 'flex flex-col py-3 ml-3 mr-6'
 
-      collectionsButton = newMenuButton(icon, text)
+  // ---
 
-      const collectionMenuAction = (event: PointerEvent) => {
-        globalThis.history.pushState({}, '', '/')
-        updatePageContent()
-      }
-      collectionsButton.addEventListener('click', collectionMenuAction)
+  collectionButton.className =
+    'flex flex-row gap-3 text-left h-10 items-center justify-center rounded-lg cursor-pointer'
+  collectionButton.href = '/'
+  collectionButton.addEventListener('click', (event: PointerEvent) => {
+    globalThis.history.pushState({}, '', '/')
+    updatePageContent()
+  })
 
-      menuNav.appendChild(collectionsButton)
-    }
+  playerButton.className =
+    'flex flex-row gap-3 text-left h-10 items-center justify-center rounded-lg cursor-pointer'
+  playerButton.href = '/video?v='
+  playerButton.addEventListener('click', (event: PointerEvent) => {
+    globalThis.history.pushState({}, '', '/video?v=')
+    updatePageContent()
+  })
 
-    // {
-    //   collectionsButton = newMenuCollections()
-    //   const collectionMenuAction = (event: PointerEvent) => {
-    //     globalThis.history.pushState({}, '', '/')
-    //     updatePageContent()
-    //   }
-    //   collectionsButton.addEventListener('click', collectionMenuAction)
-    //   menuNav.appendChild(collectionsButton)
-    // }
+  // ---
 
-    {
-      const icon = document.createElement('div')
-      icon.className = 'h-fit m-3' // mr-5.5 // 'h-fit w-8 mr-1'
-      // icon.style.width = '100%'
-      // icon.style.height = '100%'
-      // icon.style.display = 'block'
-      icon.style.fill = 'currentcolor'
-      {
-        const svg = `
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-circle-play-icon lucide-circle-play"
-          >
-            <path
-              d="M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"
-            />
-            <circle cx="12" cy="12" r="10" />
-          </svg>
-        `
-        icon.innerHTML = svg
-      }
+  collectionButtonIcon.className = 'h-fit m-3' // 'h-fit w-8 mr-1'
+  // icon.style.width = '100%'
+  // icon.style.height = '100%'
+  // icon.style.display = 'block'
+  collectionButtonIcon.style.fill = 'currentcolor'
+  collectionButtonIcon.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library-big-icon lucide-library-big"><rect width="8" height="18" x="3" y="3" rx="1"/><path d="M7 3v18"/><path d="M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z"/></svg>
+  `
 
-      const text = document.createElement('div')
-      text.className = 'w-full text-[14px]' // font-[700]
-      text.textContent = 'Player'
+  playerButtonIcon.className = 'h-fit m-3' // mr-5.5 // 'h-fit w-8 mr-1'
+  // icon.style.width = '100%'
+  // icon.style.height = '100%'
+  // icon.style.display = 'block'
+  playerButtonIcon.style.fill = 'currentcolor'
+  playerButtonIcon.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-play-icon lucide-circle-play"><path d="M9 9.003a1 1 0 0 1 1.517-.859l4.997 2.997a1 1 0 0 1 0 1.718l-4.997 2.997A1 1 0 0 1 9 14.996z"/><circle cx="12" cy="12" r="10"/></svg>
+  `
 
-      playerButton = newMenuButton(icon, text)
+  // ---
 
-      const playerMenuAction = (event: PointerEvent) => {
-        globalThis.history.pushState({}, '', '/video?v=')
-        updatePageContent()
-      }
-      playerButton.addEventListener('click', playerMenuAction)
+  collectionButtonText.className = 'w-full text-[14px]' // font-[700]
+  collectionButtonText.textContent = 'Collection'
 
-      menuNav.appendChild(playerButton)
-    }
+  playerButtonText.className = 'w-full text-[14px]' // font-[700]
+  playerButtonText.textContent = 'Player'
 
-    // for (let i = 0; i < 24; i++) {
-    //   const icon = document.createElement('div')
-    //   icon.className = 'w-16.5 text-2xl'
-    //   icon.textContent = '➤'
-    //   const text = document.createElement('div')
-    //   text.className = 'w-full text-[13px] font-medium'
-    //   text.textContent = 'Player'
-    //   const dummy = newMenuButton(icon, text)
-    //   menuNav.appendChild(dummy)
-    // }
-
-    navBar.appendChild(menuNav)
-  }
-
-  const pageLayout = newPageLayout(pageContent, navBar)
-
-  domEditor.replaceContent(pageLayout)
+  // ---
 
   globalThis.addEventListener('popstate', (event: PopStateEvent) => {
     updatePageContent()
@@ -197,7 +145,7 @@ function main() {
 
       // ---
       const localVideos = localStorage.getItem('videos') || '[]'
-      let videos: Video[] = []
+      let videos: { id: string; time: string }[] = []
       try {
         videos = JSON.parse(localVideos)
       } catch (e) {
@@ -271,8 +219,8 @@ function main() {
       }
       {
         const playlistEditor = newPlaylistEditor(actions, videoFeedContainer)
-        pageContent.replaceWith(playlistEditor)
-        pageContent = playlistEditor // Update reference
+        content.replaceWith(playlistEditor)
+        content = playlistEditor // Update reference
         // collectionsButton.classList.remove('')
         // collectionsButton.classList.add('bg-red')
 
@@ -297,12 +245,12 @@ function main() {
         //   collectionsButton.style.background = '#404040'
         // })
 
-        collectionsButton.classList.remove('bg-neutral-950')
-        collectionsButton.classList.add('bg-neutral-800')
-        collectionsButton.classList.remove('hover:bg-neutral-800')
-        collectionsButton.classList.add('hover:bg-neutral-700')
-        collectionsButton.classList.remove('active:bg-neutral-700')
-        collectionsButton.classList.add('active:bg-neutral-600')
+        collectionButton.classList.remove('bg-neutral-950')
+        collectionButton.classList.add('bg-neutral-800')
+        collectionButton.classList.remove('hover:bg-neutral-800')
+        collectionButton.classList.add('hover:bg-neutral-700')
+        collectionButton.classList.remove('active:bg-neutral-700')
+        collectionButton.classList.add('active:bg-neutral-600')
         // collectionsButton.classList.add('font-semibold')
 
         playerButton.classList.remove('bg-neutral-800')
@@ -372,8 +320,8 @@ function main() {
         fullscreenButton,
         videoElement
       )
-      pageContent.replaceWith(videoPlayer)
-      pageContent = videoPlayer // Update reference
+      content.replaceWith(videoPlayer)
+      content = videoPlayer // Update reference
 
       // ---
       playerButton.classList.remove('bg-neutral-950')
@@ -384,12 +332,12 @@ function main() {
       playerButton.classList.add('active:bg-neutral-600')
       // playerButton.classList.add('font-semibold')
 
-      collectionsButton.classList.remove('bg-neutral-800')
-      collectionsButton.classList.add('bg-neutral-950')
-      collectionsButton.classList.remove('hover:bg-neutral-700')
-      collectionsButton.classList.add('hover:bg-neutral-800')
-      collectionsButton.classList.remove('active:bg-neutral-600')
-      collectionsButton.classList.add('active:bg-neutral-700')
+      collectionButton.classList.remove('bg-neutral-800')
+      collectionButton.classList.add('bg-neutral-950')
+      collectionButton.classList.remove('hover:bg-neutral-700')
+      collectionButton.classList.add('hover:bg-neutral-800')
+      collectionButton.classList.remove('active:bg-neutral-600')
+      collectionButton.classList.add('active:bg-neutral-700')
       // collectionsButton.classList.remove('font-semibold')
       // ---
     }

@@ -45,7 +45,7 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
       const data = fetchData(video)
       data.then((data: VideoData) => {
         {
-          const p = document.createElement('p')
+          const p = document.createElement('span')
           p.textContent = data.title
           p.className = 'text-sm line-clamp-2 items-center align-center' // leading-tight min-h-[3rem] leading-[1.5rem]
           // p.style = "font-family: 'Roboto', sans-serif"
@@ -53,7 +53,7 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
         }
 
         {
-          const p = document.createElement('p')
+          const p = document.createElement('span')
           p.textContent = data.author_name
           p.className = 'text-xs line-clamp-1 text-gray-500 dark:text-gray-400'
           // p.style = "font-family: 'Roboto', sans-serif"
@@ -66,7 +66,7 @@ function newVideoCardElement(video: { id: string; time: string }): HTMLElement {
           // img.src = `https://i.ytimg.com/vi/${video.id}/hqdefault.jpg`
           img.src = data.thumbnail_url
           img.className =
-            'rounded-md aspect-video object-cover w-full opacity-0 transition-opacity duration-200'
+            'rounded-md aspect-video object-cover w-full opacity-0 transition-opacity duration-183'
           img.onload = () => {
             img.classList.remove('opacity-0')
             // img.classList.add('opacity-100')
