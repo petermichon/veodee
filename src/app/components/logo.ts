@@ -6,6 +6,7 @@ export function newLogo(): HTMLElement {
     const img = document.createElement('img')
     img.className = 'h-6'
     img.src = './logo-white.png'
+
     logo.appendChild(img)
   }
   return logo
