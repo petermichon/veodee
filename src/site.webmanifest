@@ -1,7 +1,7 @@
 {
   "name": "Veodee - Watch YouTube videos",
   "short_name": "Veodee",
-  "description": "Watch videos from YouTube",
+  "description": "Watch YouTube videos",
   "theme_color": "#ffffff",
   "background_color": "#ffffff",
   "display_override": ["window-controls-overlay"],
