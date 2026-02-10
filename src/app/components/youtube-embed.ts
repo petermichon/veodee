@@ -19,12 +19,10 @@ function newYoutubeEmbed(video: { id: string; time: string }): HTMLElement {
   iframe.allow = 'clipboard-write'
   iframe.style.margin = '0px'
   iframe.style.padding = '0px'
-  // iframe.width = '560'
-  // iframe.height = '315'
   iframe.src = url
-  // iframe.frameBorder = '0'
   iframe.allowFullscreen = true
   iframe.referrerPolicy = 'strict-origin-when-cross-origin'
+
   iframe.className = 'w-full h-full'
 
   iframe.addEventListener('load', () => {

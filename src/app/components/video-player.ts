@@ -1,21 +1,20 @@
 type Video = { id: string; time: string }
 
 export function newVideoPlayer(
-  video: Video,
   shareButton: HTMLButtonElement,
   footer: HTMLDivElement,
   videoHeader: HTMLElement,
   fullscreenButton: HTMLButtonElement,
   videoElement: HTMLElement
-): HTMLDivElement {
+): DocumentFragment {
   // let url = `/video?v=${video.id}`
   // if (video.time !== '0') {
   //   url += `&t=${video.time}`
   // }
 
-  const page = globalThis.document.createElement('div')
-  page.className =
-    'flex flex-col w-full overflow-y-scroll scrollbar-neutral-400'
+  const page = globalThis.document.createDocumentFragment()
+  // page.className =
+  //   'flex flex-col w-full overflow-y-scroll scrollbar-neutral-400'
 
   {
     const topBar = document.createElement('div')
@@ -54,12 +53,6 @@ export function newVideoPlayer(
     }
 
     page.appendChild(footer)
-
-    if (video.id !== '') {
-      // const embed = newYoutubeEmbed(video)
-      // videoElement.replaceWith(embed)
-    }
-    // videoElement.replaceWith(embed)
   }
 
   return page

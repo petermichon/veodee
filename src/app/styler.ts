@@ -1,26 +1,10 @@
 export class Styler {
-  // private root: DocumentFragment
-  // private content: HTMLElement
-  // private logo: HTMLAnchorElement
-  // private collectionButton: HTMLAnchorElement
-  // private playerButton: HTMLAnchorElement
-
-  public constructor() {
-    // root: DocumentFragment,
-    // content: HTMLElement,
-    // logo: HTMLAnchorElement,
-    // collectionButton: HTMLAnchorElement,
-    // playerButton: HTMLAnchorElement
-    // this.root = root
-    // this.content = content
-    // this.logo = logo
-    // this.collectionButton = collectionButton
-    // this.playerButton = playerButton
-  }
+  public constructor() {}
 
   public loadPage(page: HTMLElement) {
     page.style.display = 'flex'
     page.style.flexDirection = 'row'
+    // page.style.alignItems = 'center'
     page.style.fontFamily = 'sans-serif' // system-ui sans-serif monospace
     page.style.fontWeight = '500'
     page.style.color = 'oklch(97% 0 0)' // neutral-50
@@ -107,5 +91,38 @@ export class Styler {
   public loadPlayerButtonText(playerButtonText: HTMLElement) {
     playerButtonText.className = 'w-full text-[14px]' // font-[700]
     playerButtonText.textContent = 'Player'
+  }
+
+  public loadVideoHeaderTitle(videoHeaderTitle: HTMLElement) {
+    videoHeaderTitle.textContent = ''
+    videoHeaderTitle.className = 'font-bold line-clamp-2 text-[19px]'
+  }
+
+  public loadVideoHeader(videoHeader: HTMLElement) {
+    videoHeader.className = 'flex flex-col gap-2 mr-3 overflow-hidden'
+  }
+
+  public loadVideoHeaderAuthor(videoHeaderAuthor: HTMLAnchorElement) {
+    videoHeaderAuthor.className = 'flex flex-row gap-1 items-center group w-fit' // #ff1d33
+    videoHeaderAuthor.href = ''
+    videoHeaderAuthor.target = '_blank'
+    videoHeaderAuthor.rel = 'noopener noreferrer'
+  }
+
+  public loadVideoHeaderAuthorText(videoHeaderAuthorText: HTMLElement) {
+    videoHeaderAuthorText.textContent = ''
+    videoHeaderAuthorText.className = 'w-fit line-clamp-1 text-sm font-bold'
+  }
+
+  public loadVideoHeaderAuthorIcon(videoHeaderAuthorIcon: HTMLElement) {
+    videoHeaderAuthorIcon.className =
+      'text-neutral-500 group-hover:text-neutral-400'
+    // mb-0.25
+    // icon.style = 'width: 100%; height: 100%; display: block; fill: currentcolor;'
+    videoHeaderAuthorIcon.style.fill = 'currentcolor'
+    // Prefer original width=24 and height=24
+    videoHeaderAuthorIcon.innerHTML = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link-icon lucide-external-link"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+  `
   }
 }

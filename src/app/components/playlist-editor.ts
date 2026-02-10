@@ -1,10 +1,10 @@
 export function newPlaylistEditor(
   actions: HTMLDivElement,
   videoFeed: HTMLElement
-): HTMLDivElement {
-  const videosManager = document.createElement('div')
-  videosManager.className =
-    'h-screen flex flex-col w-full overflow-y-scroll scrollbar-neutral-400' // max-h-screen
+): DocumentFragment {
+  const videosManager = document.createDocumentFragment()
+  // videosManager.className =
+  //   'h-screen flex flex-col w-full overflow-y-scroll scrollbar-neutral-400' // max-h-screen
 
   videosManager.appendChild(actions)
 

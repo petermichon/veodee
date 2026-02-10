@@ -1,13 +1,4 @@
-type VideoData = {
-  title: string
-  author_name: string
-  author_url: string
-  thumbnail_url: string
-}
-
-function newVideoHeader(id: string): HTMLElement {
-  const video = { id: id, time: '0' }
-
+function newVideoHeader(): HTMLElement {
   const pTitle = document.createElement('span')
   {
     pTitle.textContent = ''
@@ -74,34 +65,5 @@ function newVideoHeader(id: string): HTMLElement {
     videoHeader.appendChild(author)
   }
 
-  {
-    const videoUrl = `https://www.youtube.com/watch?v=${video.id}`
-    const oembedUrl = `https://www.youtube.com/oembed?url=${videoUrl}&format=json`
-    if (video.id === '') {
-      globalThis.document.title = 'Player - Veodee'
-      return videoHeader
-    }
-
-    fetch(oembedUrl).then((response) => {
-      if (!response.ok) {
-        return
-      }
-      response.json().then((video: VideoData) => {
-        pTitle.textContent = video.title
-        authorText.textContent = video.author_name // + ' ↗'
-        author.href = video.author_url
-        globalThis.document.title = video.title
-
-        // send loaded signal
-        // const event = new CustomEvent('video-loaded', {
-        //   detail: { video: { title: video.title } },
-        // })
-        // videoHeader.dispatchEvent(event)
-      })
-    })
-  }
-
   return videoHeader
 }
-
-export { newVideoHeader }
