@@ -1,18 +1,10 @@
-import { ContentLoader } from './content-loader.ts'
 import { MenuCollection } from './menu-collection.ts'
 import { MenuPlayer } from './menu-player.ts'
 import { Styler } from './styler.ts'
 
-import { newVideoCardElement } from './components/video-card.ts'
 import { CollectionLoader } from './playlist-loader.ts'
 import { PlayerLoader } from './player-loader.ts'
-
-type VideoData = {
-  title: string
-  author_name: string
-  author_url: string
-  thumbnail_url: string
-}
+import { PlayerHeaderLoader } from './player-header-loader.ts'
 
 export function main() {
   const root = document.createDocumentFragment()
@@ -42,6 +34,12 @@ export function main() {
   const videoHeaderAuthorText = document.createElement('div')
   const videoHeaderAuthorIcon = document.createElement('div')
 
+  const allVideos = document.createDocumentFragment()
+  const collectionElem = document.createDocumentFragment()
+
+  const video = { id: '', time: '' }
+  const videoPlayerElem = document.createDocumentFragment()
+
   // ---
 
   root.replaceChildren(page)
@@ -60,19 +58,23 @@ export function main() {
 
   // ---
 
-  const contentLoader = new ContentLoader(content)
   const menuCollection = new MenuCollection(collectionButton)
   const menuPlayer = new MenuPlayer(playerButton)
 
-  // ---
+  const contentCollection = new CollectionLoader(
+    allVideos,
+    collectionElem,
+    loadPagePlayer
+  )
 
-  // const playlistEditorElem = document.createDocumentFragment()
-  // const allVideos = document.createDocumentFragment()
-  // const videoPlaylistEditor = new VideosPlaylistEditor(
-  //   allVideos,
-  //   playlistEditorElem
-  // )
-  // const playlistEditorElem = videoPlaylistEditor.newPlaylistEditorElem()
+  const playerLoader = new PlayerLoader(video, videoHeader, videoPlayerElem)
+
+  const playerHeaderLoader = new PlayerHeaderLoader(
+    video,
+    videoHeaderAuthor,
+    videoHeaderAuthorText,
+    videoHeaderTitle
+  )
 
   // ---
 
@@ -105,105 +107,21 @@ export function main() {
 
   function loadPageCollection() {
     globalThis.document.title = 'Veodee'
-    // ---
     menuCollection.setCollectionButtonActive()
     menuPlayer.setPlayerButtonNormal()
-    // ---
-    const localVideos = localStorage.getItem('videos') || '[]'
-    let videos: { id: string; time: string }[] = []
-    try {
-      videos = JSON.parse(localVideos)
-    } catch (e: unknown) {
-      const err = e as SyntaxError
-      console.error(err.stack)
-    }
-    // ---
-    const allVideos = document.createDocumentFragment()
-    for (const video of videos) {
-      const videoCard = newVideoCardElement(video)
-
-      videoCard.addEventListener('click', (event: Event) => {
-        event.preventDefault()
-        // const video = customEvent.detail.video
-        // let tParam = ''
-        // if (video.time > 0) {
-        //   tParam = `&t=${video.time}`
-        // }
-        // const url = `/video?v=${video.id}` + tParam
-        // history.pushState({}, '', url)
-        // goToPage('/video')
-
-        // const videoPlayer = newVideoPlayer(video, shareButton)
-
-        const url = `/video?v=${video.id}`
-        globalThis.history.pushState({}, '', url)
-
-        loadPagePlayer()
-      })
-
-      allVideos.appendChild(videoCard)
-    }
-
-    const collectionElem = document.createDocumentFragment()
-    const contentCollection = new CollectionLoader(allVideos, collectionElem)
-    contentCollection.load()
-
-    // const playlistEditorElem = newPlaylistEditorElem(allVideos)
-
-    contentLoader.loadCollectionPage(collectionElem)
+    contentCollection.loadVideos()
+    contentCollection.loadCollection()
+    content.replaceChildren(collectionElem)
   }
 
   function loadPagePlayer() {
     globalThis.document.title = 'Player - Veodee'
-    // ---
     menuCollection.setCollectionButtonNormal()
     menuPlayer.setPlayerButtonActive()
-    // ---
-    const search = globalThis.document.location.search
-    const urlSearchParams = new URLSearchParams(search)
-    const id = urlSearchParams.get('v') || ''
-    const time = urlSearchParams.get('t') || '0'
-    const video = { id: id, time: time }
-
-    const videoPlayerElem = document.createDocumentFragment()
-    const playerLoader = new PlayerLoader(video, videoHeader, videoPlayerElem)
+    playerHeaderLoader.load()
     playerLoader.newContentVideoPlayer()
-
-    contentLoader.loadPlayerPage(videoPlayerElem)
-
-    {
-      const search = globalThis.document.location.search
-      const urlSearchParams = new URLSearchParams(search)
-      const id = urlSearchParams.get('v') || ''
-      const time = urlSearchParams.get('t') || '0'
-      const video = { id: id, time: time }
-
-      const videoUrl = `https://www.youtube.com/watch?v=${video.id}`
-      const oembedUrl = `https://www.youtube.com/oembed?url=${videoUrl}&format=json`
-
-      videoHeaderTitle.textContent = ''
-      videoHeaderAuthorText.textContent = ''
-      videoHeaderAuthor.href = ''
-      globalThis.document.title = ''
-
-      if (video.id !== '') {
-        fetch(oembedUrl).then((response) => {
-          if (!response.ok) {
-            return
-          }
-
-          response.json().then((video: VideoData) => {
-            videoHeaderTitle.textContent = video.title
-            videoHeaderAuthorText.textContent = video.author_name
-            videoHeaderAuthor.href = video.author_url
-            globalThis.document.title = video.title
-          })
-        })
-      }
-    }
+    content.replaceChildren(videoPlayerElem)
   }
-
-  // ---
 
   logo.addEventListener('click', (e) => {
     e.preventDefault()

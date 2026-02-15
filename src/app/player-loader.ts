@@ -18,7 +18,7 @@ export class PlayerLoader {
     this.videoPlayerElem = videoPlayerElem
   }
 
-  newContentVideoPlayer() {
+  public newContentVideoPlayer() {
     const videoElement = document.createElement('div')
     videoElement.className = 'w-full aspect-video lg:aspect-[2.15/1] bg-black'
 

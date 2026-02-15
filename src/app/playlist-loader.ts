@@ -2,20 +2,50 @@ import { addVideo } from './add-video.ts'
 import { newPlaylistEditor } from './components/playlist-editor.ts'
 import { newInput } from './components/import-input.ts'
 import { newDefaultButton } from './components/default-button.ts'
+import { newVideoCardElement } from './components/video-card.ts'
 
+// Split in 2 classes ?
+// 1. localVideos -> allVideos
+// 2. allVideos   -> playlistEditorElem
 export class CollectionLoader {
   private allVideos: DocumentFragment
   private playlistEditorElem: DocumentFragment
 
+  // ?
+  private loadPagePlayer: () => void
+
   public constructor(
     allVideos: DocumentFragment,
-    playlistEditorElem: DocumentFragment
+    playlistEditorElem: DocumentFragment,
+    loadPagePlayer: () => void
   ) {
     this.allVideos = allVideos
     this.playlistEditorElem = playlistEditorElem
+    this.loadPagePlayer = loadPagePlayer
   }
 
-  public load() {
+  public loadVideos() {
+    const localVideos = globalThis.localStorage.getItem('videos') || '[]'
+    let videos: { id: string; time: string }[] = []
+    try {
+      videos = JSON.parse(localVideos)
+    } catch (e: unknown) {
+      const err = e as SyntaxError
+      console.error(err.stack)
+    }
+    for (const video of videos) {
+      const videoCard = newVideoCardElement(video)
+      videoCard.addEventListener('click', (event: Event) => {
+        event.preventDefault()
+        const url = `/video?v=${video.id}`
+        globalThis.history.pushState({}, '', url)
+        this.loadPagePlayer()
+      })
+      this.allVideos.appendChild(videoCard)
+    }
+  }
+
+  public loadCollection() {
     const videoFeedContainer = document.createElement('div')
     const videoFeed = document.createElement('div')
     const actions = document.createElement('div')
