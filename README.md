@@ -13,3 +13,9 @@ npm ci
 ```bash
 npx vite
 ```
+
+## Building for Production
+
+```bash
+npx vite build
+```
