@@ -10,7 +10,8 @@ function newYoutubeEmbed(video: { id: string; time: string }): HTMLElement {
   //   url += `?start=${video.time}`
   // }
 
-  const url = `https://www.youtube-nocookie.com/embed/${video.id}?start=${video.time}`
+  const url = `https://www.youtube-nocookie.com/embed/${video.id}?start=${video.time}&loop=${1}&playlist=${video.id}`
+  console.log(url)
 
   // const url = ``
   // ?start=90&autoplay=1&controls=0&mute=1&loop=1&playlist=${video.id}
