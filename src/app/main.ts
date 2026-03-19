@@ -7,16 +7,25 @@ import { PlayerLoader } from './player-loader.ts'
 import { PlayerHeaderLoader } from './player-header-loader.ts'
 
 export function main() {
-  const root = document.createDocumentFragment()
-
-  const content = document.createElement('div')
-
-  const logo = document.createElement('a')
-  const collectionButton = document.createElement('a')
-  const playerButton = document.createElement('a')
+  const root = globalThis.document.createDocumentFragment()
 
   // ---
 
+  // Shared reference
+  const content = document.createElement('div')
+  const logo = document.createElement('a')
+  const collectionButton = document.createElement('a')
+  const playerButton = document.createElement('a')
+  const videoHeader = document.createElement('div')
+  const videoHeaderTitle = document.createElement('span')
+  const videoHeaderAuthor = document.createElement('a')
+  const videoHeaderAuthorText = document.createElement('div')
+  const video = { id: '', time: '' }
+  const videoPlayerElem = document.createDocumentFragment()
+  const allVideos = document.createDocumentFragment()
+  const collectionElem = document.createDocumentFragment()
+
+  // Unique reference
   const page = document.createElement('div')
   const sidebar = document.createElement('div')
   const top = document.createElement('div')
@@ -27,18 +36,7 @@ export function main() {
   const collectionButtonText = document.createElement('span')
   const playerButtonIcon = document.createElement('div')
   const playerButtonText = document.createElement('span')
-
-  const videoHeader = document.createElement('div')
-  const videoHeaderTitle = document.createElement('span')
-  const videoHeaderAuthor = document.createElement('a')
-  const videoHeaderAuthorText = document.createElement('div')
   const videoHeaderAuthorIcon = document.createElement('div')
-
-  const allVideos = document.createDocumentFragment()
-  const collectionElem = document.createDocumentFragment()
-
-  const video = { id: '', time: '' }
-  const videoPlayerElem = document.createDocumentFragment()
 
   // ---
 
@@ -51,30 +49,43 @@ export function main() {
   playerButton.replaceChildren(playerButtonIcon, playerButtonText)
   menuNav.replaceChildren(collectionButton, playerButton)
 
-  videoHeader.appendChild(videoHeaderTitle)
-  videoHeader.appendChild(videoHeaderAuthor)
-  videoHeaderAuthor.appendChild(videoHeaderAuthorText)
-  videoHeaderAuthor.appendChild(videoHeaderAuthorIcon)
+  videoHeader.replaceChildren(videoHeaderTitle, videoHeaderAuthor)
+  videoHeaderAuthor.replaceChildren(
+    videoHeaderAuthorText,
+    videoHeaderAuthorIcon
+  )
 
   // ---
 
   const menuCollection = new MenuCollection(collectionButton)
   const menuPlayer = new MenuPlayer(playerButton)
-
+  // prettier-ignore
+  const playerLoader = new PlayerLoader(video, videoHeader, videoPlayerElem)
+  // prettier-ignore
+  const playerHeaderLoader = new PlayerHeaderLoader(
+    video, videoHeaderAuthor, videoHeaderAuthorText, videoHeaderTitle
+  )
+  const loadPagePlayer = () => {
+    globalThis.document.title = 'Player - Veodee'
+    menuCollection.setCollectionButtonNormal()
+    menuPlayer.setPlayerButtonActive()
+    playerHeaderLoader.load()
+    playerLoader.newContentVideoPlayer()
+    content.replaceChildren(videoPlayerElem)
+  }
   const contentCollection = new CollectionLoader(
     allVideos,
     collectionElem,
     loadPagePlayer
   )
-
-  const playerLoader = new PlayerLoader(video, videoHeader, videoPlayerElem)
-
-  const playerHeaderLoader = new PlayerHeaderLoader(
-    video,
-    videoHeaderAuthor,
-    videoHeaderAuthorText,
-    videoHeaderTitle
-  )
+  const loadPageCollection = () => {
+    globalThis.document.title = 'Veodee'
+    menuCollection.setCollectionButtonActive()
+    menuPlayer.setPlayerButtonNormal()
+    contentCollection.loadVideos()
+    contentCollection.loadCollection()
+    content.replaceChildren(collectionElem)
+  }
 
   // ---
 
@@ -105,24 +116,6 @@ export function main() {
 
   // ---
 
-  function loadPageCollection() {
-    globalThis.document.title = 'Veodee'
-    menuCollection.setCollectionButtonActive()
-    menuPlayer.setPlayerButtonNormal()
-    contentCollection.loadVideos()
-    contentCollection.loadCollection()
-    content.replaceChildren(collectionElem)
-  }
-
-  function loadPagePlayer() {
-    globalThis.document.title = 'Player - Veodee'
-    menuCollection.setCollectionButtonNormal()
-    menuPlayer.setPlayerButtonActive()
-    playerHeaderLoader.load()
-    playerLoader.newContentVideoPlayer()
-    content.replaceChildren(videoPlayerElem)
-  }
-
   logo.addEventListener('click', (e) => {
     e.preventDefault()
     globalThis.history.pushState({}, '', '/')
@@ -143,7 +136,7 @@ export function main() {
 
   // ---
 
-  function updatePageContent() {
+  const updatePageContent = () => {
     const pathname = globalThis.document.location.pathname
     if (pathname === '/') {
       loadPageCollection()
@@ -163,8 +156,4 @@ export function main() {
 
   const app = globalThis.document.getElementById('app')!
   app.replaceChildren(root)
-
-  globalThis.setTimeout(() => {
-    // content.innerHTML = ''
-  }, 1000)
 }
