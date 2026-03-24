@@ -18,3 +18,8 @@ jobs:
         working-directory: ./src
       - run: npx vite build
         working-directory: ./src
+      - name: Upload dist as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: ./src/dist
