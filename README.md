@@ -3,8 +3,6 @@
 ## Installation
 
 ```bash
-git clone https://github.com/petermichon/veodee.git veodee
-cd veodee/src/
 npm ci
 ```
 
