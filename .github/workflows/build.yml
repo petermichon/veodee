@@ -15,4 +15,6 @@ jobs:
         with:
           node-version: "20"
       - run: npm ci
+        working-directory: ./src
       - run: npx vite build
+        working-directory: ./src
