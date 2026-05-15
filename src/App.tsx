@@ -8,7 +8,7 @@ import { Thread } from '@/pages/Thread';
 function App() {
   return (
     <ThemeProvider>
-      <Router>
+      <Router basename="/vibe">
         <TagProvider>
           <div className="min-h-screen">
             <div className="flex min-h-screen">

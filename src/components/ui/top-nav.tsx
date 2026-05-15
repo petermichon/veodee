@@ -227,14 +227,14 @@ export function TopNav() {
             <Link to="/" className="flex items-center gap-2">
               <div className="flex items-center rounded-xl p-1">
                 <img
-                  src="/logo-black.svg"
+                  src="/vibe/logo-black.svg"
                   alt="veodee logo"
                   className="h-8 w-auto dark:hidden"
                   width="108"
                   height="32"
                 />
                 <img
-                  src="/logo-white.svg"
+                  src="/vibe/logo-white.svg"
                   alt="veodee logo"
                   className="h-8 w-auto hidden dark:block"
                   width="108"
