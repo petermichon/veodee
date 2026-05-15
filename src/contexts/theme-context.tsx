@@ -68,7 +68,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const updateFavicon = (isDark) => {
       const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
-      if (favicon) favicon.href = isDark ? '/favicon-white.svg' : '/favicon-black.svg';
+      if (favicon) favicon.href = isDark ? '/vibe/favicon-white.svg' : '/vibe/favicon-black.svg';
     };
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
