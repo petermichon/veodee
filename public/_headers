@@ -1,0 +1,2 @@
+# Disable problematic Permissions-Policy features
+Permissions-Policy: interest-cohort=()
