@@ -45,7 +45,16 @@ interface TagContextType {
 const TagContext = createContext<TagContextType | undefined>(undefined);
 
 const initializeDefaultStorage = (): TagStorage => {
-  const groups: TagGroup[] = [];
+  const groups: TagGroup[] = [
+    {
+      tags: [],
+      videos: [
+        { id: 'd_xyD3nNQuo' },
+        { id: 'OdYsO1FAFQk' },
+        { id: 'hVvEISFw9w0' },
+      ],
+    },
+  ];
   const defaultTags: Tag[] = [];
 
   const storage: TagStorage = {

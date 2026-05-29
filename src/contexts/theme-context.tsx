@@ -12,14 +12,7 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      return savedTheme as Theme;
-    }
-    // Default to auto mode
-    return 'auto';
-  });
+  const [theme, setTheme] = useState<Theme>('auto');
 
   const [lastManualTheme, setLastManualTheme] = useState<'light' | 'dark'>(
     () => {
@@ -27,7 +20,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       return (savedLastManualTheme as 'light' | 'dark') || 'dark';
     }
   );
-
 
   useEffect(() => {
     const root = window.document.documentElement;

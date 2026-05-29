@@ -21,6 +21,9 @@ npm run build
 ## Project Structure
 
 ```
+public/
+└── pre-style.js  # Sets the initial background to prevent a flash of unstyled content
+
 src/
 ├── components/
 │   ├── player/
