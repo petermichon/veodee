@@ -10,7 +10,11 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon-black.svg', 'favicon-white.svg'],
+      includeAssets: [
+        'favicon-black.svg',
+        'favicon-white.svg',
+        'favicon-white-small.svg',
+      ],
       manifest: {
         name: 'Veodee',
         short_name: 'Veodee',
@@ -20,7 +24,7 @@ export default defineConfig({
         display: 'standalone',
         icons: [
           {
-            src: '/favicon-white.svg',
+            src: '/favicon-white-small.svg',
             sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'any maskable',
