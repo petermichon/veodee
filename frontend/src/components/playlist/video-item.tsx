@@ -127,8 +127,8 @@ export const VideoItem = memo(function VideoItem({
 
   const thumbnailClasses =
     layout === 'grid'
-      ? 'aspect-video relative overflow-hidden shadow-lg rounded-none sm:rounded-lg sm:rounded-xl'
-      : 'relative w-20 sm:w-28 md:w-40 lg:w-48 aspect-video overflow-hidden flex-shrink-0 shadow-lg rounded-none sm:rounded-xl';
+      ? 'aspect-video relative overflow-hidden shadow-lg rounded-lg sm:rounded-xl'
+      : 'relative w-20 sm:w-28 md:w-40 lg:w-48 aspect-video overflow-hidden flex-shrink-0 shadow-lg rounded-lg sm:rounded-xl';
 
   const contentClasses =
     layout === 'grid'

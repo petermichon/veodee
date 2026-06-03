@@ -58,8 +58,8 @@ export const LibraryVideoItem = memo(function LibraryVideoItem({
 
   const thumbnailClasses =
     layout === 'grid'
-      ? 'relative w-24 h-[54px] overflow-hidden flex-shrink-0 rounded'
-      : 'relative w-32 h-20 overflow-hidden flex-shrink-0';
+      ? 'relative w-24 h-[54px] overflow-hidden flex-shrink-0 rounded-lg'
+      : 'relative w-32 h-20 overflow-hidden flex-shrink-0 rounded-lg';
 
   const contentClasses =
     layout === 'grid'

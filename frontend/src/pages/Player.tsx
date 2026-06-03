@@ -13,6 +13,7 @@ import {
   Repeat,
   Maximize,
   Settings,
+  Info,
 } from 'lucide-react';
 import { SimpleYoutubePlayer } from '@/components/player/simple-youtube-player';
 import { LoadingBackground } from '@/components/player/loading-background';
@@ -164,7 +165,7 @@ export function Player() {
   const [playerType, setPlayerType] = useState<'normal' | 'youtube' | 'plyr'>(
     () => {
       const saved = localStorage.getItem('player-type');
-      return (saved as 'normal' | 'youtube' | 'plyr') || 'youtube';
+      return (saved as 'normal' | 'youtube' | 'plyr') || 'plyr';
     }
   );
   const [youtubePermission, setYoutubePermission] = useState(() => {
@@ -198,6 +199,8 @@ export function Player() {
     const saved = localStorage.getItem('force-square-ratio');
     return saved === 'true';
   });
+  const [showSquareRatioTooltip, setShowSquareRatioTooltip] = useState(false);
+  const [showCookiesTooltip, setShowCookiesTooltip] = useState(false);
   const [showPlayerSettings, setShowPlayerSettings] = useState(false);
   const playerSettingsBtnRef = useRef<HTMLButtonElement>(null);
   const playerSettingsPopupRef = useRef<HTMLDivElement>(null);
@@ -643,22 +646,6 @@ export function Player() {
                     <Share2 className="h-5 w-5" />
                     <span className="text-sm">Share</span>
                   </button>
-                  <button
-                    ref={playerSettingsBtnRef}
-                    onClick={() => setShowPlayerSettings(!showPlayerSettings)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer ${showPlayerSettings ? 'text-foreground bg-foreground/10' : 'text-muted-foreground'}`}
-                    style={{
-                      color: showPlayerSettings
-                        ? 'hsl(var(--foreground))'
-                        : 'hsl(var(--muted-foreground))',
-                      backgroundColor: showPlayerSettings
-                        ? 'hsl(var(--foreground) / 0.1)'
-                        : 'transparent',
-                    }}
-                  >
-                    <Settings className="h-5 w-5" />
-                    <span className="text-sm">Player</span>
-                  </button>
 
                   {isEditing ? (
                     <div ref={editInputRef} className="relative ml-4">
@@ -776,138 +763,67 @@ export function Player() {
                   )}
                 </div>
 
-                {/* Row 2: Autoplay, Loop, YouTube, Plyr - Hidden when settings popup is open */}
-                {!showPlayerSettings && (
-                  <div className="flex items-center gap-4 flex-nowrap">
-                    {/* Auto-play Toggle */}
-                    <button
-                      onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
-                      style={{
-                        color: autoPlayEnabled
-                          ? 'white'
-                          : 'hsl(var(--muted-foreground))',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = 'hsl(var(--foreground))';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = autoPlayEnabled
-                          ? 'white'
-                          : 'hsl(var(--muted-foreground))';
-                      }}
-                    >
-                      <PlayCircle className="h-5 w-5" />
-                      <span className="text-sm">Autoplay</span>
-                    </button>
+                {/* Row 2: Autoplay, Loop, YouTube, Plyr */}
+                <div className="flex items-center gap-4 flex-nowrap">
+                  {/* Auto-play Toggle */}
+                  <button
+                    onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
+                    style={{
+                      color: autoPlayEnabled
+                        ? 'white'
+                        : 'hsl(var(--muted-foreground))',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'hsl(var(--foreground))';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = autoPlayEnabled
+                        ? 'white'
+                        : 'hsl(var(--muted-foreground))';
+                    }}
+                  >
+                    <PlayCircle className="h-5 w-5" />
+                    <span className="text-sm">Autoplay</span>
+                  </button>
 
-                    {/* Loop Toggle */}
-                    <button
-                      onClick={() => setLoopEnabled(!loopEnabled)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
-                      style={{
-                        color: loopEnabled
-                          ? 'white'
-                          : 'hsl(var(--muted-foreground))',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = 'hsl(var(--foreground))';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = loopEnabled
-                          ? 'white'
-                          : 'hsl(var(--muted-foreground))';
-                      }}
-                    >
-                      <Repeat className="h-5 w-5" />
-                      <span className="text-sm">Loop</span>
-                    </button>
+                  {/* Loop Toggle */}
+                  <button
+                    onClick={() => setLoopEnabled(!loopEnabled)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
+                    style={{
+                      color: loopEnabled
+                        ? 'white'
+                        : 'hsl(var(--muted-foreground))',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'hsl(var(--foreground))';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = loopEnabled
+                        ? 'white'
+                        : 'hsl(var(--muted-foreground))';
+                    }}
+                  >
+                    <Repeat className="h-5 w-5" />
+                    <span className="text-sm">Loop</span>
+                  </button>
 
-                    {/* Player Type Toggle */}
-                    <div className="flex flex-nowrap items-center gap-1.5 p-1.5 relative">
-                      <button
-                        ref={(el) => {
-                          playerBtnRefs.current[0] = el;
-                        }}
-                        onClick={() =>
-                          setPlayerType(cookiesEnabled ? 'normal' : 'youtube')
-                        }
-                        onMouseEnter={(e) => {
-                          if (!isYouTubeType) {
-                            e.currentTarget.style.color =
-                              'hsl(var(--foreground))';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!isYouTubeType) {
-                            e.currentTarget.style.color =
-                              'hsl(var(--muted-foreground))';
-                          }
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg text-sm font-medium transition-all duration-200 border-none"
-                        style={{
-                          color: isYouTubeType
-                            ? 'white'
-                            : 'hsl(var(--muted-foreground))',
-                        }}
-                      >
-                        <Youtube
-                          className="h-5 w-5"
-                          style={{
-                            color: isYouTubeType
-                              ? 'white'
-                              : 'hsl(var(--muted-foreground))',
-                          }}
-                        />
-                        <span className="text-sm">YouTube</span>
-                      </button>
-                      <button
-                        ref={(el) => {
-                          playerBtnRefs.current[1] = el;
-                        }}
-                        onClick={() => setPlayerType('plyr')}
-                        onMouseEnter={(e) => {
-                          if (playerType !== 'plyr') {
-                            e.currentTarget.style.color =
-                              'hsl(var(--foreground))';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (playerType !== 'plyr') {
-                            e.currentTarget.style.color =
-                              'hsl(var(--muted-foreground))';
-                          }
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg text-sm font-medium transition-all duration-200 border-none"
-                        style={{
-                          color:
-                            playerType === 'plyr'
-                              ? 'white'
-                              : 'hsl(var(--muted-foreground))',
-                        }}
-                      >
-                        <PlayCircle
-                          className="h-5 w-5"
-                          style={{
-                            color:
-                              playerType === 'plyr'
-                                ? 'white'
-                                : 'hsl(var(--muted-foreground))',
-                          }}
-                        />
-                        <span className="text-sm">Plyr</span>
-                      </button>
-                      <div
-                        className="absolute bottom-[-4px] h-0.5 rounded-full transition-all duration-300 ease-out"
-                        style={{
-                          left: playerIndicatorStyle.left,
-                          width: playerIndicatorStyle.width,
-                          backgroundColor: 'white',
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
+                  {/* Player Settings */}
+                  <button
+                    ref={playerSettingsBtnRef}
+                    onClick={() => setShowPlayerSettings(!showPlayerSettings)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer ${showPlayerSettings ? 'text-foreground' : 'text-muted-foreground'}`}
+                    style={{
+                      color: showPlayerSettings
+                        ? 'hsl(var(--foreground))'
+                        : 'hsl(var(--muted-foreground))',
+                    }}
+                  >
+                    <Settings className="h-5 w-5" />
+                    <span className="text-sm">Player</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -936,50 +852,8 @@ export function Player() {
               </button>
             </div>
 
-            {/* Autoplay */}
-            <button
-              onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
-              className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
-              style={{
-                color: autoPlayEnabled
-                  ? 'white'
-                  : 'hsl(var(--muted-foreground))',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = 'hsl(var(--foreground))';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = autoPlayEnabled
-                  ? 'white'
-                  : 'hsl(var(--muted-foreground))';
-              }}
-            >
-              <PlayCircle className="h-5 w-5" />
-              <span className="text-sm">Autoplay</span>
-            </button>
-
-            {/* Loop */}
-            <button
-              onClick={() => setLoopEnabled(!loopEnabled)}
-              className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
-              style={{
-                color: loopEnabled ? 'white' : 'hsl(var(--muted-foreground))',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = 'hsl(var(--foreground))';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = loopEnabled
-                  ? 'white'
-                  : 'hsl(var(--muted-foreground))';
-              }}
-            >
-              <Repeat className="h-5 w-5" />
-              <span className="text-sm">Loop</span>
-            </button>
-
             {/* Player Type */}
-            <div className="flex flex-nowrap items-center gap-1.5 p-1.5 relative">
+            <div className="flex flex-nowrap items-center gap-1.5 relative">
               <button
                 onClick={() =>
                   setPlayerType(cookiesEnabled ? 'normal' : 'youtube')
@@ -1055,57 +929,107 @@ export function Player() {
             </div>
 
             {/* Cookies */}
-            <button
-              onClick={isYouTubeType ? handleCookieToggle : undefined}
-              disabled={!isYouTubeType}
-              className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
-              style={{
-                color: cookiesEnabled
-                  ? 'white'
-                  : 'hsl(var(--muted-foreground))',
-              }}
-              onMouseEnter={(e) => {
-                if (isYouTubeType) {
-                  e.currentTarget.style.color = 'hsl(var(--foreground))';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (isYouTubeType) {
-                  e.currentTarget.style.color = cookiesEnabled
+            <div className="relative flex items-center">
+              <button
+                onClick={isYouTubeType ? handleCookieToggle : undefined}
+                disabled={!isYouTubeType}
+                className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none ${!isYouTubeType ? 'opacity-50' : 'cursor-pointer'}`}
+                style={{
+                  color: cookiesEnabled
                     ? 'white'
-                    : 'hsl(var(--muted-foreground))';
-                }
-              }}
-            >
-              <Cookie className="h-5 w-5" />
-              <span className="text-sm">Cookies</span>
-            </button>
+                    : 'hsl(var(--muted-foreground))',
+                }}
+                onMouseEnter={(e) => {
+                  if (isYouTubeType) {
+                    e.currentTarget.style.color = 'hsl(var(--foreground))';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (isYouTubeType) {
+                    e.currentTarget.style.color = cookiesEnabled
+                      ? 'white'
+                      : 'hsl(var(--muted-foreground))';
+                  }
+                }}
+              >
+                <Cookie className="h-5 w-5" />
+                <span className="text-sm">Cookies</span>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowCookiesTooltip(!showCookiesTooltip);
+                }}
+                onMouseEnter={() => setShowCookiesTooltip(true)}
+                onMouseLeave={() => setShowCookiesTooltip(false)}
+                className="p-1 rounded-full hover:bg-accent transition-colors border-none cursor-pointer"
+                style={{ color: 'hsl(var(--muted-foreground))' }}
+              >
+                <Info className="h-4 w-4" />
+              </button>
+              {showCookiesTooltip && (
+                <div className="absolute left-0 bottom-full mb-2 z-50 w-64 p-3 bg-popover border border-border rounded-lg shadow-lg text-sm">
+                  <p className="font-semibold text-foreground">Cookies</p>
+                  <p className="text-muted-foreground mt-1">
+                    Only available with the YouTube player
+                  </p>
+                </div>
+              )}
+            </div>
 
             {/* Square Ratio */}
-            <button
-              onClick={() => {
-                const newValue = !forceSquareRatio;
-                setForceSquareRatio(newValue);
-                localStorage.setItem('force-square-ratio', String(newValue));
-              }}
-              className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
-              style={{
-                color: forceSquareRatio
-                  ? 'white'
-                  : 'hsl(var(--muted-foreground))',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = 'hsl(var(--foreground))';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = forceSquareRatio
-                  ? 'white'
-                  : 'hsl(var(--muted-foreground))';
-              }}
-            >
-              <Maximize className="h-5 w-5" />
-              <span className="text-sm">Square Ratio</span>
-            </button>
+            <div className="relative flex items-center">
+              <button
+                onClick={() => {
+                  const newValue = !forceSquareRatio;
+                  setForceSquareRatio(newValue);
+                  localStorage.setItem('force-square-ratio', String(newValue));
+                }}
+                className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
+                style={{
+                  color: forceSquareRatio
+                    ? 'white'
+                    : 'hsl(var(--muted-foreground))',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'hsl(var(--foreground))';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = forceSquareRatio
+                    ? 'white'
+                    : 'hsl(var(--muted-foreground))';
+                }}
+              >
+                <Maximize className="h-5 w-5" />
+                <span className="text-sm">Square Ratio</span>
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowSquareRatioTooltip(!showSquareRatioTooltip);
+                }}
+                onMouseEnter={() => setShowSquareRatioTooltip(true)}
+                onMouseLeave={() => setShowSquareRatioTooltip(false)}
+                className="p-1 rounded-full hover:bg-accent transition-colors border-none cursor-pointer"
+                style={{ color: 'hsl(var(--muted-foreground))' }}
+              >
+                <Info className="h-4 w-4" />
+              </button>
+              {showSquareRatioTooltip && (
+                <div className="absolute left-0 bottom-full mb-2 z-50 w-64 p-3 bg-popover border border-border rounded-lg shadow-lg text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">Square Ratio</span>
+                    <span className="text-muted-foreground font-mono text-xs">
+                      EXPERIMENTAL
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground mt-1">
+                    Forces a square aspect ratio for YouTube Music videos for a
+                    more immersive experience.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
