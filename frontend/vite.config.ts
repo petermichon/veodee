@@ -16,11 +16,11 @@ export default defineConfig({
         short_name: 'Veodee',
         description: 'Your video app',
         theme_color: '#000000',
-        background_color: '#ffffff',
+        background_color: '#000000',
         display: 'standalone',
         icons: [
           {
-            src: '/favicon-black.svg',
+            src: '/favicon-white.svg',
             sizes: 'any',
             type: 'image/svg+xml',
             purpose: 'any maskable',
