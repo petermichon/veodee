@@ -16,7 +16,7 @@ export default defineConfig({
         short_name: 'Veodee',
         description: 'Your video app',
         theme_color: '#000000',
-        background_color: '#000000',
+        background_color: '#ffffff',
         display: 'standalone',
         icons: [
           {

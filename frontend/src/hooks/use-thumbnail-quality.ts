@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
 import { getYouTubeThumbnailUrl } from '@/lib/color-extractor';
 
-export function useThumbnailQuality(videoId: string | null, enableMaxres: boolean = true) {
-  const [thumbnailQuality, setThumbnailQuality] = useState<'maxresdefault' | 'hqdefault'>('hqdefault');
+export function useThumbnailQuality(
+  videoId: string | null,
+  enableMaxres: boolean = true
+) {
+  const [thumbnailQuality, setThumbnailQuality] = useState<
+    'maxresdefault' | 'hqdefault'
+  >('hqdefault');
 
   useEffect(() => {
     if (videoId && enableMaxres) {

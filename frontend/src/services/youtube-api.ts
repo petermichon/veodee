@@ -55,13 +55,19 @@ export class YouTubeAPI {
   }
 
   private static async processQueue() {
-    if (this.isProcessing || this.activeRequests >= this.MAX_CONCURRENT_REQUESTS) {
+    if (
+      this.isProcessing ||
+      this.activeRequests >= this.MAX_CONCURRENT_REQUESTS
+    ) {
       return;
     }
 
     this.isProcessing = true;
 
-    while (this.requestQueue.length > 0 && this.activeRequests < this.MAX_CONCURRENT_REQUESTS) {
+    while (
+      this.requestQueue.length > 0 &&
+      this.activeRequests < this.MAX_CONCURRENT_REQUESTS
+    ) {
       const { videoId, resolve } = this.requestQueue.shift()!;
       this.activeRequests++;
 

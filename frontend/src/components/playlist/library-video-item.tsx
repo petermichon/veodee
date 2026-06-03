@@ -72,7 +72,10 @@ export const LibraryVideoItem = memo(function LibraryVideoItem({
       : 'font-medium text-sm leading-tight text-card-foreground truncate group-hover:text-primary transition-colors';
 
   return (
-    <div className={`${containerClasses} ${isDeleted ? 'opacity-50' : ''}`}>
+    <div
+      className={`${containerClasses} ${isDeleted ? 'opacity-50' : ''} ${!isDeleted ? 'cursor-pointer' : ''}`}
+      onClick={() => !isDeleted && onPlay(video)}
+    >
       {layout === 'grid' ? (
         // Grid Layout (horizontal with small thumbnail)
         <>

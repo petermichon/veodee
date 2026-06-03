@@ -115,13 +115,16 @@ export function SimpleYoutubePlayer({
       if (forcedAspectRatio) {
         const plyrElement = containerRef.current.querySelector('.plyr');
         if (plyrElement) {
-          (plyrElement as HTMLElement).style.aspectRatio = `${forcedAspectRatio}`;
+          (plyrElement as HTMLElement).style.aspectRatio =
+            `${forcedAspectRatio}`;
           (plyrElement as HTMLElement).style.height = '100%';
           (plyrElement as HTMLElement).style.width = '100%';
         }
-        const embedElement = containerRef.current.querySelector('.plyr__video-embed');
+        const embedElement =
+          containerRef.current.querySelector('.plyr__video-embed');
         if (embedElement) {
-          (embedElement as HTMLElement).style.aspectRatio = `${forcedAspectRatio}`;
+          (embedElement as HTMLElement).style.aspectRatio =
+            `${forcedAspectRatio}`;
           (embedElement as HTMLElement).style.height = '100%';
           (embedElement as HTMLElement).style.width = '100%';
           const iframe = embedElement.querySelector('iframe');

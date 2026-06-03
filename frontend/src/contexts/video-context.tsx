@@ -114,7 +114,13 @@ export function VideoProvider({ children }: { children: ReactNode }) {
 
   const reorderVideos = useCallback(
     (fromIndex: number, toIndex: number) => {
-      if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0 || toIndex >= videos.length) return;
+      if (
+        fromIndex === toIndex ||
+        fromIndex < 0 ||
+        toIndex < 0 ||
+        toIndex >= videos.length
+      )
+        return;
 
       const reordered = [...videos];
       const [moved] = reordered.splice(fromIndex, 1);
@@ -166,7 +172,9 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       } else {
         // Merge strategy: combine video lists, avoiding duplicates
         const existingIds = new Set(videos.map((v) => v.id));
-        const newVideos = importedVideos.filter((v: Video) => !existingIds.has(v.id));
+        const newVideos = importedVideos.filter(
+          (v: Video) => !existingIds.has(v.id)
+        );
         const mergedVideos = [...videos, ...newVideos];
         setVideos(mergedVideos);
         const storage = {
