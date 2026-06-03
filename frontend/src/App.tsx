@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { TopNav } from '@/components/ui/top-nav';
 import { BottomNav } from '@/components/ui/bottom-nav';
 import { VideoProvider } from '@/contexts/video-context';

@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+  <head>
+    <script>
+      const path = window.location.pathname;
+      const segments = path.split('/').filter(Boolean);
+      const redirectPath = segments.length > 0 ? '/#' + path : '/';
+      window.location.replace(redirectPath);
+    </script>
+  </head>
+  <body></body>
+</html>
