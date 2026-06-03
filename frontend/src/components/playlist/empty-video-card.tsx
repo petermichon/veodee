@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Plus, Check, X } from 'lucide-react';
-import { useTag } from '@/contexts/tag-context';
+import { useVideo } from '@/contexts/video-context';
 import type { Video } from '@/types/index';
 
 interface EmptyVideoCardProps {
@@ -22,8 +22,11 @@ function extractVideoId(input: string): string | null {
   return null;
 }
 
-export function EmptyVideoCard({ onVideoAdded, layout = 'grid' }: EmptyVideoCardProps) {
-  const { addVideo } = useTag();
+export function EmptyVideoCard({
+  onVideoAdded,
+  layout = 'grid',
+}: EmptyVideoCardProps) {
+  const { addVideo } = useVideo();
   const [isExpanded, setIsExpanded] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -45,7 +48,7 @@ export function EmptyVideoCard({ onVideoAdded, layout = 'grid' }: EmptyVideoCard
     const videoId = extractVideoId(inputValue);
     if (!videoId) return;
     try {
-      const video: Video = { id: videoId, tags: [] };
+      const video: Video = { id: videoId };
       addVideo(video);
       onVideoAdded?.(video);
     } catch (error) {
@@ -57,7 +60,10 @@ export function EmptyVideoCard({ onVideoAdded, layout = 'grid' }: EmptyVideoCard
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') handleSubmit(e);
-    if (e.key === 'Escape') { setIsExpanded(false); setInputValue(''); }
+    if (e.key === 'Escape') {
+      setIsExpanded(false);
+      setInputValue('');
+    }
   };
 
   if (layout === 'list') {
@@ -72,7 +78,10 @@ export function EmptyVideoCard({ onVideoAdded, layout = 'grid' }: EmptyVideoCard
           <Plus className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />
         </div>
         {isExpanded ? (
-          <div className="flex items-center gap-2 flex-1 min-w-0" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="flex items-center gap-2 flex-1 min-w-0"
+            onClick={(e) => e.stopPropagation()}
+          >
             <input
               ref={inputRef}
               type="text"
@@ -99,7 +108,9 @@ export function EmptyVideoCard({ onVideoAdded, layout = 'grid' }: EmptyVideoCard
         ) : (
           <div className="flex flex-col gap-0.5">
             <p className="font-medium text-foreground text-sm">Add Video</p>
-            <p className="text-xs text-muted-foreground">Click to add a video</p>
+            <p className="text-xs text-muted-foreground">
+              Click to add a video
+            </p>
           </div>
         )}
       </div>
@@ -108,7 +119,7 @@ export function EmptyVideoCard({ onVideoAdded, layout = 'grid' }: EmptyVideoCard
 
   const handleAddVideo = () => {
     try {
-      const video: Video = { id: '', tags: [] };
+      const video: Video = { id: '' };
       addVideo(video);
       onVideoAdded?.(video);
     } catch (error) {

@@ -1,11 +1,10 @@
 import { memo } from 'react';
-import { RotateCcw, Tags, Download, Upload, Code } from 'lucide-react';
+import { RotateCcw, Download, Upload, Code } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface LibraryControlsProps {
   onReset?: () => void;
-  onOpenTagManager?: () => void;
   onExport?: () => void;
   onImport?: () => void;
   onRaw?: () => void;
@@ -16,7 +15,6 @@ interface LibraryControlsProps {
 // Memoized component to prevent unnecessary re-renders
 export const LibraryControls = memo(function LibraryControls({
   onReset,
-  onOpenTagManager,
   onExport,
   onImport,
   onRaw,
@@ -24,19 +22,12 @@ export const LibraryControls = memo(function LibraryControls({
   className,
 }: LibraryControlsProps) {
   return (
-    <div className={cn('flex items-center justify-end gap-3 mb-6 overflow-x-auto flex-nowrap', className)}>
-      {/* Tags Button */}
-      {onOpenTagManager && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onOpenTagManager}
-          className="h-8 text-muted-foreground hover:bg-transparent"
-        >
-          <Tags className="h-4 w-4 mr-2" />
-          Tags
-        </Button>
+    <div
+      className={cn(
+        'flex items-center justify-end gap-3 mb-6 overflow-x-auto flex-nowrap',
+        className
       )}
+    >
       {/* Import Button */}
       {onImport && (
         <Button

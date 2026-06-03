@@ -15,7 +15,6 @@ interface VideoContainerProps {
   onLoadingChange?: (isLoading: boolean) => void;
   layout?: 'grid' | 'list';
   enableMaxresThumbnails?: boolean;
-  showTags?: boolean;
   onSetBackground?: (videoId: string) => void;
   currentBackgroundVideoId?: string | null;
   onMoveUp?: (index: number) => void;
@@ -33,7 +32,6 @@ export const VideoContainer = memo(function VideoContainer({
   onLoadingChange,
   layout = 'grid',
   enableMaxresThumbnails = true,
-  showTags = true,
   onSetBackground,
   currentBackgroundVideoId,
   onMoveUp,
@@ -71,65 +69,94 @@ export const VideoContainer = memo(function VideoContainer({
     return null;
   }, []);
 
-  const handleContainerDragEnter = useCallback((e: React.DragEvent) => {
-    if (!onVideoAdded || dragIndexRef.current !== null) return;
-    if (!Array.from(e.dataTransfer.types).includes('text/plain')) return;
-    textDragCounterRef.current += 1;
-    setIsTextDragOver(true);
-  }, [onVideoAdded]);
+  const handleContainerDragEnter = useCallback(
+    (e: React.DragEvent) => {
+      if (!onVideoAdded || dragIndexRef.current !== null) return;
+      if (!Array.from(e.dataTransfer.types).includes('text/plain')) return;
+      textDragCounterRef.current += 1;
+      setIsTextDragOver(true);
+    },
+    [onVideoAdded]
+  );
 
-  const handleContainerDragLeave = useCallback((_e: React.DragEvent) => {
-    if (!onVideoAdded) return;
-    textDragCounterRef.current -= 1;
-    if (textDragCounterRef.current <= 0) {
+  const handleContainerDragLeave = useCallback(
+    (_e: React.DragEvent) => {
+      if (!onVideoAdded) return;
+      textDragCounterRef.current -= 1;
+      if (textDragCounterRef.current <= 0) {
+        textDragCounterRef.current = 0;
+        setIsTextDragOver(false);
+      }
+    },
+    [onVideoAdded]
+  );
+
+  const handleContainerDragOver = useCallback(
+    (e: React.DragEvent) => {
+      if (!onVideoAdded || dragIndexRef.current !== null) return;
+      if (!Array.from(e.dataTransfer.types).includes('text/plain')) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+    },
+    [onVideoAdded]
+  );
+
+  const handleContainerDrop = useCallback(
+    (e: React.DragEvent) => {
+      if (!onVideoAdded || dragIndexRef.current !== null) return;
+      const text = e.dataTransfer.getData('text/plain');
+      if (!text) return;
+      const videoId = extractVideoId(text);
+      if (!videoId) return;
+      e.preventDefault();
+      e.stopPropagation();
       textDragCounterRef.current = 0;
       setIsTextDragOver(false);
-    }
-  }, [onVideoAdded]);
+      onVideoAdded({ id: videoId });
+    },
+    [onVideoAdded, extractVideoId]
+  );
 
-  const handleContainerDragOver = useCallback((e: React.DragEvent) => {
-    if (!onVideoAdded || dragIndexRef.current !== null) return;
-    if (!Array.from(e.dataTransfer.types).includes('text/plain')) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-  }, [onVideoAdded]);
+  const handleDragStart = useCallback(
+    (index: number, e: React.DragEvent<HTMLDivElement>) => {
+      dragIndexRef.current = index;
+      e.dataTransfer.effectAllowed = 'move';
+      const card = e.currentTarget;
+      const rect = card.getBoundingClientRect();
+      e.dataTransfer.setDragImage(
+        card,
+        e.clientX - rect.left,
+        e.clientY - rect.top
+      );
+    },
+    []
+  );
 
-  const handleContainerDrop = useCallback((e: React.DragEvent) => {
-    if (!onVideoAdded || dragIndexRef.current !== null) return;
-    const text = e.dataTransfer.getData('text/plain');
-    if (!text) return;
-    const videoId = extractVideoId(text);
-    if (!videoId) return;
-    e.preventDefault();
-    e.stopPropagation();
-    textDragCounterRef.current = 0;
-    setIsTextDragOver(false);
-    onVideoAdded({ id: videoId, tags: [] });
-  }, [onVideoAdded, extractVideoId]);
+  const handleDragOver = useCallback(
+    (index: number, e: React.DragEvent) => {
+      if (!onReorder) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      setDropIndex(index);
+    },
+    [onReorder]
+  );
 
-  const handleDragStart = useCallback((index: number, e: React.DragEvent<HTMLDivElement>) => {
-    dragIndexRef.current = index;
-    e.dataTransfer.effectAllowed = 'move';
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-    e.dataTransfer.setDragImage(card, e.clientX - rect.left, e.clientY - rect.top);
-  }, []);
-
-  const handleDragOver = useCallback((index: number, e: React.DragEvent) => {
-    if (!onReorder) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    setDropIndex(index);
-  }, [onReorder]);
-
-  const handleDrop = useCallback((index: number, e: React.DragEvent) => {
-    e.preventDefault();
-    if (dragIndexRef.current !== null && dragIndexRef.current !== index && onReorder) {
-      onReorder(dragIndexRef.current, index);
-    }
-    dragIndexRef.current = null;
-    setDropIndex(null);
-  }, [onReorder]);
+  const handleDrop = useCallback(
+    (index: number, e: React.DragEvent) => {
+      e.preventDefault();
+      if (
+        dragIndexRef.current !== null &&
+        dragIndexRef.current !== index &&
+        onReorder
+      ) {
+        onReorder(dragIndexRef.current, index);
+      }
+      dragIndexRef.current = null;
+      setDropIndex(null);
+    },
+    [onReorder]
+  );
 
   const handleDragEnd = useCallback(() => {
     dragIndexRef.current = null;
@@ -141,43 +168,56 @@ export const VideoContainer = memo(function VideoContainer({
       const el = cardRefs.current[i];
       if (!el) continue;
       const rect = el.getBoundingClientRect();
-      if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
+      if (
+        x >= rect.left &&
+        x <= rect.right &&
+        y >= rect.top &&
+        y <= rect.bottom
+      ) {
         return i;
       }
     }
     return null;
   }, []);
 
-  const handleTouchStart = useCallback((index: number, _e: React.TouchEvent) => {
-    if (!onReorder) return;
-    touchDragActive.current = false;
-    dragIndexRef.current = index;
-  }, [onReorder]);
+  const handleTouchStart = useCallback(
+    (index: number, _e: React.TouchEvent) => {
+      if (!onReorder) return;
+      touchDragActive.current = false;
+      dragIndexRef.current = index;
+    },
+    [onReorder]
+  );
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!onReorder || dragIndexRef.current === null) return;
-    touchDragActive.current = true;
-    e.preventDefault();
-    const touch = e.touches[0];
-    const idx = getIndexAtPoint(touch.clientX, touch.clientY);
-    setDropIndex(idx);
-  }, [onReorder, getIndexAtPoint]);
-
-  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
-    if (!onReorder || dragIndexRef.current === null) return;
-    if (touchDragActive.current) {
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!onReorder || dragIndexRef.current === null) return;
+      touchDragActive.current = true;
       e.preventDefault();
-      const touch = e.changedTouches[0];
-      const toIndex = getIndexAtPoint(touch.clientX, touch.clientY);
-      if (toIndex !== null && toIndex !== dragIndexRef.current) {
-        onReorder(dragIndexRef.current, toIndex);
-      }
-    }
-    dragIndexRef.current = null;
-    touchDragActive.current = false;
-    setDropIndex(null);
-  }, [onReorder, getIndexAtPoint]);
+      const touch = e.touches[0];
+      const idx = getIndexAtPoint(touch.clientX, touch.clientY);
+      setDropIndex(idx);
+    },
+    [onReorder, getIndexAtPoint]
+  );
 
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (!onReorder || dragIndexRef.current === null) return;
+      if (touchDragActive.current) {
+        e.preventDefault();
+        const touch = e.changedTouches[0];
+        const toIndex = getIndexAtPoint(touch.clientX, touch.clientY);
+        if (toIndex !== null && toIndex !== dragIndexRef.current) {
+          onReorder(dragIndexRef.current, toIndex);
+        }
+      }
+      dragIndexRef.current = null;
+      touchDragActive.current = false;
+      setDropIndex(null);
+    },
+    [onReorder, getIndexAtPoint]
+  );
 
   const [youtubePermission, setYoutubePermission] = useState(
     () => localStorage.getItem('youtube-permission') === 'true'
@@ -196,11 +236,23 @@ export const VideoContainer = memo(function VideoContainer({
       fetchedOrFetching.current.clear();
       setDetails({});
     };
-    window.addEventListener('youtube-permission-granted', handlePermissionGranted);
-    window.addEventListener('youtube-permission-revoked', handlePermissionRevoked);
+    window.addEventListener(
+      'youtube-permission-granted',
+      handlePermissionGranted
+    );
+    window.addEventListener(
+      'youtube-permission-revoked',
+      handlePermissionRevoked
+    );
     return () => {
-      window.removeEventListener('youtube-permission-granted', handlePermissionGranted);
-      window.removeEventListener('youtube-permission-revoked', handlePermissionRevoked);
+      window.removeEventListener(
+        'youtube-permission-granted',
+        handlePermissionGranted
+      );
+      window.removeEventListener(
+        'youtube-permission-revoked',
+        handlePermissionRevoked
+      );
     };
   }, []);
 
@@ -291,13 +343,19 @@ export const VideoContainer = memo(function VideoContainer({
         {readyVideos.map((video, index) => (
           <div
             key={video.id}
-            ref={(el) => { cardRefs.current[index] = el; }}
+            ref={(el) => {
+              cardRefs.current[index] = el;
+            }}
             draggable={!!onReorder}
-            onDragStart={onReorder ? (e) => handleDragStart(index, e) : undefined}
+            onDragStart={
+              onReorder ? (e) => handleDragStart(index, e) : undefined
+            }
             onDragOver={onReorder ? (e) => handleDragOver(index, e) : undefined}
             onDrop={onReorder ? (e) => handleDrop(index, e) : undefined}
             onDragEnd={onReorder ? handleDragEnd : undefined}
-            onTouchStart={onReorder ? (e) => handleTouchStart(index, e) : undefined}
+            onTouchStart={
+              onReorder ? (e) => handleTouchStart(index, e) : undefined
+            }
             onTouchMove={onReorder ? handleTouchMove : undefined}
             onTouchEnd={onReorder ? handleTouchEnd : undefined}
             className={`rounded-xl transition-all duration-150 ${
@@ -313,7 +371,6 @@ export const VideoContainer = memo(function VideoContainer({
               onUpdate={onUpdate}
               loadThumbnails={loadThumbnails}
               enableMaxresThumbnails={enableMaxresThumbnails}
-              showTags={showTags}
               onSetBackground={onSetBackground}
               currentBackgroundVideoId={currentBackgroundVideoId}
               index={index}
@@ -328,17 +385,19 @@ export const VideoContainer = memo(function VideoContainer({
       {/* Loading skeleton cards when actively fetching */}
       {fetchingIds.size > 0 && layout !== 'list' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-          {Array.from({ length: Math.min(fetchingIds.size, 4) }).map((_, idx) => (
-            <div key={`skeleton-${idx}`} className="space-y-3">
-              {/* Thumbnail skeleton */}
-              <div className="aspect-video bg-muted/30 rounded-xl animate-pulse" />
-              {/* Content skeleton */}
-              <div className="px-3 sm:px-4 py-2 space-y-2">
-                <div className="h-4 sm:h-5 bg-muted/30 rounded animate-pulse" />
-                <div className="h-3 sm:h-4 w-20 sm:w-24 bg-muted/30 rounded animate-pulse" />
+          {Array.from({ length: Math.min(fetchingIds.size, 4) }).map(
+            (_, idx) => (
+              <div key={`skeleton-${idx}`} className="space-y-3">
+                {/* Thumbnail skeleton */}
+                <div className="aspect-video bg-muted/30 rounded-xl animate-pulse" />
+                {/* Content skeleton */}
+                <div className="px-3 sm:px-4 py-2 space-y-2">
+                  <div className="h-4 sm:h-5 bg-muted/30 rounded animate-pulse" />
+                  <div className="h-3 sm:h-4 w-20 sm:w-24 bg-muted/30 rounded animate-pulse" />
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          )}
         </div>
       )}
 

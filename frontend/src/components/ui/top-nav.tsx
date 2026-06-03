@@ -34,49 +34,56 @@ interface NavButtonProps {
   buttonClassName?: string;
 }
 
-const NavButton = forwardRef<HTMLAnchorElement | HTMLButtonElement, NavButtonProps>(
-  ({ icon: Icon, text, onClick, href, isActive, className, buttonClassName }, ref) => {
-  const content = (
-    <div className="relative px-3 py-2 -mx-3 -my-2">
-      <div className="relative flex items-center gap-2">
-        <Icon className="h-4 w-4" />
-        <span>{text}</span>
+const NavButton = forwardRef<
+  HTMLAnchorElement | HTMLButtonElement,
+  NavButtonProps
+>(
+  (
+    { icon: Icon, text, onClick, href, isActive, className, buttonClassName },
+    ref
+  ) => {
+    const content = (
+      <div className="relative px-3 py-2 -mx-3 -my-2">
+        <div className="relative flex items-center gap-2">
+          <Icon className="h-4 w-4" />
+          <span>{text}</span>
+        </div>
       </div>
-    </div>
-  );
+    );
 
-  if (href) {
+    if (href) {
+      return (
+        <Link
+          to={href}
+          ref={ref as React.Ref<HTMLAnchorElement>}
+          className={cn(
+            'flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+            isActive && 'text-foreground',
+            !isActive && 'text-muted-foreground hover:text-foreground',
+            className
+          )}
+        >
+          {content}
+        </Link>
+      );
+    }
+
     return (
-      <Link
-        to={href}
-        ref={ref as React.Ref<HTMLAnchorElement>}
+      <button
+        ref={ref as React.Ref<HTMLButtonElement>}
+        onClick={onClick}
         className={cn(
-          'flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors',
+          'flex items-center gap-1.5 px-2 py-2 rounded-xl text-sm transition-colors cursor-pointer',
           isActive && 'text-foreground',
           !isActive && 'text-muted-foreground hover:text-foreground',
-          className
+          buttonClassName
         )}
       >
         {content}
-      </Link>
+      </button>
     );
   }
-
-  return (
-    <button
-      ref={ref as React.Ref<HTMLButtonElement>}
-      onClick={onClick}
-      className={cn(
-        'flex items-center gap-1.5 px-2 py-2 rounded-xl text-sm transition-colors cursor-pointer',
-        isActive && 'text-foreground',
-        !isActive && 'text-muted-foreground hover:text-foreground',
-        buttonClassName
-      )}
-    >
-      {content}
-    </button>
-  );
-});
+);
 
 NavButton.displayName = 'NavButton';
 
@@ -141,7 +148,6 @@ export function TopNav() {
       }
     }
   }, [location.pathname, isNavHovered]);
-
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -218,23 +224,25 @@ export function TopNav() {
 
   return (
     <>
-      <header className={cn(
-        "fixed top-0 left-0 right-0 h-16 z-50 transition-colors",
-        scrolled && "backdrop-blur-md bg-background/80"
-      )}>
+      <header
+        className={cn(
+          'fixed top-0 left-0 right-0 h-16 z-50 transition-colors',
+          scrolled && 'backdrop-blur-md bg-background/80'
+        )}
+      >
         <div className="flex h-full items-center justify-between px-4 md:px-6">
           <div className="flex items-center gap-2 md:gap-4">
             <Link to="/" className="flex items-center gap-2">
               <div className="flex items-center rounded-xl p-1">
                 <img
-                  src="/vibe/logo-black.svg"
+                  src="/logo-black.svg"
                   alt="veodee logo"
                   className="h-8 w-auto dark:hidden"
                   width="108"
                   height="32"
                 />
                 <img
-                  src="/vibe/logo-white.svg"
+                  src="/logo-white.svg"
                   alt="veodee logo"
                   className="h-8 w-auto hidden dark:block"
                   width="108"
@@ -316,11 +324,15 @@ export function TopNav() {
             style={{ top: settingsPos.top, right: settingsPos.right }}
           >
             <div className="px-4 py-3 border-b border-border">
-              <span className="text-sm font-medium text-foreground">Settings</span>
+              <span className="text-sm font-medium text-foreground">
+                Settings
+              </span>
             </div>
             <div className="py-1">
               <div className="px-3 py-2">
-                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Theme</span>
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Theme
+                </span>
                 <div className="flex items-center gap-1 mt-2">
                   <button
                     onClick={() => setTheme('light')}
@@ -376,7 +388,9 @@ export function TopNav() {
                 <div
                   className={cn(
                     'w-8 h-4 rounded-full transition-colors relative flex-shrink-0',
-                    youtubePermission ? 'bg-foreground' : 'bg-muted-foreground/30'
+                    youtubePermission
+                      ? 'bg-foreground'
+                      : 'bg-muted-foreground/30'
                   )}
                 >
                   <div
@@ -389,7 +403,7 @@ export function TopNav() {
               </button>
             </div>
           </div>,
-          document.body
+          document.getElementById('root')!
         )}
 
       {accountOpen &&
@@ -440,7 +454,7 @@ export function TopNav() {
               </button>
             </div>
           </div>,
-          document.body
+          document.getElementById('root')!
         )}
     </>
   );

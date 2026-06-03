@@ -1,8 +1,19 @@
 import { memo, useState } from 'react';
-import { Trash2, Edit2, Check, X, ExternalLink, Copy, Check as CheckIcon, ImagePlay, GripVertical, Youtube, ArrowUp, ArrowDown } from 'lucide-react';
+import {
+  Trash2,
+  Edit2,
+  Check,
+  X,
+  ExternalLink,
+  Copy,
+  Check as CheckIcon,
+  ImagePlay,
+  GripVertical,
+  Youtube,
+  ArrowUp,
+  ArrowDown,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { TagSelector } from '@/components/ui/tag-selector';
-import { useTag } from '@/contexts/tag-context';
 import { useThumbnailQuality } from '@/hooks/use-thumbnail-quality';
 import { getYouTubeThumbnailUrl } from '@/lib/color-extractor';
 import type { YouTubeVideoDetails } from '@/services/youtube-api';
@@ -19,7 +30,6 @@ interface VideoItemProps {
   onUpdate?: (videoId: string, updates: Partial<Video>) => void;
   loadThumbnails?: boolean;
   enableMaxresThumbnails?: boolean;
-  showTags?: boolean;
   onSetBackground?: (videoId: string) => void;
   currentBackgroundVideoId?: string | null;
   onMoveUp?: () => void;
@@ -37,7 +47,6 @@ export const VideoItem = memo(function VideoItem({
   onUpdate,
   loadThumbnails = true,
   enableMaxresThumbnails = true,
-  showTags = true,
   onSetBackground,
   currentBackgroundVideoId,
   onMoveUp,
@@ -45,18 +54,27 @@ export const VideoItem = memo(function VideoItem({
   index = 0,
   totalVideos = 0,
 }: VideoItemProps) {
-  const { tags } = useTag();
   // Check if this is fallback data (no real YouTube details)
-  const isFallbackData = !videoDetails?.title || videoDetails.title === video.id;
-  const thumbnailQuality = useThumbnailQuality(video.id, enableMaxresThumbnails && !isFallbackData);
+  const isFallbackData =
+    !videoDetails?.title || videoDetails.title === video.id;
+  const thumbnailQuality = useThumbnailQuality(
+    video.id,
+    enableMaxresThumbnails && !isFallbackData
+  );
   const [isEditing, setIsEditing] = useState(false);
-  const [editTags, setEditTags] = useState(video.tags);
   const [editVideoId, setEditVideoId] = useState(video.id);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [redirectPrompt, setRedirectPrompt] = useState<{ url: string; name: string } | null>(null);
+  const [redirectPrompt, setRedirectPrompt] = useState<{
+    url: string;
+    name: string;
+  } | null>(null);
 
-  const handleAuthorClick = (e: React.MouseEvent, url: string, name: string) => {
+  const handleAuthorClick = (
+    e: React.MouseEvent,
+    url: string,
+    name: string
+  ) => {
     e.preventDefault();
     e.stopPropagation();
     setRedirectPrompt({ url, name });
@@ -78,7 +96,6 @@ export const VideoItem = memo(function VideoItem({
   const handleStartEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
     setEditVideoId(video.id);
-    setEditTags(video.tags);
     setIsEditing(true);
   };
 
@@ -87,7 +104,6 @@ export const VideoItem = memo(function VideoItem({
     if (onUpdate) {
       onUpdate(video.id, {
         id: editVideoId,
-        tags: editTags,
       });
     }
     setIsEditing(false);
@@ -96,7 +112,6 @@ export const VideoItem = memo(function VideoItem({
   const handleCancelEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
     setEditVideoId(video.id);
-    setEditTags(video.tags);
     setIsEditing(false);
   };
 
@@ -112,8 +127,8 @@ export const VideoItem = memo(function VideoItem({
 
   const thumbnailClasses =
     layout === 'grid'
-      ? 'aspect-video relative overflow-hidden shadow-lg rounded-lg sm:rounded-xl'
-      : 'relative w-28 sm:w-40 md:w-48 aspect-video overflow-hidden flex-shrink-0 shadow-lg rounded-xl';
+      ? 'aspect-video relative overflow-hidden shadow-lg rounded-none sm:rounded-lg sm:rounded-xl'
+      : 'relative w-20 sm:w-28 md:w-40 lg:w-48 aspect-video overflow-hidden flex-shrink-0 shadow-lg rounded-none sm:rounded-xl';
 
   const contentClasses =
     layout === 'grid'
@@ -123,7 +138,7 @@ export const VideoItem = memo(function VideoItem({
   const titleClasses =
     layout === 'grid'
       ? 'font-semibold text-sm sm:text-base leading-snug text-card-foreground line-clamp-2 group-hover:text-primary transition-colors'
-      : 'font-semibold text-sm sm:text-base leading-snug text-card-foreground line-clamp-1 group-hover:text-primary transition-colors';
+      : 'font-semibold text-xs sm:text-sm md:text-base leading-snug text-card-foreground line-clamp-1 group-hover:text-primary transition-colors';
 
   return (
     <div
@@ -138,7 +153,10 @@ export const VideoItem = memo(function VideoItem({
       {redirectPrompt && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm cursor-default"
-          onClick={(e) => { e.stopPropagation(); setRedirectPrompt(null); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            setRedirectPrompt(null);
+          }}
         >
           <div
             className="bg-card border border-border rounded-2xl shadow-xl p-6 w-80 max-w-[90vw] flex flex-col gap-4"
@@ -147,10 +165,16 @@ export const VideoItem = memo(function VideoItem({
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
                 <Youtube className="h-5 w-5 text-white" />
-                <span className="font-semibold text-foreground text-base">Opening YouTube</span>
+                <span className="font-semibold text-foreground text-base">
+                  Opening YouTube
+                </span>
               </div>
               <span className="text-sm text-muted-foreground">
-                You're about to visit <span className="font-medium text-foreground">{redirectPrompt.name}</span>'s channel on YouTube.
+                You're about to visit{' '}
+                <span className="font-medium text-foreground">
+                  {redirectPrompt.name}
+                </span>
+                's channel on YouTube.
               </span>
             </div>
             <div className="flex gap-2">
@@ -207,17 +231,6 @@ export const VideoItem = memo(function VideoItem({
                     className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm focus:outline-none focus:border-ring"
                   />
                 </div>
-                {/* Tags */}
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-2 block">
-                    Tags
-                  </label>
-                  <TagSelector
-                    selectedTags={editTags}
-                    onTagsChange={setEditTags}
-                    placeholder="Add tags..."
-                  />
-                </div>
 
                 {/* Edit Actions */}
                 <div className="flex items-center gap-2 pt-2">
@@ -257,10 +270,18 @@ export const VideoItem = memo(function VideoItem({
                       {details?.author_url ? (
                         <a
                           href={details.author_url}
-                          onClick={(e) => handleAuthorClick(e, details.author_url!, details.author_name!)}
+                          onClick={(e) =>
+                            handleAuthorClick(
+                              e,
+                              details.author_url!,
+                              details.author_name!
+                            )
+                          }
                           className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 truncate min-w-0 flex-1 cursor-pointer"
                         >
-                          <span className="truncate">{details.author_name}</span>
+                          <span className="truncate">
+                            {details.author_name}
+                          </span>
                           <ExternalLink className="h-3 w-3 flex-shrink-0" />
                         </a>
                       ) : (
@@ -273,39 +294,15 @@ export const VideoItem = memo(function VideoItem({
                     <div className="h-4 w-24 bg-muted/30 rounded flex-1" />
                   )}
                 </div>
-
-                {/* Tags */}
-                {showTags && video.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5" onClick={(e) => e.stopPropagation()}>
-                    {video.tags.map((tagName) => {
-                      const tag = tags.find((t) => t.name === tagName);
-                      return (
-                        <span
-                          key={tagName}
-                          className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium hover:opacity-80 transition-all cursor-pointer"
-                          style={{
-                            backgroundColor: tag?.color
-                              ? `${tag.color}20`
-                              : '#e2e8f0',
-                            color: tag?.color || '#64748b',
-                          }}
-                        >
-                          {tagName}
-                        </span>
-                      );
-                    })}
-                  </div>
-                )}
-
               </div>
             )}
           </div>
         </>
       ) : (
         // List Layout
-        <div className="flex gap-2 sm:gap-5 items-center rounded-xl px-2 min-w-0 overflow-hidden transition-shadow duration-150 hover:shadow-md group-hover:bg-accent/5">
+        <div className="flex gap-2 sm:gap-3 md:gap-5 items-center rounded-xl px-2 min-w-0 overflow-hidden transition-shadow duration-150 hover:shadow-md group-hover:bg-accent/5">
           {/* Drag handle */}
-          <GripVertical className="h-5 w-5 flex-shrink-0 text-muted-foreground group-hover:text-foreground transition-colors" />
+          <GripVertical className="h-5 w-5 flex-shrink-0 text-muted-foreground group-hover:text-foreground transition-colors hidden sm:block" />
           {/* Thumbnail */}
           <div className={`${thumbnailClasses} relative`}>
             {loadThumbnails && !isFallbackData ? (
@@ -329,7 +326,11 @@ export const VideoItem = memo(function VideoItem({
                     ? 'opacity-100 bg-primary text-primary-foreground'
                     : 'opacity-0 group-hover:opacity-100 bg-black/50 text-white hover:bg-black/70'
                 }`}
-                title={currentBackgroundVideoId === video.id ? 'Remove background' : 'Set as background'}
+                title={
+                  currentBackgroundVideoId === video.id
+                    ? 'Remove background'
+                    : 'Set as background'
+                }
               >
                 <ImagePlay className="h-4 w-4" />
               </button>
@@ -351,17 +352,6 @@ export const VideoItem = memo(function VideoItem({
                     value={editVideoId}
                     onChange={(e) => setEditVideoId(e.target.value)}
                     className="w-full px-3 py-2 bg-background border border-border rounded-lg text-foreground text-sm focus:outline-none focus:border-ring"
-                  />
-                </div>
-                {/* Tags */}
-                <div>
-                  <label className="text-xs font-medium text-muted-foreground block">
-                    Tags
-                  </label>
-                  <TagSelector
-                    selectedTags={editTags}
-                    onTagsChange={setEditTags}
-                    placeholder="Add tags..."
                   />
                 </div>
 
@@ -403,14 +393,22 @@ export const VideoItem = memo(function VideoItem({
                         {details?.author_url ? (
                           <a
                             href={details.author_url}
-                            onClick={(e) => handleAuthorClick(e, details.author_url!, details.author_name!)}
-                            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 min-w-0 flex-1 cursor-pointer"
+                            onClick={(e) =>
+                              handleAuthorClick(
+                                e,
+                                details.author_url!,
+                                details.author_name!
+                              )
+                            }
+                            className="text-xs sm:text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 min-w-0 flex-1 cursor-pointer"
                           >
-                            <span className="truncate">{details.author_name}</span>
+                            <span className="truncate">
+                              {details.author_name}
+                            </span>
                             <ExternalLink className="h-3 w-3 flex-shrink-0" />
                           </a>
                         ) : (
-                          <span className="text-sm font-medium text-muted-foreground min-w-0 flex-1 truncate">
+                          <span className="text-xs sm:text-sm font-medium text-muted-foreground min-w-0 flex-1 truncate">
                             {details.author_name}
                           </span>
                         )}
@@ -419,10 +417,10 @@ export const VideoItem = memo(function VideoItem({
                       <div className="h-4 w-24 bg-muted/30 rounded flex-1" />
                     )}
                     <div
-                      className="flex items-center gap-1 group/video-id hover:text-foreground transition-colors cursor-pointer flex-shrink-0 min-w-0"
+                      className="hidden sm:flex items-center gap-1 group/video-id hover:text-foreground transition-colors cursor-pointer flex-shrink-0 min-w-0"
                       onClick={handleCopyVideoId}
                     >
-                      <span className="text-sm text-muted-foreground font-mono group-hover/video-id:text-foreground truncate">
+                      <span className="text-xs sm:text-sm text-muted-foreground font-mono group-hover/video-id:text-foreground truncate">
                         {video.id}
                       </span>
                       {copiedId === video.id ? (
@@ -432,34 +430,14 @@ export const VideoItem = memo(function VideoItem({
                       )}
                     </div>
                   </div>
-
-                  {/* Tags */}
-                  {showTags && video.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
-                      {video.tags.map((tagName) => {
-                        const tag = tags.find((t) => t.name === tagName);
-                        return (
-                          <span
-                            key={tagName}
-                            className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium transition-all hover:opacity-80 cursor-pointer"
-                            style={{
-                              backgroundColor: tag?.color
-                                ? `${tag.color}15`
-                                : '#e2e8f0',
-                              color: tag?.color || '#64748b',
-                            }}
-                          >
-                            {tagName}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  )}
                 </div>
 
                 {/* Actions */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                  <div
+                    className="flex items-center gap-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     {onMoveUp && index > 0 && (
                       <Button
                         variant="ghost"
@@ -490,7 +468,10 @@ export const VideoItem = memo(function VideoItem({
                     )}
                   </div>
                   {(onUpdate || onRemove) && (
-                    <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                    <div
+                      className="flex items-center gap-1"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       {onUpdate && (
                         <Button
                           variant="ghost"
