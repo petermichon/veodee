@@ -277,7 +277,6 @@ export function Player() {
       return (saved as 'contain' | 'cover') || 'cover';
     }
   );
-  const isUpdatingHash = useRef(false);
 
   const isYouTubeType = playerType === 'normal' || playerType === 'youtube';
 
@@ -492,45 +491,14 @@ export function Player() {
       // Add/remove class to hide top nav
       if (isNowFullscreen) {
         document.documentElement.classList.add('player-fullscreen');
-        // Set hash if not updating via hashchange
-        if (!isUpdatingHash.current) {
-          window.location.hash = 'fullscreen';
-        }
-        isUpdatingHash.current = false;
       } else {
         document.documentElement.classList.remove('player-fullscreen');
-        // Remove hash if not updating via hashchange
-        if (!isUpdatingHash.current && window.location.hash === '#fullscreen') {
-          window.location.hash = '';
-        }
-        isUpdatingHash.current = false;
       }
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () =>
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
-
-  // Handle hash changes for fullscreen navigation
-  useEffect(() => {
-    const handleHashChange = () => {
-      const isFullscreen = !!document.fullscreenElement;
-      const shouldFullscreen = window.location.hash === '#fullscreen';
-
-      if (shouldFullscreen && !isFullscreen) {
-        // Hash changed to fullscreen - enter fullscreen
-        isUpdatingHash.current = true;
-        document.documentElement.requestFullscreen();
-      } else if (!shouldFullscreen && isFullscreen) {
-        // Hash removed - exit fullscreen
-        isUpdatingHash.current = true;
-        document.exitFullscreen();
-      }
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const handleShare = async (urlType: 'youtube' | 'current') => {
