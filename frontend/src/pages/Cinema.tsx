@@ -345,7 +345,7 @@ export function Cinema() {
       <div className="relative z-10 w-full h-screen flex items-center justify-center">
         {/* UI Overlay */}
         <div
-          className={`absolute inset-0 pointer-events-none transition-opacity duration-300 ${
+          className={`absolute inset-0 pointer-events-none transition-opacity duration-300 z-50 ${
             showUI ? 'opacity-100' : 'opacity-0'
           }`}
         >
