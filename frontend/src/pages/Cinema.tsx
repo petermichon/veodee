@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Youtube, Maximize2, Maximize } from 'lucide-react';
 import { SimpleYoutubePlayer } from '@/components/player/simple-youtube-player';
@@ -173,6 +173,7 @@ function VideoPlayer({
 export function Cinema() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
   const [autoPlayEnabled] = useState(
     () => localStorage.getItem('player-autoplay-enabled') === 'true'
@@ -221,6 +222,11 @@ export function Cinema() {
     }
   }, [location.state, youtubePermission, searchParams]);
 
+  // Trigger fullscreen on mount
+  useEffect(() => {
+    document.documentElement.requestFullscreen();
+  }, []);
+
   useEffect(() => {
     setThumbnailBackgroundUrl(
       currentVideoId
@@ -242,13 +248,24 @@ export function Cinema() {
   // Track fullscreen state
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      const isNowFullscreen = !!document.fullscreenElement;
+      setIsFullscreen(isNowFullscreen);
+      setFillScreen(isNowFullscreen);
+
+      // Exit cinema mode when leaving fullscreen
+      if (!isNowFullscreen) {
+        if (currentVideoId) {
+          navigate(`/player?videoId=${currentVideoId}`);
+        } else {
+          navigate('/player');
+        }
+      }
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () =>
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
+  }, [navigate, currentVideoId]);
 
   const handleGrantPermission = () => {
     setYoutubePermission(true);
