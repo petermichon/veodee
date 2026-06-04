@@ -590,7 +590,7 @@ export function Player() {
                 }}
               >
                 <div
-                  className={`${fillScreen ? '' : 'shadow-2xl overflow-hidden rounded-xl sm:rounded-3xl'} w-full h-full bg-transparent`}
+                  className={`${fillScreen ? '' : 'shadow-2xl overflow-hidden rounded-lg sm:rounded-xl'} w-full h-full bg-transparent`}
                 >
                   {(videoAspectRatio || fillScreen) && (
                     <VideoPlayer
@@ -608,7 +608,7 @@ export function Player() {
                   )}
                 </div>
                 {isDragging && !fillScreen && (
-                  <div className="absolute inset-0 bg-foreground/20 flex items-center justify-center z-10 backdrop-blur-sm rounded-none sm:rounded-3xl">
+                  <div className="absolute inset-0 bg-foreground/20 flex items-center justify-center z-10 backdrop-blur-sm rounded-lg sm:rounded-xl">
                     <div className="text-center">
                       <p className="text-foreground text-lg font-semibold">
                         Drop video ID here
