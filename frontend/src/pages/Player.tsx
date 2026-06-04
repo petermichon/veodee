@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useLocation, useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   Youtube,
@@ -14,6 +14,7 @@ import {
   Maximize,
   Settings,
   Info,
+  Film,
 } from 'lucide-react';
 import { SimpleYoutubePlayer } from '@/components/player/simple-youtube-player';
 import { LoadingBackground } from '@/components/player/loading-background';
@@ -147,6 +148,7 @@ function VideoPlayer({
 
 export function Player() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { addVideo, removeVideo, videos } = useVideo();
   const { toast } = useToast();
@@ -775,7 +777,7 @@ export function Player() {
                   )}
                 </div>
 
-                {/* Row 2: Fullscreen, Autoplay, Loop, YouTube, Plyr */}
+                {/* Row 2: Fullscreen, Cinema, Autoplay, Loop, YouTube, Plyr */}
                 <div className="flex items-center gap-4 flex-nowrap">
                   {/* Fullscreen Toggle */}
                   <button
@@ -803,6 +805,34 @@ export function Player() {
                   >
                     <Maximize className="h-5 w-5" />
                     <span className="text-sm">Fullscreen</span>
+                  </button>
+
+                  {/* Cinema Button */}
+                  <button
+                    onClick={() => {
+                      if (currentVideoId) {
+                        navigate(`/cinema?videoId=${currentVideoId}`);
+                      }
+                    }}
+                    disabled={!currentVideoId}
+                    className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
+                    style={{
+                      color: currentVideoId
+                        ? 'hsl(var(--muted-foreground))'
+                        : 'hsl(var(--muted-foreground))',
+                    }}
+                    onMouseEnter={(e) => {
+                      if (currentVideoId) {
+                        e.currentTarget.style.color = 'hsl(var(--foreground))';
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color =
+                        'hsl(var(--muted-foreground))';
+                    }}
+                  >
+                    <Film className="h-5 w-5" />
+                    <span className="text-sm">Cinema</span>
                   </button>
 
                   {/* Auto-play Toggle */}

@@ -116,6 +116,16 @@ html {
   overflow-y: scroll;
 }
 
+/* Hide scrollbar in cinema mode */
+html.cinema-mode {
+  overflow-y: auto !important;
+}
+
+html.cinema-mode::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
