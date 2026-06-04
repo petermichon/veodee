@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Youtube, Maximize2 } from 'lucide-react';
+import { Youtube, Maximize2, Maximize } from 'lucide-react';
 import { SimpleYoutubePlayer } from '@/components/player/simple-youtube-player';
 import { LoadingBackground } from '@/components/player/loading-background';
 import { YouTubeAPI } from '@/services/youtube-api';
@@ -200,6 +200,7 @@ export function Cinema() {
     return localStorage.getItem('home-background');
   });
   const [fillScreen, setFillScreen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Handle video from navigation
   useEffect(() => {
@@ -238,6 +239,17 @@ export function Cinema() {
       window.removeEventListener('background-changed', handleBackgroundChange);
   }, []);
 
+  // Track fullscreen state
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () =>
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
   const handleGrantPermission = () => {
     setYoutubePermission(true);
     localStorage.setItem('youtube-permission', 'true');
@@ -274,15 +286,32 @@ export function Cinema() {
         </div>
       )}
       <div className="relative z-10 w-full h-screen flex items-center justify-center">
-        <button
-          onClick={() => setFillScreen(!fillScreen)}
-          className="absolute top-4 right-4 z-20 p-2 rounded-md bg-black/50 hover:bg-black/70 transition-colors"
-          style={{
-            color: fillScreen ? 'white' : 'hsl(var(--muted-foreground))',
-          }}
-        >
-          <Maximize2 className="h-5 w-5" />
-        </button>
+        <div className="absolute top-4 right-4 z-20 flex gap-2">
+          <button
+            onClick={() => setFillScreen(!fillScreen)}
+            className="p-2 rounded-md bg-black/50 hover:bg-black/70 transition-colors"
+            style={{
+              color: fillScreen ? 'white' : 'hsl(var(--muted-foreground))',
+            }}
+          >
+            <Maximize2 className="h-5 w-5" />
+          </button>
+          <button
+            onClick={() => {
+              if (!isFullscreen) {
+                document.documentElement.requestFullscreen();
+              } else {
+                document.exitFullscreen();
+              }
+            }}
+            className="p-2 rounded-md bg-black/50 hover:bg-black/70 transition-colors"
+            style={{
+              color: isFullscreen ? 'white' : 'hsl(var(--muted-foreground))',
+            }}
+          >
+            <Maximize className="h-5 w-5" />
+          </button>
+        </div>
         <VideoPlayer
           videoId={youtubePermission ? currentVideoId : null}
           playerType={playerType}
