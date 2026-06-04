@@ -12,6 +12,8 @@ import {
   X,
   Repeat,
   Maximize,
+  Maximize2,
+  Minimize2,
   Settings,
   Info,
 } from 'lucide-react';
@@ -34,6 +36,7 @@ function VideoPlayer({
   loopEnabled,
   forcedAspectRatio,
   fillScreen,
+  fullscreenMode,
 }: {
   videoId: string | null;
   playerType: 'normal' | 'youtube' | 'plyr';
@@ -43,6 +46,7 @@ function VideoPlayer({
   loopEnabled: boolean;
   forcedAspectRatio: number | null;
   fillScreen: boolean;
+  fullscreenMode: 'contain' | 'cover';
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -132,22 +136,59 @@ function VideoPlayer({
 
             <div
               style={{
-                aspectRatio: fillScreen ? undefined : '16 / 9',
-                width: fillScreen ? '100vw' : '100%',
-                height: fillScreen ? '100vh' : '100%',
+                aspectRatio: fillScreen
+                  ? fullscreenMode === 'contain'
+                    ? '16 / 9'
+                    : undefined
+                  : '16 / 9',
+                width: fillScreen
+                  ? fullscreenMode === 'contain'
+                    ? 'min(100vw, 100vh * 16 / 9)'
+                    : '100vw'
+                  : '100%',
+                height: fillScreen
+                  ? fullscreenMode === 'contain'
+                    ? 'min(100vh, 100vw * 9 / 16)'
+                    : '100vh'
+                  : '100%',
                 overflow: 'hidden',
-                position: 'relative',
+                position:
+                  fillScreen && fullscreenMode === 'contain'
+                    ? 'absolute'
+                    : 'relative',
+                top:
+                  fillScreen && fullscreenMode === 'contain' ? '50%' : 'auto',
+                left:
+                  fillScreen && fullscreenMode === 'contain' ? '50%' : 'auto',
+                transform:
+                  fillScreen && fullscreenMode === 'contain'
+                    ? 'translate(-50%, -50%)'
+                    : 'none',
               }}
             >
               <iframe
                 style={{
                   backgroundColor: 'transparent',
-                  width: fillScreen ? 'max(100vw, 100vh * 16 / 9)' : '100%',
-                  height: fillScreen ? 'max(100vh, 100vw * 9 / 16)' : '100%',
-                  position: fillScreen ? 'absolute' : 'relative',
-                  top: fillScreen ? '50%' : 'auto',
-                  left: fillScreen ? '50%' : 'auto',
-                  transform: fillScreen ? 'translate(-50%, -50%)' : 'none',
+                  width:
+                    fillScreen && fullscreenMode === 'cover'
+                      ? 'max(100vw, 100vh * 16 / 9)'
+                      : '100%',
+                  height:
+                    fillScreen && fullscreenMode === 'cover'
+                      ? 'max(100vh, 100vw * 9 / 16)'
+                      : '100%',
+                  position:
+                    fillScreen && fullscreenMode === 'cover'
+                      ? 'absolute'
+                      : 'relative',
+                  top:
+                    fillScreen && fullscreenMode === 'cover' ? '50%' : 'auto',
+                  left:
+                    fillScreen && fullscreenMode === 'cover' ? '50%' : 'auto',
+                  transform:
+                    fillScreen && fullscreenMode === 'cover'
+                      ? 'translate(-50%, -50%)'
+                      : 'none',
                 }}
                 src={embedUrl}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -184,7 +225,7 @@ export function Player() {
   const [playerType, setPlayerType] = useState<'normal' | 'youtube' | 'plyr'>(
     () => {
       const saved = localStorage.getItem('player-type');
-      return (saved as 'normal' | 'youtube' | 'plyr') || 'plyr';
+      return (saved as 'normal' | 'youtube' | 'plyr') || 'youtube';
     }
   );
   const [youtubePermission, setYoutubePermission] = useState(() => {
@@ -203,6 +244,11 @@ export function Player() {
     width: number;
   }>({ left: 0, width: 0 });
   const playerBtnRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [fullscreenIndicatorStyle, setFullscreenIndicatorStyle] = useState<{
+    left: number;
+    width: number;
+  }>({ left: 0, width: 0 });
+  const fullscreenBtnRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const editInputRef = useRef<HTMLDivElement>(null);
   const videoIdInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -225,6 +271,13 @@ export function Player() {
   const playerSettingsPopupRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fillScreen, setFillScreen] = useState(false);
+  const [fullscreenMode, setFullscreenMode] = useState<'contain' | 'cover'>(
+    () => {
+      const saved = localStorage.getItem('fullscreen-mode');
+      return (saved as 'contain' | 'cover') || 'cover';
+    }
+  );
+  const isEnteringFullscreenViaHistory = useRef(false);
 
   const isYouTubeType = playerType === 'normal' || playerType === 'youtube';
 
@@ -276,6 +329,11 @@ export function Player() {
     savePreference('player-loop-enabled', loopEnabled);
   }, [loopEnabled]);
 
+  // Save fullscreen mode preference to localStorage when it changes
+  useEffect(() => {
+    savePreference('fullscreen-mode', fullscreenMode);
+  }, [fullscreenMode]);
+
   // Calculate player indicator position
   useEffect(() => {
     const activeIndex = isYouTubeType ? 0 : 1;
@@ -290,6 +348,21 @@ export function Player() {
     const lineCenter = btnRect.left - parentRect.left + btnRect.width / 2;
     setPlayerIndicatorStyle({ left: lineCenter - 8, width: 16 });
   }, [playerType, isYouTubeType]);
+
+  // Calculate fullscreen mode indicator position
+  useEffect(() => {
+    const activeIndex = fullscreenMode === 'cover' ? 0 : 1;
+    const fullscreenBtn = fullscreenBtnRefs.current[activeIndex];
+    if (!fullscreenBtn) return;
+
+    const parent = fullscreenBtn.parentElement;
+    if (!parent) return;
+
+    const parentRect = parent.getBoundingClientRect();
+    const btnRect = fullscreenBtn.getBoundingClientRect();
+    const lineCenter = btnRect.left - parentRect.left + btnRect.width / 2;
+    setFullscreenIndicatorStyle({ left: lineCenter - 8, width: 16 });
+  }, [fullscreenMode]);
 
   // Handle cookie toggle - switches between normal and youtube when on YouTube
   const handleCookieToggle = () => {
@@ -419,6 +492,15 @@ export function Player() {
       // Add/remove class to hide top nav
       if (isNowFullscreen) {
         document.documentElement.classList.add('player-fullscreen');
+        // Only push history state if not entering via history navigation
+        if (!isEnteringFullscreenViaHistory.current) {
+          window.history.pushState(
+            { fullscreen: true },
+            '',
+            window.location.href
+          );
+        }
+        isEnteringFullscreenViaHistory.current = false;
       } else {
         document.documentElement.classList.remove('player-fullscreen');
       }
@@ -427,6 +509,27 @@ export function Player() {
     document.addEventListener('fullscreenchange', handleFullscreenChange);
     return () =>
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  // Handle back button to exit fullscreen
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      const isFullscreen = !!document.fullscreenElement;
+      const shouldFullscreen = e.state?.fullscreen;
+
+      if (shouldFullscreen && !isFullscreen) {
+        // Going forward - re-enter fullscreen
+        isEnteringFullscreenViaHistory.current = true;
+        document.documentElement.requestFullscreen();
+      } else if (isFullscreen) {
+        // Going back - exit fullscreen
+        e.preventDefault();
+        document.exitFullscreen();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
   const handleShare = async (urlType: 'youtube' | 'current') => {
@@ -590,7 +693,7 @@ export function Player() {
                 }}
               >
                 <div
-                  className={`${fillScreen ? '' : 'shadow-2xl overflow-hidden rounded-lg sm:rounded-xl'} w-full h-full bg-transparent`}
+                  className={`${fillScreen ? '' : 'shadow-2xl overflow-hidden rounded-lg sm:rounded-3xl'} w-full h-full bg-transparent`}
                 >
                   {(videoAspectRatio || fillScreen) && (
                     <VideoPlayer
@@ -604,11 +707,12 @@ export function Player() {
                         forceSquareRatio && isYouTubeMusicVideo ? 1 : null
                       }
                       fillScreen={fillScreen}
+                      fullscreenMode={fullscreenMode}
                     />
                   )}
                 </div>
                 {isDragging && !fillScreen && (
-                  <div className="absolute inset-0 bg-foreground/20 flex items-center justify-center z-10 backdrop-blur-sm rounded-lg sm:rounded-xl">
+                  <div className="absolute inset-0 bg-foreground/20 flex items-center justify-center z-10 backdrop-blur-sm rounded-lg sm:rounded-3xl">
                     <div className="text-center">
                       <p className="text-foreground text-lg font-semibold">
                         Drop video ID here
@@ -846,50 +950,6 @@ export function Player() {
                       <span className="text-sm">Fullscreen</span>
                     </button>
 
-                    {/* Auto-play Toggle */}
-                    <button
-                      onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
-                      style={{
-                        color: autoPlayEnabled
-                          ? 'white'
-                          : 'hsl(var(--muted-foreground))',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = 'hsl(var(--foreground))';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = autoPlayEnabled
-                          ? 'white'
-                          : 'hsl(var(--muted-foreground))';
-                      }}
-                    >
-                      <PlayCircle className="h-5 w-5" />
-                      <span className="text-sm">Autoplay</span>
-                    </button>
-
-                    {/* Loop Toggle */}
-                    <button
-                      onClick={() => setLoopEnabled(!loopEnabled)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
-                      style={{
-                        color: loopEnabled
-                          ? 'white'
-                          : 'hsl(var(--muted-foreground))',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.color = 'hsl(var(--foreground))';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.color = loopEnabled
-                          ? 'white'
-                          : 'hsl(var(--muted-foreground))';
-                      }}
-                    >
-                      <Repeat className="h-5 w-5" />
-                      <span className="text-sm">Loop</span>
-                    </button>
-
                     {/* Player Settings */}
                     <button
                       ref={playerSettingsBtnRef}
@@ -902,7 +962,7 @@ export function Player() {
                       }}
                     >
                       <Settings className="h-5 w-5" />
-                      <span className="text-sm">Player</span>
+                      <span className="text-sm">Settings</span>
                     </button>
                   </div>
                 </div>
@@ -935,8 +995,14 @@ export function Player() {
             </div>
 
             {/* Player Type */}
+            <h4 className="text-sm font-medium text-muted-foreground mb-2">
+              Player Type
+            </h4>
             <div className="flex flex-nowrap items-center gap-1.5 relative">
               <button
+                ref={(el) => {
+                  playerBtnRefs.current[0] = el;
+                }}
                 onClick={() =>
                   setPlayerType(cookiesEnabled ? 'normal' : 'youtube')
                 }
@@ -969,6 +1035,9 @@ export function Player() {
                 <span className="text-sm">YouTube</span>
               </button>
               <button
+                ref={(el) => {
+                  playerBtnRefs.current[1] = el;
+                }}
                 onClick={() => setPlayerType('plyr')}
                 onMouseEnter={(e) => {
                   if (playerType !== 'plyr') {
@@ -1005,6 +1074,91 @@ export function Player() {
                 style={{
                   left: playerIndicatorStyle.left,
                   width: playerIndicatorStyle.width,
+                  backgroundColor: 'white',
+                }}
+              />
+            </div>
+
+            {/* Fullscreen Mode */}
+            <h4 className="text-sm font-medium text-muted-foreground mb-2">
+              Fullscreen Mode
+            </h4>
+            <div className="flex flex-nowrap items-center gap-1.5 relative">
+              <button
+                ref={(el) => {
+                  fullscreenBtnRefs.current[0] = el;
+                }}
+                onClick={() => setFullscreenMode('cover')}
+                onMouseEnter={(e) => {
+                  if (fullscreenMode !== 'cover') {
+                    e.currentTarget.style.color = 'hsl(var(--foreground))';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (fullscreenMode !== 'cover') {
+                    e.currentTarget.style.color =
+                      'hsl(var(--muted-foreground))';
+                  }
+                }}
+                className="flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg text-sm font-medium transition-all duration-200 border-none"
+                style={{
+                  color:
+                    fullscreenMode === 'cover'
+                      ? 'white'
+                      : 'hsl(var(--muted-foreground))',
+                }}
+              >
+                <Maximize2
+                  className="h-5 w-5"
+                  style={{
+                    color:
+                      fullscreenMode === 'cover'
+                        ? 'white'
+                        : 'hsl(var(--muted-foreground))',
+                  }}
+                />
+                <span className="text-sm">Cover</span>
+              </button>
+              <button
+                ref={(el) => {
+                  fullscreenBtnRefs.current[1] = el;
+                }}
+                onClick={() => setFullscreenMode('contain')}
+                onMouseEnter={(e) => {
+                  if (fullscreenMode !== 'contain') {
+                    e.currentTarget.style.color = 'hsl(var(--foreground))';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (fullscreenMode !== 'contain') {
+                    e.currentTarget.style.color =
+                      'hsl(var(--muted-foreground))';
+                  }
+                }}
+                className="flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg text-sm font-medium transition-all duration-200 border-none"
+                style={{
+                  color:
+                    fullscreenMode === 'contain'
+                      ? 'white'
+                      : 'hsl(var(--muted-foreground))',
+                }}
+              >
+                <Minimize2
+                  className="h-5 w-5"
+                  style={{
+                    color:
+                      fullscreenMode === 'contain'
+                        ? 'white'
+                        : 'hsl(var(--muted-foreground))',
+                  }}
+                />
+                <span className="text-sm">Contain</span>
+              </button>
+              <div
+                className="absolute bottom-[-4px] h-0.5 rounded-full transition-all duration-300 ease-out"
+                style={{
+                  left: fullscreenIndicatorStyle.left,
+                  width: fullscreenIndicatorStyle.width,
                   backgroundColor: 'white',
                 }}
               />
@@ -1057,6 +1211,52 @@ export function Player() {
                   </p>
                 </div>
               )}
+            </div>
+
+            {/* Autoplay */}
+            <div className="relative flex items-center">
+              <button
+                onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
+                className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
+                style={{
+                  color: autoPlayEnabled
+                    ? 'white'
+                    : 'hsl(var(--muted-foreground))',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'hsl(var(--foreground))';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = autoPlayEnabled
+                    ? 'white'
+                    : 'hsl(var(--muted-foreground))';
+                }}
+              >
+                <PlayCircle className="h-5 w-5" />
+                <span className="text-sm">Autoplay</span>
+              </button>
+            </div>
+
+            {/* Loop */}
+            <div className="relative flex items-center">
+              <button
+                onClick={() => setLoopEnabled(!loopEnabled)}
+                className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
+                style={{
+                  color: loopEnabled ? 'white' : 'hsl(var(--muted-foreground))',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'hsl(var(--foreground))';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = loopEnabled
+                    ? 'white'
+                    : 'hsl(var(--muted-foreground))';
+                }}
+              >
+                <Repeat className="h-5 w-5" />
+                <span className="text-sm">Loop</span>
+              </button>
             </div>
 
             {/* Square Ratio */}

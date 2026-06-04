@@ -139,6 +139,7 @@ html.player-fullscreen .app-layout {
 /* Hide scrollbar in player fullscreen mode */
 html.player-fullscreen {
   overflow-y: auto !important;
+  scrollbar-width: none !important;
 }
 
 html.player-fullscreen::-webkit-scrollbar {
