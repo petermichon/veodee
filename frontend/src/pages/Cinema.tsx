@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Youtube } from 'lucide-react';
+import { Youtube, Maximize2 } from 'lucide-react';
 import { SimpleYoutubePlayer } from '@/components/player/simple-youtube-player';
 import { LoadingBackground } from '@/components/player/loading-background';
 import { YouTubeAPI } from '@/services/youtube-api';
@@ -16,6 +16,7 @@ function VideoPlayer({
   onGrantPermission,
   autoPlayEnabled,
   loopEnabled,
+  fillScreen,
 }: {
   videoId: string | null;
   playerType: 'normal' | 'youtube' | 'plyr';
@@ -23,6 +24,7 @@ function VideoPlayer({
   onGrantPermission: () => void;
   autoPlayEnabled: boolean;
   loopEnabled: boolean;
+  fillScreen: boolean;
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -136,14 +138,23 @@ function VideoPlayer({
 
             <div
               style={{
-                aspectRatio: '16 / 9',
-                width: 'min(100vw, 100vh * 16 / 9)',
-                height: 'auto',
+                aspectRatio: fillScreen ? undefined : '16 / 9',
+                width: fillScreen ? '100vw' : 'min(100vw, 100vh * 16 / 9)',
+                height: fillScreen ? '100vh' : 'auto',
+                overflow: 'hidden',
+                position: 'relative',
               }}
             >
               <iframe
-                className="w-full h-full"
-                style={{ backgroundColor: 'transparent' }}
+                style={{
+                  backgroundColor: 'transparent',
+                  width: fillScreen ? 'max(100vw, 100vh * 16 / 9)' : '100%',
+                  height: fillScreen ? 'max(100vh, 100vw * 9 / 16)' : '100%',
+                  position: fillScreen ? 'absolute' : 'relative',
+                  top: fillScreen ? '50%' : 'auto',
+                  left: fillScreen ? '50%' : 'auto',
+                  transform: fillScreen ? 'translate(-50%, -50%)' : 'none',
+                }}
                 src={embedUrl}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -188,6 +199,7 @@ export function Cinema() {
   const [customBackground, setCustomBackground] = useState(() => {
     return localStorage.getItem('home-background');
   });
+  const [fillScreen, setFillScreen] = useState(false);
 
   // Handle video from navigation
   useEffect(() => {
@@ -262,6 +274,15 @@ export function Cinema() {
         </div>
       )}
       <div className="relative z-10 w-full h-screen flex items-center justify-center">
+        <button
+          onClick={() => setFillScreen(!fillScreen)}
+          className="absolute top-4 right-4 z-20 p-2 rounded-md bg-black/50 hover:bg-black/70 transition-colors"
+          style={{
+            color: fillScreen ? 'white' : 'hsl(var(--muted-foreground))',
+          }}
+        >
+          <Maximize2 className="h-5 w-5" />
+        </button>
         <VideoPlayer
           videoId={youtubePermission ? currentVideoId : null}
           playerType={playerType}
@@ -269,6 +290,7 @@ export function Cinema() {
           onGrantPermission={handleGrantPermission}
           autoPlayEnabled={autoPlayEnabled}
           loopEnabled={loopEnabled}
+          fillScreen={fillScreen}
         />
       </div>
     </div>
