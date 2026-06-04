@@ -34,6 +34,7 @@ function VideoPlayer({
   autoPlayEnabled,
   loopEnabled,
   forcedAspectRatio,
+  fillScreen,
 }: {
   videoId: string | null;
   playerType: 'normal' | 'youtube' | 'plyr';
@@ -42,6 +43,7 @@ function VideoPlayer({
   autoPlayEnabled: boolean;
   loopEnabled: boolean;
   forcedAspectRatio: number | null;
+  fillScreen: boolean;
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -129,16 +131,33 @@ function VideoPlayer({
               </div>
             )}
 
-            <iframe
-              className="w-full h-full absolute inset-0"
-              style={{ backgroundColor: 'transparent' }}
-              src={embedUrl}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              frameBorder="0"
-              onLoad={handleLoad}
-              onError={handleError}
-            />
+            <div
+              style={{
+                aspectRatio: fillScreen ? undefined : '16 / 9',
+                width: fillScreen ? '100vw' : '100%',
+                height: fillScreen ? '100vh' : '100%',
+                overflow: 'hidden',
+                position: 'relative',
+              }}
+            >
+              <iframe
+                style={{
+                  backgroundColor: 'transparent',
+                  width: fillScreen ? 'max(100vw, 100vh * 16 / 9)' : '100%',
+                  height: fillScreen ? 'max(100vh, 100vw * 9 / 16)' : '100%',
+                  position: fillScreen ? 'absolute' : 'relative',
+                  top: fillScreen ? '50%' : 'auto',
+                  left: fillScreen ? '50%' : 'auto',
+                  transform: fillScreen ? 'translate(-50%, -50%)' : 'none',
+                }}
+                src={embedUrl}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                frameBorder="0"
+                onLoad={handleLoad}
+                onError={handleError}
+              />
+            </div>
           </div>
         )
       ) : null}
@@ -207,6 +226,7 @@ export function Player() {
   const playerSettingsBtnRef = useRef<HTMLButtonElement>(null);
   const playerSettingsPopupRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [fillScreen, setFillScreen] = useState(false);
 
   const isYouTubeType = playerType === 'normal' || playerType === 'youtube';
 
@@ -394,7 +414,16 @@ export function Player() {
   // Handle fullscreen state changes
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
+      const isNowFullscreen = !!document.fullscreenElement;
+      setIsFullscreen(isNowFullscreen);
+      setFillScreen(isNowFullscreen);
+
+      // Add/remove class to hide top nav
+      if (isNowFullscreen) {
+        document.documentElement.classList.add('player-fullscreen');
+      } else {
+        document.documentElement.classList.remove('player-fullscreen');
+      }
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -496,12 +525,14 @@ export function Player() {
           />
         </div>
       )}
-      <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 pt-0 sm:pt-4 pb-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="space-y-8">
+      <div
+        className={`relative z-10 ${fillScreen ? 'w-full h-screen flex items-center justify-center' : 'container mx-auto px-4 sm:px-6 lg:px-8 pt-0 sm:pt-4 pb-8'}`}
+      >
+        <div className={fillScreen ? '' : 'max-w-7xl mx-auto'}>
+          <div className={fillScreen ? '' : 'space-y-8'}>
             {/* Main Video Player - Full Width */}
             <div
-              className="relative -mx-4 sm:mx-0 flex items-center justify-center aspect-video"
+              className={`relative ${fillScreen ? 'w-full h-screen' : '-mx-4 sm:mx-0 flex items-center justify-center aspect-video'}`}
               onDragEnter={(e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'copy';
@@ -534,30 +565,36 @@ export function Player() {
               }}
             >
               <div
-                className="relative"
+                className={`relative ${fillScreen ? 'w-full h-full' : ''}`}
                 style={{
-                  width: (() => {
-                    const ratio =
-                      forceSquareRatio && isYouTubeMusicVideo
-                        ? 1
-                        : videoAspectRatio || 16 / 9;
-                    return ratio < 16 / 9
-                      ? `${(ratio / (16 / 9)) * 100}%`
-                      : '100%';
-                  })(),
-                  height: (() => {
-                    const ratio =
-                      forceSquareRatio && isYouTubeMusicVideo
-                        ? 1
-                        : videoAspectRatio || 16 / 9;
-                    return ratio > 16 / 9
-                      ? `${(16 / 9 / ratio) * 100}%`
-                      : '100%';
-                  })(),
+                  width: fillScreen
+                    ? undefined
+                    : (() => {
+                        const ratio =
+                          forceSquareRatio && isYouTubeMusicVideo
+                            ? 1
+                            : videoAspectRatio || 16 / 9;
+                        return ratio < 16 / 9
+                          ? `${(ratio / (16 / 9)) * 100}%`
+                          : '100%';
+                      })(),
+                  height: fillScreen
+                    ? undefined
+                    : (() => {
+                        const ratio =
+                          forceSquareRatio && isYouTubeMusicVideo
+                            ? 1
+                            : videoAspectRatio || 16 / 9;
+                        return ratio > 16 / 9
+                          ? `${(16 / 9 / ratio) * 100}%`
+                          : '100%';
+                      })(),
                 }}
               >
-                <div className="shadow-2xl overflow-hidden rounded-none sm:rounded-3xl w-full h-full bg-transparent">
-                  {videoAspectRatio && (
+                <div
+                  className={`${fillScreen ? '' : 'shadow-2xl overflow-hidden rounded-none sm:rounded-3xl'} w-full h-full bg-transparent`}
+                >
+                  {(videoAspectRatio || fillScreen) && (
                     <VideoPlayer
                       videoId={youtubePermission ? currentVideoId : null}
                       playerType={playerType}
@@ -568,10 +605,11 @@ export function Player() {
                       forcedAspectRatio={
                         forceSquareRatio && isYouTubeMusicVideo ? 1 : null
                       }
+                      fillScreen={fillScreen}
                     />
                   )}
                 </div>
-                {isDragging && (
+                {isDragging && !fillScreen && (
                   <div className="absolute inset-0 bg-foreground/20 flex items-center justify-center z-10 backdrop-blur-sm rounded-none sm:rounded-3xl">
                     <div className="text-center">
                       <p className="text-foreground text-lg font-semibold">
@@ -586,322 +624,327 @@ export function Player() {
               </div>
             </div>
 
-            {/* Video Info & Controls */}
-            <div className="flex flex-col gap-4 mt-6">
-              {/* Rows 1 & 2: Combined on same line when space permits */}
-              <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
-                {/* Row 1: Saved, Share, Video ID */}
-                <div className="flex items-center gap-2 flex-nowrap">
-                  <button
-                    onClick={navigateToLibrary}
-                    disabled={!currentVideoId}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none ${!currentVideoId ? 'opacity-50' : 'cursor-pointer'}`}
-                    style={{
-                      color: isInLibrary
-                        ? 'hsl(var(--foreground))'
-                        : 'hsl(var(--muted-foreground))',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (currentVideoId) {
-                        e.currentTarget.style.color = 'hsl(var(--foreground))';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (currentVideoId) {
-                        e.currentTarget.style.color = isInLibrary
-                          ? 'hsl(var(--foreground))'
-                          : 'hsl(var(--muted-foreground))';
-                      }
-                    }}
-                  >
-                    <Bookmark
-                      className={`h-5 w-5 ${isInLibrary ? 'fill-current' : ''}`}
+            {/* Video Info & Controls - Hidden in fullscreen */}
+            {!fillScreen && (
+              <div className="flex flex-col gap-4 mt-6">
+                {/* Rows 1 & 2: Combined on same line when space permits */}
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+                  {/* Row 1: Saved, Share, Video ID */}
+                  <div className="flex items-center gap-2 flex-nowrap">
+                    <button
+                      onClick={navigateToLibrary}
+                      disabled={!currentVideoId}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none ${!currentVideoId ? 'opacity-50' : 'cursor-pointer'}`}
                       style={{
                         color: isInLibrary
                           ? 'hsl(var(--foreground))'
                           : 'hsl(var(--muted-foreground))',
                       }}
-                    />
-                    <span
-                      className="text-sm"
-                      style={{
-                        width: '45px',
-                        display: 'inline-block',
-                        textAlign: 'left',
+                      onMouseEnter={(e) => {
+                        if (currentVideoId) {
+                          e.currentTarget.style.color =
+                            'hsl(var(--foreground))';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (currentVideoId) {
+                          e.currentTarget.style.color = isInLibrary
+                            ? 'hsl(var(--foreground))'
+                            : 'hsl(var(--muted-foreground))';
+                        }
                       }}
                     >
-                      {isInLibrary ? 'Saved' : 'Save'}
-                    </span>
-                  </button>
-                  <button
-                    onClick={() => setShowShareDialog(true)}
-                    disabled={!currentVideoId}
-                    onMouseEnter={(e) => {
-                      if (!shareClicked) {
-                        e.currentTarget.style.color = 'hsl(var(--foreground))';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!shareClicked) {
-                        e.currentTarget.style.color =
-                          'hsl(var(--muted-foreground))';
-                      }
-                    }}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none ${!currentVideoId ? 'opacity-50' : shareClicked ? 'text-foreground bg-foreground/10' : 'text-muted-foreground'}`}
-                    style={{
-                      color: shareClicked
-                        ? 'hsl(var(--foreground))'
-                        : 'hsl(var(--muted-foreground))',
-                      backgroundColor: shareClicked
-                        ? 'hsl(var(--foreground) / 0.1)'
-                        : 'transparent',
-                    }}
-                  >
-                    <Share2 className="h-5 w-5" />
-                    <span className="text-sm">Share</span>
-                  </button>
+                      <Bookmark
+                        className={`h-5 w-5 ${isInLibrary ? 'fill-current' : ''}`}
+                        style={{
+                          color: isInLibrary
+                            ? 'hsl(var(--foreground))'
+                            : 'hsl(var(--muted-foreground))',
+                        }}
+                      />
+                      <span
+                        className="text-sm"
+                        style={{
+                          width: '45px',
+                          display: 'inline-block',
+                          textAlign: 'left',
+                        }}
+                      >
+                        {isInLibrary ? 'Saved' : 'Save'}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => setShowShareDialog(true)}
+                      disabled={!currentVideoId}
+                      onMouseEnter={(e) => {
+                        if (!shareClicked) {
+                          e.currentTarget.style.color =
+                            'hsl(var(--foreground))';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!shareClicked) {
+                          e.currentTarget.style.color =
+                            'hsl(var(--muted-foreground))';
+                        }
+                      }}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none ${!currentVideoId ? 'opacity-50' : shareClicked ? 'text-foreground bg-foreground/10' : 'text-muted-foreground'}`}
+                      style={{
+                        color: shareClicked
+                          ? 'hsl(var(--foreground))'
+                          : 'hsl(var(--muted-foreground))',
+                        backgroundColor: shareClicked
+                          ? 'hsl(var(--foreground) / 0.1)'
+                          : 'transparent',
+                      }}
+                    >
+                      <Share2 className="h-5 w-5" />
+                      <span className="text-sm">Share</span>
+                    </button>
 
-                  {isEditing ? (
-                    <div ref={editInputRef} className="relative ml-4">
-                      <div className="flex items-center h-[44px] rounded-md w-[176px]">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            const videoId = extractVideoId(videoUrl);
-                            if (videoId) {
-                              setCurrentVideoId(videoId);
-                              if (!youtubePermission) {
-                                setShowPermissionModal(true);
-                              }
-                            }
-                            setVideoUrl('');
-                            setIsEditing(false);
-                          }}
-                          className="absolute left-0 top-0 h-full p-2 text-white transition-colors cursor-pointer bg-transparent border-none"
-                          style={{
-                            width: '36px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          {extractVideoId(videoUrl) ? (
-                            <Check className="h-5 w-5" />
-                          ) : (
-                            <X className="h-5 w-5" />
-                          )}
-                        </button>
-                        <div className="h-full flex items-center">
-                          <input
-                            ref={videoIdInputRef}
-                            type="text"
-                            value={videoUrl}
-                            onChange={(e) => setVideoUrl(e.target.value)}
-                            onFocus={(e) => e.target.select()}
-                            onPaste={(e) => {
-                              const pastedText =
-                                e.clipboardData.getData('text');
-                              const videoId = extractVideoId(pastedText);
+                    {isEditing ? (
+                      <div ref={editInputRef} className="relative ml-4">
+                        <div className="flex items-center h-[44px] rounded-md w-[176px]">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              const videoId = extractVideoId(videoUrl);
                               if (videoId) {
-                                e.preventDefault();
                                 setCurrentVideoId(videoId);
                                 if (!youtubePermission) {
                                   setShowPermissionModal(true);
                                 }
-                                setVideoUrl('');
-                                setIsEditing(false);
                               }
+                              setVideoUrl('');
+                              setIsEditing(false);
                             }}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' && videoUrl.trim()) {
-                                const videoId = extractVideoId(videoUrl);
+                            className="absolute left-0 top-0 h-full p-2 text-white transition-colors cursor-pointer bg-transparent border-none"
+                            style={{
+                              width: '36px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            {extractVideoId(videoUrl) ? (
+                              <Check className="h-5 w-5" />
+                            ) : (
+                              <X className="h-5 w-5" />
+                            )}
+                          </button>
+                          <div className="h-full flex items-center">
+                            <input
+                              ref={videoIdInputRef}
+                              type="text"
+                              value={videoUrl}
+                              onChange={(e) => setVideoUrl(e.target.value)}
+                              onFocus={(e) => e.target.select()}
+                              onPaste={(e) => {
+                                const pastedText =
+                                  e.clipboardData.getData('text');
+                                const videoId = extractVideoId(pastedText);
                                 if (videoId) {
+                                  e.preventDefault();
                                   setCurrentVideoId(videoId);
                                   if (!youtubePermission) {
                                     setShowPermissionModal(true);
                                   }
+                                  setVideoUrl('');
+                                  setIsEditing(false);
                                 }
-                                setVideoUrl('');
-                                setIsEditing(false);
-                              }
-                              if (e.key === 'Escape') {
-                                setIsEditing(false);
-                              }
-                            }}
-                            placeholder=""
-                            className="text-sm text-foreground bg-transparent border-none focus:outline-none focus:ring-0 w-full pl-10 pr-3"
-                            style={{ fontFamily: 'monospace' }}
-                            spellCheck={false}
-                            autoCorrect="off"
-                            autoCapitalize="off"
-                            autoComplete="off"
-                            autoFocus
-                          />
+                              }}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' && videoUrl.trim()) {
+                                  const videoId = extractVideoId(videoUrl);
+                                  if (videoId) {
+                                    setCurrentVideoId(videoId);
+                                    if (!youtubePermission) {
+                                      setShowPermissionModal(true);
+                                    }
+                                  }
+                                  setVideoUrl('');
+                                  setIsEditing(false);
+                                }
+                                if (e.key === 'Escape') {
+                                  setIsEditing(false);
+                                }
+                              }}
+                              placeholder=""
+                              className="text-sm text-foreground bg-transparent border-none focus:outline-none focus:ring-0 w-full pl-10 pr-3"
+                              style={{ fontFamily: 'monospace' }}
+                              spellCheck={false}
+                              autoCorrect="off"
+                              autoCapitalize="off"
+                              autoComplete="off"
+                              autoFocus
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="relative ml-4">
-                      <div
-                        className="flex items-center h-[44px] rounded-md w-[176px] cursor-pointer group"
-                        onClick={() => {
-                          setIsEditing(true);
-                          setVideoUrl(currentVideoId || '');
-                        }}
-                      >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
+                    ) : (
+                      <div className="relative ml-4">
+                        <div
+                          className="flex items-center h-[44px] rounded-md w-[176px] cursor-pointer group"
+                          onClick={() => {
                             setIsEditing(true);
                             setVideoUrl(currentVideoId || '');
                           }}
-                          className="absolute left-0 top-0 h-full p-2 text-muted-foreground group-hover:text-white transition-colors cursor-pointer bg-transparent border-none"
-                          style={{
-                            width: '36px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
                         >
-                          <Pencil className="h-5 w-5" />
-                        </button>
-                        <div
-                          className="h-full pl-10 pr-3 flex items-center text-sm text-muted-foreground group-hover:text-foreground transition-colors truncate"
-                          style={{ fontFamily: 'monospace' }}
-                        >
-                          {currentVideoId || ''}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setIsEditing(true);
+                              setVideoUrl(currentVideoId || '');
+                            }}
+                            className="absolute left-0 top-0 h-full p-2 text-muted-foreground group-hover:text-white transition-colors cursor-pointer bg-transparent border-none"
+                            style={{
+                              width: '36px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <Pencil className="h-5 w-5" />
+                          </button>
+                          <div
+                            className="h-full pl-10 pr-3 flex items-center text-sm text-muted-foreground group-hover:text-foreground transition-colors truncate"
+                            style={{ fontFamily: 'monospace' }}
+                          >
+                            {currentVideoId || ''}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>
 
-                {/* Row 2: Fullscreen, Cinema, Autoplay, Loop, YouTube, Plyr */}
-                <div className="flex items-center gap-4 flex-nowrap">
-                  {/* Fullscreen Toggle */}
-                  <button
-                    onClick={() => {
-                      if (!isFullscreen) {
-                        document.documentElement.requestFullscreen();
-                      } else {
-                        document.exitFullscreen();
-                      }
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
-                    style={{
-                      color: isFullscreen
-                        ? 'white'
-                        : 'hsl(var(--muted-foreground))',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = 'hsl(var(--foreground))';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = isFullscreen
-                        ? 'white'
-                        : 'hsl(var(--muted-foreground))';
-                    }}
-                  >
-                    <Maximize className="h-5 w-5" />
-                    <span className="text-sm">Fullscreen</span>
-                  </button>
-
-                  {/* Cinema Button */}
-                  <button
-                    onClick={() => {
-                      if (currentVideoId) {
-                        navigate(`/cinema?videoId=${currentVideoId}`);
-                      }
-                    }}
-                    disabled={!currentVideoId}
-                    className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
-                    style={{
-                      color: currentVideoId
-                        ? 'hsl(var(--muted-foreground))'
-                        : 'hsl(var(--muted-foreground))',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (currentVideoId) {
+                  {/* Row 2: Fullscreen, Cinema, Autoplay, Loop, YouTube, Plyr */}
+                  <div className="flex items-center gap-4 flex-nowrap">
+                    {/* Fullscreen Toggle */}
+                    <button
+                      onClick={() => {
+                        if (!isFullscreen) {
+                          document.documentElement.requestFullscreen();
+                        } else {
+                          document.exitFullscreen();
+                        }
+                      }}
+                      className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
+                      style={{
+                        color: isFullscreen
+                          ? 'white'
+                          : 'hsl(var(--muted-foreground))',
+                      }}
+                      onMouseEnter={(e) => {
                         e.currentTarget.style.color = 'hsl(var(--foreground))';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color =
-                        'hsl(var(--muted-foreground))';
-                    }}
-                  >
-                    <Film className="h-5 w-5" />
-                    <span className="text-sm">Cinema</span>
-                  </button>
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = isFullscreen
+                          ? 'white'
+                          : 'hsl(var(--muted-foreground))';
+                      }}
+                    >
+                      <Maximize className="h-5 w-5" />
+                      <span className="text-sm">Fullscreen</span>
+                    </button>
 
-                  {/* Auto-play Toggle */}
-                  <button
-                    onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
-                    style={{
-                      color: autoPlayEnabled
-                        ? 'white'
-                        : 'hsl(var(--muted-foreground))',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = 'hsl(var(--foreground))';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = autoPlayEnabled
-                        ? 'white'
-                        : 'hsl(var(--muted-foreground))';
-                    }}
-                  >
-                    <PlayCircle className="h-5 w-5" />
-                    <span className="text-sm">Autoplay</span>
-                  </button>
+                    {/* Cinema Button */}
+                    <button
+                      onClick={() => {
+                        if (currentVideoId) {
+                          navigate(`/cinema?videoId=${currentVideoId}`);
+                        }
+                      }}
+                      disabled={!currentVideoId}
+                      className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
+                      style={{
+                        color: currentVideoId
+                          ? 'hsl(var(--muted-foreground))'
+                          : 'hsl(var(--muted-foreground))',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (currentVideoId) {
+                          e.currentTarget.style.color =
+                            'hsl(var(--foreground))';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color =
+                          'hsl(var(--muted-foreground))';
+                      }}
+                    >
+                      <Film className="h-5 w-5" />
+                      <span className="text-sm">Cinema</span>
+                    </button>
 
-                  {/* Loop Toggle */}
-                  <button
-                    onClick={() => setLoopEnabled(!loopEnabled)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
-                    style={{
-                      color: loopEnabled
-                        ? 'white'
-                        : 'hsl(var(--muted-foreground))',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.color = 'hsl(var(--foreground))';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.color = loopEnabled
-                        ? 'white'
-                        : 'hsl(var(--muted-foreground))';
-                    }}
-                  >
-                    <Repeat className="h-5 w-5" />
-                    <span className="text-sm">Loop</span>
-                  </button>
+                    {/* Auto-play Toggle */}
+                    <button
+                      onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
+                      style={{
+                        color: autoPlayEnabled
+                          ? 'white'
+                          : 'hsl(var(--muted-foreground))',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = 'hsl(var(--foreground))';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = autoPlayEnabled
+                          ? 'white'
+                          : 'hsl(var(--muted-foreground))';
+                      }}
+                    >
+                      <PlayCircle className="h-5 w-5" />
+                      <span className="text-sm">Autoplay</span>
+                    </button>
 
-                  {/* Player Settings */}
-                  <button
-                    ref={playerSettingsBtnRef}
-                    onClick={() => setShowPlayerSettings(!showPlayerSettings)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer ${showPlayerSettings ? 'text-foreground' : 'text-muted-foreground'}`}
-                    style={{
-                      color: showPlayerSettings
-                        ? 'hsl(var(--foreground))'
-                        : 'hsl(var(--muted-foreground))',
-                    }}
-                  >
-                    <Settings className="h-5 w-5" />
-                    <span className="text-sm">Player</span>
-                  </button>
+                    {/* Loop Toggle */}
+                    <button
+                      onClick={() => setLoopEnabled(!loopEnabled)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
+                      style={{
+                        color: loopEnabled
+                          ? 'white'
+                          : 'hsl(var(--muted-foreground))',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.color = 'hsl(var(--foreground))';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.color = loopEnabled
+                          ? 'white'
+                          : 'hsl(var(--muted-foreground))';
+                      }}
+                    >
+                      <Repeat className="h-5 w-5" />
+                      <span className="text-sm">Loop</span>
+                    </button>
+
+                    {/* Player Settings */}
+                    <button
+                      ref={playerSettingsBtnRef}
+                      onClick={() => setShowPlayerSettings(!showPlayerSettings)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer ${showPlayerSettings ? 'text-foreground' : 'text-muted-foreground'}`}
+                      style={{
+                        color: showPlayerSettings
+                          ? 'hsl(var(--foreground))'
+                          : 'hsl(var(--muted-foreground))',
+                      }}
+                    >
+                      <Settings className="h-5 w-5" />
+                      <span className="text-sm">Player</span>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Player Settings Popup */}
-      {showPlayerSettings && (
+      {showPlayerSettings && !fillScreen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-background/50 shadow-2xl transition-opacity duration-200"
           onClick={() => setShowPlayerSettings(false)}
@@ -1105,7 +1148,7 @@ export function Player() {
       )}
 
       {/* Share Dialog */}
-      {showShareDialog && (
+      {showShareDialog && !fillScreen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-background/50 shadow-2xl transition-opacity duration-200"
           onClick={() => setShowShareDialog(false)}
@@ -1152,7 +1195,7 @@ export function Player() {
         </div>
       )}
 
-      <Footer />
+      {!fillScreen && <Footer />}
     </div>
   );
 }

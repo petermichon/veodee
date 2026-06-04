@@ -126,6 +126,36 @@ html.cinema-mode::-webkit-scrollbar {
   height: 0px;
 }
 
+/* Hide top nav in player fullscreen mode */
+html.player-fullscreen .top-nav {
+  display: none !important;
+}
+
+/* Hide bottom nav in player fullscreen mode */
+html.player-fullscreen .bottom-nav {
+  display: none !important;
+}
+
+/* Remove top padding from main content in player fullscreen mode */
+html.player-fullscreen main {
+  padding-top: 0 !important;
+}
+
+/* Remove pt-16 from parent flex container in player fullscreen mode */
+html.player-fullscreen .app-layout {
+  padding-top: 0 !important;
+}
+
+/* Hide scrollbar in player fullscreen mode */
+html.player-fullscreen {
+  overflow-y: auto !important;
+}
+
+html.player-fullscreen::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

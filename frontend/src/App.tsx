@@ -34,7 +34,7 @@ function AppContent() {
           <div className="flex min-h-screen">
             <div className="flex flex-col flex-1 relative">
               <TopNav />
-              <div className="flex min-h-screen pt-16">
+              <div className="flex min-h-screen pt-16 app-layout">
                 <main className="flex-1">
                   <Routes>
                     <Route path="/" element={<Thread />} />

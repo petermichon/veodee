@@ -226,7 +226,7 @@ export function TopNav() {
     <>
       <header
         className={cn(
-          'fixed top-0 left-0 right-0 h-16 z-50 transition-colors',
+          'top-nav fixed top-0 left-0 right-0 h-16 z-50 transition-colors',
           scrolled && 'backdrop-blur-md bg-background/80'
         )}
       >
