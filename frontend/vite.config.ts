@@ -21,7 +21,7 @@ export default defineConfig({
         description: 'Your video app',
         theme_color: '#000000',
         background_color: '#000000',
-        display: 'standalone',
+        display: 'fullscreen',
         icons: [
           {
             src: '/favicon-white-small.svg',
