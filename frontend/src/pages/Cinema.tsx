@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation, useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Youtube, Maximize2, Maximize } from 'lucide-react';
+import { Youtube } from 'lucide-react';
 import { SimpleYoutubePlayer } from '@/components/player/simple-youtube-player';
 import { LoadingBackground } from '@/components/player/loading-background';
 import { YouTubeAPI } from '@/services/youtube-api';
@@ -201,7 +201,6 @@ export function Cinema() {
     return localStorage.getItem('home-background');
   });
   const [fillScreen, setFillScreen] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   // Handle video from navigation
   useEffect(() => {
@@ -225,6 +224,13 @@ export function Cinema() {
   // Trigger fullscreen on mount
   useEffect(() => {
     document.documentElement.requestFullscreen();
+
+    // Try to lock orientation to landscape on mobile
+    if ((screen.orientation as any)?.lock) {
+      (screen.orientation as any).lock('landscape').catch(() => {
+        // Ignore errors if orientation lock is not supported or denied
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -249,7 +255,6 @@ export function Cinema() {
   useEffect(() => {
     const handleFullscreenChange = () => {
       const isNowFullscreen = !!document.fullscreenElement;
-      setIsFullscreen(isNowFullscreen);
       setFillScreen(isNowFullscreen);
 
       // Exit cinema mode when leaving fullscreen
@@ -303,32 +308,6 @@ export function Cinema() {
         </div>
       )}
       <div className="relative z-10 w-full h-screen flex items-center justify-center">
-        <div className="absolute top-4 right-4 z-20 flex gap-2">
-          <button
-            onClick={() => setFillScreen(!fillScreen)}
-            className="p-2 rounded-md bg-black/50 hover:bg-black/70 transition-colors"
-            style={{
-              color: fillScreen ? 'white' : 'hsl(var(--muted-foreground))',
-            }}
-          >
-            <Maximize2 className="h-5 w-5" />
-          </button>
-          <button
-            onClick={() => {
-              if (!isFullscreen) {
-                document.documentElement.requestFullscreen();
-              } else {
-                document.exitFullscreen();
-              }
-            }}
-            className="p-2 rounded-md bg-black/50 hover:bg-black/70 transition-colors"
-            style={{
-              color: isFullscreen ? 'white' : 'hsl(var(--muted-foreground))',
-            }}
-          >
-            <Maximize className="h-5 w-5" />
-          </button>
-        </div>
         <VideoPlayer
           videoId={youtubePermission ? currentVideoId : null}
           playerType={playerType}
