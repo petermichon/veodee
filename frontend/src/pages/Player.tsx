@@ -277,7 +277,7 @@ export function Player() {
       return (saved as 'contain' | 'cover') || 'cover';
     }
   );
-  const isEnteringFullscreenViaHistory = useRef(false);
+  const isUpdatingHash = useRef(false);
 
   const isYouTubeType = playerType === 'normal' || playerType === 'youtube';
 
@@ -492,17 +492,18 @@ export function Player() {
       // Add/remove class to hide top nav
       if (isNowFullscreen) {
         document.documentElement.classList.add('player-fullscreen');
-        // Only push history state if not entering via history navigation
-        if (!isEnteringFullscreenViaHistory.current) {
-          window.history.pushState(
-            { fullscreen: true },
-            '',
-            window.location.href
-          );
+        // Set hash if not updating via hashchange
+        if (!isUpdatingHash.current) {
+          window.location.hash = 'fullscreen';
         }
-        isEnteringFullscreenViaHistory.current = false;
+        isUpdatingHash.current = false;
       } else {
         document.documentElement.classList.remove('player-fullscreen');
+        // Remove hash if not updating via hashchange
+        if (!isUpdatingHash.current && window.location.hash === '#fullscreen') {
+          window.history.pushState(null, '', ' ');
+        }
+        isUpdatingHash.current = false;
       }
     };
 
@@ -511,25 +512,25 @@ export function Player() {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
-  // Handle back button to exit fullscreen
+  // Handle hash changes for fullscreen navigation
   useEffect(() => {
-    const handlePopState = (e: PopStateEvent) => {
+    const handleHashChange = () => {
       const isFullscreen = !!document.fullscreenElement;
-      const shouldFullscreen = e.state?.fullscreen;
+      const shouldFullscreen = window.location.hash === '#fullscreen';
 
       if (shouldFullscreen && !isFullscreen) {
-        // Going forward - re-enter fullscreen
-        isEnteringFullscreenViaHistory.current = true;
+        // Hash changed to fullscreen - enter fullscreen
+        isUpdatingHash.current = true;
         document.documentElement.requestFullscreen();
-      } else if (isFullscreen) {
-        // Going back - exit fullscreen
-        e.preventDefault();
+      } else if (!shouldFullscreen && isFullscreen) {
+        // Hash removed - exit fullscreen
+        isUpdatingHash.current = true;
         document.exitFullscreen();
       }
     };
 
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
   const handleShare = async (urlType: 'youtube' | 'current') => {
