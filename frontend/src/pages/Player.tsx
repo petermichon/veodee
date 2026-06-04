@@ -204,6 +204,7 @@ export function Player() {
   const [showPlayerSettings, setShowPlayerSettings] = useState(false);
   const playerSettingsBtnRef = useRef<HTMLButtonElement>(null);
   const playerSettingsPopupRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const isYouTubeType = playerType === 'normal' || playerType === 'youtube';
 
@@ -387,6 +388,17 @@ export function Player() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isEditing, videoUrl, youtubePermission]);
+
+  // Handle fullscreen state changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () =>
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   const handleShare = async (urlType: 'youtube' | 'current') => {
     setShareClicked(true);
@@ -763,8 +775,36 @@ export function Player() {
                   )}
                 </div>
 
-                {/* Row 2: Autoplay, Loop, YouTube, Plyr */}
+                {/* Row 2: Fullscreen, Autoplay, Loop, YouTube, Plyr */}
                 <div className="flex items-center gap-4 flex-nowrap">
+                  {/* Fullscreen Toggle */}
+                  <button
+                    onClick={() => {
+                      if (!isFullscreen) {
+                        document.documentElement.requestFullscreen();
+                      } else {
+                        document.exitFullscreen();
+                      }
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
+                    style={{
+                      color: isFullscreen
+                        ? 'white'
+                        : 'hsl(var(--muted-foreground))',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = 'hsl(var(--foreground))';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = isFullscreen
+                        ? 'white'
+                        : 'hsl(var(--muted-foreground))';
+                    }}
+                  >
+                    <Maximize className="h-5 w-5" />
+                    <span className="text-sm">Fullscreen</span>
+                  </button>
+
                   {/* Auto-play Toggle */}
                   <button
                     onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
