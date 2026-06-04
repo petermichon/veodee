@@ -201,6 +201,7 @@ export function Cinema() {
     return localStorage.getItem('home-background');
   });
   const [fillScreen, setFillScreen] = useState(false);
+  const [showUI, setShowUI] = useState(true);
 
   // Handle video from navigation
   useEffect(() => {
@@ -231,6 +232,40 @@ export function Cinema() {
         // Ignore errors if orientation lock is not supported or denied
       });
     }
+  }, []);
+
+  // Handle UI visibility based on user interaction
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    const showUINow = () => {
+      setShowUI(true);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setShowUI(false);
+      }, 3000);
+    };
+
+    const handleInteraction = () => {
+      showUINow();
+    };
+
+    // Show UI initially
+    showUINow();
+
+    // Add event listeners
+    window.addEventListener('mousemove', handleInteraction);
+    window.addEventListener('touchstart', handleInteraction);
+    window.addEventListener('click', handleInteraction);
+    window.addEventListener('keydown', handleInteraction);
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('mousemove', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('keydown', handleInteraction);
+    };
   }, []);
 
   useEffect(() => {
@@ -308,6 +343,48 @@ export function Cinema() {
         </div>
       )}
       <div className="relative z-10 w-full h-screen flex items-center justify-center">
+        {/* UI Overlay */}
+        <div
+          className={`absolute inset-0 pointer-events-none transition-opacity duration-300 ${
+            showUI ? 'opacity-100' : 'opacity-0'
+          }`}
+        >
+          <div className="absolute top-4 left-4 pointer-events-auto">
+            <button
+              onClick={() => {
+                if (currentVideoId) {
+                  navigate(`/player?videoId=${currentVideoId}`);
+                } else {
+                  navigate('/player');
+                }
+              }}
+              className="p-2 rounded-md bg-black/50 hover:bg-black/70 transition-colors text-white"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+            </button>
+          </div>
+          <div className="absolute bottom-4 left-4 right-4 pointer-events-auto">
+            <div className="bg-black/50 backdrop-blur-sm rounded-lg p-4 text-white">
+              <p className="text-sm font-medium">Video ID: {currentVideoId}</p>
+              <p className="text-xs text-gray-300 mt-1">
+                Press Esc to exit fullscreen
+              </p>
+            </div>
+          </div>
+        </div>
+
         <VideoPlayer
           videoId={youtubePermission ? currentVideoId : null}
           playerType={playerType}
