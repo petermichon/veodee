@@ -501,7 +501,7 @@ export function Player() {
         document.documentElement.classList.remove('player-fullscreen');
         // Remove hash if not updating via hashchange
         if (!isUpdatingHash.current && window.location.hash === '#fullscreen') {
-          window.history.pushState(null, '', ' ');
+          window.location.hash = '';
         }
         isUpdatingHash.current = false;
       }
