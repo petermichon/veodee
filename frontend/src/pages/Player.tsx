@@ -590,7 +590,7 @@ export function Player() {
                 }}
               >
                 <div
-                  className={`${fillScreen ? '' : 'shadow-2xl overflow-hidden rounded-none sm:rounded-3xl'} w-full h-full bg-transparent`}
+                  className={`${fillScreen ? '' : 'shadow-2xl overflow-hidden rounded-xl sm:rounded-3xl'} w-full h-full bg-transparent`}
                 >
                   {(videoAspectRatio || fillScreen) && (
                     <VideoPlayer
