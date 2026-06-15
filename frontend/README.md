@@ -22,7 +22,7 @@ A modern YouTube playlist manager built with React 19, TypeScript, and Vite.
 
 ## Project Structure
 
-```
+```txt
 frontend/
 ├── public/
 │   └── pre-style.js  # Sets the initial background to prevent flash of unstyled content

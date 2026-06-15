@@ -16,7 +16,7 @@ npm run dev
 
 ## Project Structure
 
-```
+```txt
 frontend/          # React frontend application (self-contained)
 backend/           # Reserved for future API server
 .gitignore         # Git ignore rules
