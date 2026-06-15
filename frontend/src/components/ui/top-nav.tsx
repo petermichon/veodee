@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 const NAVIGATION_ITEMS = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Player', href: '/player', icon: Play },
+  { name: 'Channels', href: '/channels', icon: UserPlus },
 ];
 
 interface NavButtonProps {

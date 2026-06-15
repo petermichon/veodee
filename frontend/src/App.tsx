@@ -2,9 +2,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { TopNav } from '@/components/ui/top-nav';
 import { BottomNav } from '@/components/ui/bottom-nav';
 import { VideoProvider } from '@/contexts/video-context';
+import { SubscriptionsProvider } from '@/contexts/subscriptions-context';
 import { ThemeProvider } from '@/contexts/theme-context';
 import { Player } from '@/pages/Player';
 import { Thread } from '@/pages/Thread';
+import { Channels } from '@/pages/Channels';
 
 function AppContent() {
   return (
@@ -18,6 +20,7 @@ function AppContent() {
                 <Routes>
                   <Route path="/" element={<Thread />} />
                   <Route path="/player" element={<Player />} />
+                  <Route path="/channels" element={<Channels />} />
                 </Routes>
               </main>
             </div>
@@ -34,7 +37,9 @@ function App() {
     <ThemeProvider>
       <Router>
         <VideoProvider>
-          <AppContent />
+          <SubscriptionsProvider>
+            <AppContent />
+          </SubscriptionsProvider>
         </VideoProvider>
       </Router>
     </ThemeProvider>

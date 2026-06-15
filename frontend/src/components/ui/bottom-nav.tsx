@@ -1,10 +1,11 @@
-import { Play, Home } from 'lucide-react';
+import { Play, Home, UserPlus } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const NAVIGATION_ITEMS = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Player', href: '/player', icon: Play },
+  { name: 'Channels', href: '/channels', icon: UserPlus },
 ];
 
 export function BottomNav() {
