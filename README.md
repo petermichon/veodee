@@ -1,16 +1,16 @@
 # Veodee
 
-A modern YouTube playlist manager.
+A modern YouTube player and playlist manager.
 
 ## Project Overview
 
-A React-based YouTube playlist manager with custom tags, multiple player options, and dark/light theme.
+A React-based YouTube player and playlist manager.
 
 ## Getting Started
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
@@ -19,14 +19,8 @@ npm run dev
 ```txt
 frontend/          # React frontend application (self-contained)
 backend/           # Reserved for future API server
-.gitignore         # Git ignore rules
-README.md          # This file
 ```
 
 ## Documentation
 
 - [Frontend Documentation](./frontend/README.md)
-
-## License
-
-MIT
