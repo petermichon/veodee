@@ -124,6 +124,18 @@ export function Following() {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [menuOpen]);
 
+  // Listen for open add dialog event from bottom nav
+  useEffect(() => {
+    const handleOpenAddDialog = () => {
+      setShowAddDialog(true);
+      setTimeout(() => addInputRef.current?.focus(), 50);
+    };
+    window.addEventListener('open-add-dialog', handleOpenAddDialog);
+    return () => {
+      window.removeEventListener('open-add-dialog', handleOpenAddDialog);
+    };
+  }, []);
+
   const openMenu = (channelId: string) => {
     const btn = menuButtonRefs.current.get(channelId);
     if (btn) {
@@ -319,37 +331,11 @@ export function Following() {
     <div className="relative">
       <div className="relative z-10 md:px-8 md:py-8">
         <div className="max-w-7xl mx-auto">
-          {/* Subscription count and action buttons */}
+          {/* Subscription count */}
           <div className="flex flex-wrap gap-4 items-center justify-between px-4 sm:px-0 py-2">
             <div className="text-sm text-muted-foreground">
               {subscriptions.length}{' '}
               {subscriptions.length === 1 ? 'following' : 'following'}
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  setShowAddDialog(true);
-                  setTimeout(() => addInputRef.current?.focus(), 50);
-                }}
-                className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer text-muted-foreground hover:text-foreground"
-              >
-                <Plus className="h-4 w-4" />
-                Add channel
-              </button>
-              <button
-                onClick={handleExportLibrary}
-                className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer text-muted-foreground hover:text-foreground"
-              >
-                <Upload className="h-4 w-4" />
-                Export
-              </button>
-              <button
-                onClick={handleImportClick}
-                className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer text-muted-foreground hover:text-foreground"
-              >
-                <Download className="h-4 w-4" />
-                Import
-              </button>
             </div>
           </div>
           <input
@@ -447,19 +433,6 @@ export function Following() {
         </div>
       </div>
       <div className="h-16 md:hidden" />
-
-      {/* Floating Add Button (Mobile Only) */}
-      <button
-        onClick={() => {
-          setShowAddDialog(true);
-          setTimeout(() => addInputRef.current?.focus(), 50);
-        }}
-        className="md:hidden fixed bottom-20 right-4 px-4 h-14 bg-background/80 backdrop-blur-md border border-border/20 text-foreground rounded-xl shadow-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity z-[60]"
-        aria-label="Add channel"
-      >
-        <Plus className="h-5 w-5" />
-        <span className="text-sm font-medium">Add channel</span>
-      </button>
 
       {/* Redirect confirmation popup */}
       {redirectPrompt && (

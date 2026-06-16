@@ -97,6 +97,18 @@ export function Home() {
     };
   }, []);
 
+  // Listen for open add dialog event from bottom nav
+  useEffect(() => {
+    const handleOpenAddDialog = () => {
+      setShowAddVideoDialog(true);
+      setTimeout(() => addVideoInputRef.current?.focus(), 50);
+    };
+    window.addEventListener('open-add-dialog', handleOpenAddDialog);
+    return () => {
+      window.removeEventListener('open-add-dialog', handleOpenAddDialog);
+    };
+  }, []);
+
   // Listen for background changes
   useEffect(() => {
     const handleBackgroundChange = () => {
@@ -374,33 +386,6 @@ export function Home() {
         <div className="max-w-7xl mx-auto">
           {/* Search Bar and Tag Filter */}
           <div className="mb-6 space-y-4 px-4 sm:px-0">
-            {/* Library Management Buttons */}
-            <div className="flex flex-wrap gap-4 items-center">
-              <button
-                onClick={() => {
-                  setShowAddVideoDialog(true);
-                  setTimeout(() => addVideoInputRef.current?.focus(), 50);
-                }}
-                className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer text-muted-foreground hover:text-foreground"
-              >
-                <Plus className="h-4 w-4" />
-                Add video
-              </button>
-              <button
-                onClick={handleImportClick}
-                className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer text-muted-foreground hover:text-foreground"
-              >
-                <Download className="h-5 w-5" />
-                <span className="text-sm">Import</span>
-              </button>
-              <button
-                onClick={handleExportLibrary}
-                className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer text-muted-foreground hover:text-foreground"
-              >
-                <Upload className="h-5 w-5" />
-                <span className="text-sm">Export</span>
-              </button>
-            </div>
             <div className="flex flex-wrap gap-4">
               <div className="relative max-w-md flex-1 flex items-center group focus-within:text-foreground">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-hover:text-foreground group-focus-within:text-foreground transition-colors duration-150" />
@@ -526,19 +511,6 @@ export function Home() {
         </div>
       </div>
       <div className="h-16 md:hidden" />
-
-      {/* Floating Add Video Button (Mobile Only) */}
-      <button
-        onClick={() => {
-          setShowAddVideoDialog(true);
-          setTimeout(() => addVideoInputRef.current?.focus(), 50);
-        }}
-        className="md:hidden fixed bottom-20 right-4 px-4 h-14 bg-background/80 backdrop-blur-md border border-border/20 text-foreground rounded-xl shadow-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity z-[60]"
-        aria-label="Add video"
-      >
-        <Plus className="h-5 w-5" />
-        <span className="text-sm font-medium">Add video</span>
-      </button>
 
       {/* Export Dialog */}
       {showExportDialog && (

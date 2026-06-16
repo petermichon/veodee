@@ -229,7 +229,7 @@ export function TopNav() {
       <header
         className={cn(
           'top-nav fixed top-0 left-0 right-0 h-16 z-50 transition-colors',
-          scrolled && 'backdrop-blur-md bg-background/80'
+          scrolled && 'backdrop-blur-md bg-background/0'
         )}
       >
         <div className="flex h-full items-center justify-between px-4 md:px-6">
