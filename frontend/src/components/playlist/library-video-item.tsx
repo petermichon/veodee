@@ -13,6 +13,7 @@ interface LibraryVideoItemProps {
   hideThumbnail?: boolean;
   hideTitle?: boolean;
   isDeleted?: boolean;
+  ratio?: '16:9' | '1:1';
 }
 
 export const LibraryVideoItem = memo(function LibraryVideoItem({
@@ -23,6 +24,7 @@ export const LibraryVideoItem = memo(function LibraryVideoItem({
   hideThumbnail = false,
   hideTitle = false,
   isDeleted = false,
+  ratio = '16:9',
 }: LibraryVideoItemProps) {
   const [fetchedDetails, setFetchedDetails] =
     useState<YouTubeVideoDetails | null>(null);
@@ -58,8 +60,8 @@ export const LibraryVideoItem = memo(function LibraryVideoItem({
 
   const thumbnailClasses =
     layout === 'grid'
-      ? 'relative w-24 h-[54px] overflow-hidden flex-shrink-0 rounded-lg'
-      : 'relative w-32 h-20 overflow-hidden flex-shrink-0 rounded-lg';
+      ? `relative ${ratio === '1:1' ? 'w-24 h-24' : 'w-24 h-[54px]'} overflow-hidden flex-shrink-0 rounded-lg`
+      : `relative ${ratio === '1:1' ? 'w-32 h-32' : 'w-32 h-20'} overflow-hidden flex-shrink-0 rounded-lg`;
 
   const contentClasses =
     layout === 'grid'

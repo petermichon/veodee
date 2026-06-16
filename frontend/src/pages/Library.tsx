@@ -14,8 +14,14 @@ import type { Video } from '@/types/index';
 export function Library() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { removeVideo, resetToDefaults, videos, exportLibrary, importLibrary } =
-    useVideo();
+  const {
+    removeVideo,
+    resetToDefaults,
+    videos,
+    exportLibrary,
+    importLibrary,
+    activePlaylist,
+  } = useVideo();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showExportDialog, setShowExportDialog] = useState(false);
@@ -485,6 +491,7 @@ export function Library() {
                     onPlay={handlePlayVideo}
                     hideThumbnail={hideThumbnailsAndTitles}
                     hideTitle={hideThumbnailsAndTitles}
+                    ratio={activePlaylist?.ratio ?? '16:9'}
                   />
                 </div>
               ))}

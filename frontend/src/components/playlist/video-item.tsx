@@ -37,6 +37,7 @@ interface VideoItemProps {
   onMoveDown?: () => void;
   index?: number;
   totalVideos?: number;
+  ratio?: '16:9' | '1:1';
 }
 
 export const VideoItem = memo(function VideoItem({
@@ -54,6 +55,7 @@ export const VideoItem = memo(function VideoItem({
   onMoveDown,
   index = 0,
   totalVideos = 0,
+  ratio = '16:9',
 }: VideoItemProps) {
   // Check if this is fallback data (no real YouTube details)
   const isFallbackData =
@@ -103,7 +105,9 @@ export const VideoItem = memo(function VideoItem({
   };
 
   if (!videoDetails) {
-    return <div className="aspect-video" />;
+    return (
+      <div className={ratio === '1:1' ? 'aspect-square' : 'aspect-video'} />
+    );
   }
 
   const details = videoDetails;
@@ -153,8 +157,8 @@ export const VideoItem = memo(function VideoItem({
 
   const thumbnailClasses =
     layout === 'grid'
-      ? 'aspect-video relative overflow-hidden shadow-lg rounded-lg sm:rounded-xl'
-      : 'relative w-20 sm:w-28 md:w-40 lg:w-48 aspect-video overflow-hidden flex-shrink-0 shadow-lg rounded-lg sm:rounded-xl';
+      ? `${ratio === '1:1' ? 'aspect-square' : 'aspect-video'} relative overflow-hidden shadow-lg rounded-lg sm:rounded-xl`
+      : `relative w-20 sm:w-28 md:w-40 lg:w-48 ${ratio === '1:1' ? 'aspect-square' : 'aspect-video'} overflow-hidden flex-shrink-0 shadow-lg rounded-lg sm:rounded-xl`;
 
   const contentClasses =
     layout === 'grid'

@@ -19,6 +19,7 @@ interface VideoContainerProps {
   currentBackgroundVideoId?: string | null;
   onMoveUp?: (index: number) => void;
   onMoveDown?: (index: number) => void;
+  ratio?: '16:9' | '1:1';
 }
 
 export const VideoContainer = memo(function VideoContainer({
@@ -36,6 +37,7 @@ export const VideoContainer = memo(function VideoContainer({
   currentBackgroundVideoId,
   onMoveUp,
   onMoveDown,
+  ratio = '16:9',
 }: VideoContainerProps) {
   const [details, setDetails] = useState<Record<string, YouTubeVideoDetails>>(
     {}
@@ -377,6 +379,7 @@ export const VideoContainer = memo(function VideoContainer({
               totalVideos={readyVideos.length}
               onMoveUp={onMoveUp ? () => onMoveUp(index) : undefined}
               onMoveDown={onMoveDown ? () => onMoveDown(index) : undefined}
+              ratio={ratio}
             />
           </div>
         ))}

@@ -22,8 +22,14 @@ const LOAD_STEP = 12;
 export function Home() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { addVideo, removeVideo, exportLibrary, importLibrary, videos } =
-    useVideo();
+  const {
+    addVideo,
+    removeVideo,
+    exportLibrary,
+    importLibrary,
+    videos,
+    activePlaylist,
+  } = useVideo();
   const { searchQuery, setSearchQuery } = useSearch();
   const fileInputRef2 = useRef<HTMLInputElement>(null);
   const [visibleCount, setVisibleCount] = useState(0);
@@ -381,6 +387,7 @@ export function Home() {
               layout="grid"
               enableMaxresThumbnails={true}
               onSetBackground={handleSetBackground}
+              ratio={activePlaylist?.ratio ?? '16:9'}
               currentBackgroundVideoId={currentBackgroundVideoId}
             />
           </div>

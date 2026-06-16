@@ -9,11 +9,13 @@ const STORAGE_VERSION = 2;
 interface VideoContextType {
   playlists: Playlist[];
   activePlaylistId: string;
+  activePlaylist: Playlist | null;
   videos: Video[];
   setActivePlaylist: (id: string) => void;
   addPlaylist: (playlist: Playlist) => void;
   removePlaylist: (id: string) => void;
   renamePlaylist: (id: string, name: string) => void;
+  updatePlaylistRatio: (id: string, ratio: '16:9' | '1:1') => void;
   createBlankPlaylist: (name: string) => void;
   addVideo: (video: Video) => void;
   removeVideo: (videoId: string) => void;
@@ -30,12 +32,13 @@ const DEFAULT_PLAYLIST_ID = 'default';
 const makeDefaultPlaylists = (): Playlist[] => [
   {
     id: DEFAULT_PLAYLIST_ID,
-    name: 'Library',
+    name: 'Playlist',
     videos: [
       { id: 'd_xyD3nNQuo' },
       { id: 'OdYsO1FAFQk' },
       { id: 'hVvEISFw9w0' },
     ],
+    ratio: '16:9',
   },
 ];
 
@@ -75,8 +78,9 @@ const loadPlaylists = (): { playlists: Playlist[]; activeId: string } => {
         const migrated: Playlist[] = [
           {
             id: DEFAULT_PLAYLIST_ID,
-            name: 'Library',
+            name: 'Playlist',
             videos: oldParsed.videos,
+            ratio: '16:9',
           },
         ];
         savePlaylists(migrated);
@@ -104,7 +108,7 @@ const loadPlaylists = (): { playlists: Playlist[]; activeId: string } => {
         });
       }
       const migrated: Playlist[] = [
-        { id: DEFAULT_PLAYLIST_ID, name: 'Library', videos },
+        { id: DEFAULT_PLAYLIST_ID, name: 'Playlist', videos, ratio: '16:9' },
       ];
       savePlaylists(migrated);
       localStorage.removeItem('tagStorage');
@@ -169,12 +173,22 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     [playlists, updatePlaylists]
   );
 
+  const updatePlaylistRatio = useCallback(
+    (id: string, ratio: '16:9' | '1:1') => {
+      updatePlaylists(
+        playlists.map((p) => (p.id === id ? { ...p, ratio } : p))
+      );
+    },
+    [playlists, updatePlaylists]
+  );
+
   const createBlankPlaylist = useCallback(
     (name: string) => {
       const newPlaylist: Playlist = {
         id: `playlist-${Date.now()}`,
         name,
         videos: [],
+        ratio: '16:9',
       };
       updatePlaylists([...playlists, newPlaylist]);
       setActivePlaylist(newPlaylist.id);
@@ -233,6 +247,7 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     const exportData = {
       version: 1,
       name: activePlaylist?.name ?? 'playlist',
+      ratio: activePlaylist?.ratio ?? '16:9',
       videos,
     };
     const json = JSON.stringify(exportData, null, 2);
@@ -255,10 +270,13 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     (data: any, name: string) => {
       const importedVideos: Video[] = data.videos || [];
       const playlistName = data.name || name;
+      const playlistRatio: '16:9' | '1:1' =
+        data.ratio === '1:1' ? '1:1' : '16:9';
       const newPlaylist: Playlist = {
         id: `playlist-${Date.now()}`,
         name: playlistName,
         videos: importedVideos,
+        ratio: playlistRatio,
       };
       const updated = [...playlists, newPlaylist];
       updatePlaylists(updated);
@@ -272,11 +290,13 @@ export function VideoProvider({ children }: { children: ReactNode }) {
       value={{
         playlists,
         activePlaylistId,
+        activePlaylist,
         videos,
         setActivePlaylist,
         addPlaylist,
         removePlaylist,
         renamePlaylist,
+        updatePlaylistRatio,
         createBlankPlaylist,
         addVideo,
         removeVideo,

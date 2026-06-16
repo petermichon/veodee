@@ -7,12 +7,6 @@ interface PlaylistSelectorProps {
   onImportClick: () => void;
 }
 
-interface MenuState {
-  playlistId: string;
-  x: number;
-  y: number;
-}
-
 interface AddMenuState {
   x: number;
   y: number;
@@ -25,31 +19,23 @@ export function PlaylistSelector({ onImportClick }: PlaylistSelectorProps) {
     setActivePlaylist,
     removePlaylist,
     renamePlaylist,
+    updatePlaylistRatio,
     createBlankPlaylist,
     exportLibrary,
   } = useVideo();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [menu, setMenu] = useState<MenuState | null>(null);
   const [addMenu, setAddMenu] = useState<AddMenuState | null>(null);
+  const [globalMenu, setGlobalMenu] = useState<{ x: number; y: number } | null>(
+    null
+  );
   const [renaming, setRenaming] = useState<{
     id: string;
     value: string;
   } | null>(null);
   const [deletePrompt, setDeletePrompt] = useState<string | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
   const addMenuRef = useRef<HTMLDivElement>(null);
+  const globalMenuRef = useRef<HTMLDivElement>(null);
   const renameInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (!menu) return;
-    const handleClick = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setMenu(null);
-      }
-    };
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, [menu]);
 
   useEffect(() => {
     if (!addMenu) return;
@@ -66,15 +52,29 @@ export function PlaylistSelector({ onImportClick }: PlaylistSelectorProps) {
   }, [addMenu]);
 
   useEffect(() => {
+    if (!globalMenu) return;
+    const handleClick = (e: MouseEvent) => {
+      if (
+        globalMenuRef.current &&
+        !globalMenuRef.current.contains(e.target as Node)
+      ) {
+        setGlobalMenu(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [globalMenu]);
+
+  useEffect(() => {
     if (renaming) {
       setTimeout(() => renameInputRef.current?.focus(), 30);
     }
   }, [renaming]);
 
-  const openMenu = (e: React.MouseEvent, playlistId: string) => {
+  const openGlobalMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    setMenu({ playlistId, x: rect.left, y: rect.bottom + 4 });
+    setGlobalMenu({ x: rect.left, y: rect.bottom + 4 });
   };
 
   const openAddMenu = (e: React.MouseEvent) => {
@@ -94,14 +94,6 @@ export function PlaylistSelector({ onImportClick }: PlaylistSelectorProps) {
     createBlankPlaylist(name);
   };
 
-  const handleRename = useCallback(() => {
-    if (!menu) return;
-    const playlist = playlists.find((p) => p.id === menu.playlistId);
-    if (!playlist) return;
-    setRenaming({ id: playlist.id, value: playlist.name });
-    setMenu(null);
-  }, [menu, playlists]);
-
   const commitRename = useCallback(() => {
     if (!renaming) return;
     const trimmed = renaming.value.trim();
@@ -113,26 +105,40 @@ export function PlaylistSelector({ onImportClick }: PlaylistSelectorProps) {
     setRenaming(null);
   }, [renaming, renamePlaylist]);
 
-  const handleExport = useCallback(() => {
-    if (!menu) return;
-    if (menu.playlistId !== activePlaylistId) {
-      setActivePlaylist(menu.playlistId);
-    }
-    setMenu(null);
-    setTimeout(() => exportLibrary(), 50);
-  }, [menu, activePlaylistId, setActivePlaylist, exportLibrary]);
-
-  const handleDelete = useCallback(() => {
-    if (!menu) return;
-    setDeletePrompt(menu.playlistId);
-    setMenu(null);
-  }, [menu]);
-
   const confirmDelete = useCallback(() => {
     if (!deletePrompt) return;
     removePlaylist(deletePrompt);
     setDeletePrompt(null);
   }, [deletePrompt, removePlaylist]);
+
+  const handleGlobalRatioChange = useCallback(
+    (ratio: '16:9' | '1:1') => {
+      if (!activePlaylistId) return;
+      updatePlaylistRatio(activePlaylistId, ratio);
+      setGlobalMenu(null);
+    },
+    [activePlaylistId, updatePlaylistRatio]
+  );
+
+  const handleGlobalRename = useCallback(() => {
+    if (!activePlaylistId) return;
+    const playlist = playlists.find((p) => p.id === activePlaylistId);
+    if (playlist) {
+      setRenaming({ id: playlist.id, value: playlist.name });
+      setGlobalMenu(null);
+    }
+  }, [activePlaylistId, playlists]);
+
+  const handleGlobalExport = useCallback(() => {
+    exportLibrary();
+    setGlobalMenu(null);
+  }, [exportLibrary]);
+
+  const handleGlobalDelete = useCallback(() => {
+    if (!activePlaylistId) return;
+    setDeletePrompt(activePlaylistId);
+    setGlobalMenu(null);
+  }, [activePlaylistId]);
 
   return (
     <>
@@ -177,18 +183,6 @@ export function PlaylistSelector({ onImportClick }: PlaylistSelectorProps) {
                   {playlist.name}
                 </button>
               )}
-              <button
-                onClick={(e) => openMenu(e, playlist.id)}
-                className={cn(
-                  'flex items-center justify-center h-5 rounded-full border-none cursor-pointer transition-all duration-200 overflow-hidden',
-                  'text-muted-foreground/60 hover:text-foreground',
-                  isActive
-                    ? 'w-5 opacity-100 scale-100'
-                    : 'w-0 opacity-0 scale-90 pointer-events-none'
-                )}
-              >
-                <Pencil className="h-3 w-3" />
-              </button>
             </div>
           );
         })}
@@ -199,41 +193,14 @@ export function PlaylistSelector({ onImportClick }: PlaylistSelectorProps) {
         >
           <Plus className="h-4 w-4" />
         </button>
-      </div>
-
-      {menu && (
-        <div
-          ref={menuRef}
-          className="fixed z-[300] min-w-[140px] rounded-lg border border-border bg-card/90 backdrop-blur-md shadow-lg py-1"
-          style={{
-            top: menu.y,
-            left: menu.x,
-            animation: 'fadeIn 150ms ease-out',
-          }}
+        <button
+          onClick={openGlobalMenu}
+          className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full text-muted-foreground hover:text-foreground transition-colors duration-150 border-none cursor-pointer ml-auto"
+          title="Playlist settings"
         >
-          <button
-            onClick={handleRename}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer border-none bg-transparent"
-          >
-            <Pencil className="h-3.5 w-3.5" />
-            Rename
-          </button>
-          <button
-            onClick={handleExport}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer border-none bg-transparent"
-          >
-            <Upload className="h-3.5 w-3.5" />
-            Export
-          </button>
-          <button
-            onClick={handleDelete}
-            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 transition-colors cursor-pointer border-none bg-transparent"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            Delete
-          </button>
-        </div>
-      )}
+          <Pencil className="h-4 w-4" />
+        </button>
+      </div>
 
       {addMenu && (
         <div
@@ -258,6 +225,57 @@ export function PlaylistSelector({ onImportClick }: PlaylistSelectorProps) {
           >
             <Plus className="h-3.5 w-3.5" />
             Create blank
+          </button>
+        </div>
+      )}
+
+      {globalMenu && (
+        <div
+          ref={globalMenuRef}
+          className="fixed z-[300] min-w-[140px] rounded-lg border border-border bg-card/90 backdrop-blur-md shadow-lg py-1"
+          style={{
+            top: globalMenu.y,
+            left: globalMenu.x,
+            animation: 'fadeIn 150ms ease-out',
+          }}
+        >
+          <button
+            onClick={handleGlobalRename}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer border-none bg-transparent"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            Rename
+          </button>
+          <button
+            onClick={handleGlobalExport}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer border-none bg-transparent"
+          >
+            <Upload className="h-3.5 w-3.5" />
+            Export
+          </button>
+          <div className="px-3 py-1.5 border-t border-border/50">
+            <span className="text-xs text-muted-foreground font-medium">
+              Ratio
+            </span>
+          </div>
+          <button
+            onClick={() => handleGlobalRatioChange('16:9')}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer border-none bg-transparent"
+          >
+            <span className="text-xs">16:9</span>
+          </button>
+          <button
+            onClick={() => handleGlobalRatioChange('1:1')}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer border-none bg-transparent"
+          >
+            <span className="text-xs">1:1</span>
+          </button>
+          <button
+            onClick={handleGlobalDelete}
+            className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-400 hover:text-red-300 transition-colors cursor-pointer border-none bg-transparent"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+            Delete
           </button>
         </div>
       )}
