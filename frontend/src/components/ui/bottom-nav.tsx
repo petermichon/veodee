@@ -12,7 +12,7 @@ export function BottomNav() {
   const location = useLocation();
 
   return (
-    <nav className="bottom-nav md:hidden fixed bottom-0 left-0 right-0 h-16 border-t border-border/20 bg-background/80 backdrop-blur-md shadow-lg z-50 overscroll-none">
+    <nav className="bottom-nav md:hidden fixed bottom-0 left-0 right-0 h-16 border-t border-border/20 bg-background/80 backdrop-blur-md shadow-lg z-50">
       <div className="flex h-full items-center justify-around px-2">
         {NAVIGATION_ITEMS.map((item) => {
           const isActive = location.pathname === item.href;

@@ -13,7 +13,7 @@ function AppContent() {
     <>
       <div>
         <TopNav />
-        <div className="pt-16 pb-16 md:pb-0 app-layout">
+        <div className="pt-16 pb-16 md:pb-0 app-layout overscroll-none">
           <main>
             <Routes>
               <Route path="/" element={<Home />} />
