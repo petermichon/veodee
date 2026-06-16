@@ -51,8 +51,12 @@
 }
 
 @layer base {
+  html {
+    overscroll-behavior-y: none;
+  }
+
   body {
-    @apply bg-background text-foreground overscroll-none;
+    @apply bg-background text-foreground;
   }
 
   input:focus {
