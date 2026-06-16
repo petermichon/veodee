@@ -55,7 +55,7 @@ export function BottomNav() {
                 to={item.href}
                 onMouseDown={addRipple(item.name)}
                 className={cn(
-                  'flex flex-row items-center px-5 py-3 rounded-full text-sm font-medium transition-[width,opacity] duration-300 relative overflow-hidden hover:bg-white/10 active:scale-90 transition-transform duration-75',
+                  'flex flex-row items-center px-5 py-3 rounded-full text-sm font-medium transition-[width,opacity] duration-300 relative overflow-hidden hover:bg-white/10 active:scale-90 transition-transform duration-75 touch-action-manipulation select-none',
                   isActive && 'text-foreground hover:bg-white/10',
                   !isActive && 'text-muted-foreground'
                 )}
@@ -96,7 +96,7 @@ export function BottomNav() {
         onClick={() => {
           window.dispatchEvent(new CustomEvent('open-add-dialog'));
         }}
-        className="flex items-center justify-center w-12 h-12 rounded-full shadow-[inset_0_0_0_2px_rgba(255,255,255,0.1)] bg-gradient-to-b from-black/85 to-black/75 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] shadow-[0_2px_8px_rgba(0,0,0,0.2)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)] shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.05)] hover:bg-white/20 active:scale-90 transition-transform duration-300 relative overflow-hidden"
+        className="flex items-center justify-center w-12 h-12 rounded-full shadow-[inset_0_0_0_2px_rgba(255,255,255,0.1)] bg-gradient-to-b from-black/85 to-black/75 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] shadow-[0_2px_8px_rgba(0,0,0,0.2)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)] shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.05)] hover:bg-white/20 active:scale-90 transition-transform duration-300 relative overflow-hidden touch-action-manipulation select-none"
       >
         {(ripples['add'] || []).map((ripple) => (
           <span
