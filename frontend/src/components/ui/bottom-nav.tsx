@@ -55,7 +55,7 @@ export function BottomNav() {
                 to={item.href}
                 onMouseDown={addRipple(item.name)}
                 className={cn(
-                  'flex flex-row items-center px-5 py-4 rounded-full text-sm font-medium transition-[width,opacity] duration-300 relative overflow-hidden hover:bg-white/10 active:scale-90 transition-transform duration-75',
+                  'flex flex-row items-center px-5 py-3 rounded-full text-sm font-medium transition-[width,opacity] duration-300 relative overflow-hidden hover:bg-white/10 active:scale-90 transition-transform duration-75',
                   isActive && 'text-foreground hover:bg-white/10',
                   !isActive && 'text-muted-foreground'
                 )}
