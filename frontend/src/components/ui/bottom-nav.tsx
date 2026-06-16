@@ -54,6 +54,7 @@ export function BottomNav() {
                 key={item.name}
                 to={item.href}
                 onMouseDown={addRipple(item.name)}
+                onContextMenu={(e) => e.preventDefault()}
                 className={cn(
                   'flex flex-row items-center px-5 py-3 rounded-full text-sm font-medium transition-[width,opacity] duration-300 relative overflow-hidden hover:bg-white/10 active:scale-90 transition-transform duration-75 touch-action-manipulation select-none',
                   isActive && 'text-foreground hover:bg-white/10',
@@ -93,6 +94,7 @@ export function BottomNav() {
       </nav>
       <button
         onMouseDown={addRipple('add')}
+        onContextMenu={(e) => e.preventDefault()}
         onClick={() => {
           window.dispatchEvent(new CustomEvent('open-add-dialog'));
         }}
