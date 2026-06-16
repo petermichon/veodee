@@ -92,33 +92,35 @@ export function BottomNav() {
           })}
         </div>
       </nav>
-      {location.pathname !== '/player' && (
-        <button
-          onMouseDown={addRipple('add')}
-          onContextMenu={(e) => e.preventDefault()}
-          onClick={() => {
-            window.dispatchEvent(new CustomEvent('open-add-dialog'));
-          }}
-          className="flex items-center justify-center w-12 h-12 rounded-full shadow-[inset_0_0_0_2px_rgba(255,255,255,0.1)] bg-gradient-to-b from-black/85 to-black/75 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] shadow-[0_2px_8px_rgba(0,0,0,0.2)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)] shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.05)] hover:bg-white/20 active:scale-90 transition-transform duration-300 relative overflow-hidden touch-action-manipulation select-none"
-        >
-          {(ripples['add'] || []).map((ripple) => (
-            <span
-              key={ripple.key}
-              className="absolute rounded-full bg-white/20 animate-ping"
-              style={{
-                left: ripple.x,
-                top: ripple.y,
-                width: '200px',
-                height: '200px',
-                marginLeft: '-100px',
-                marginTop: '-100px',
-                animationDuration: '1.5s',
-              }}
-            />
-          ))}
-          <Plus className="h-5 w-5 relative z-10 text-foreground" />
-        </button>
-      )}
+      <button
+        onMouseDown={addRipple('add')}
+        onContextMenu={(e) => e.preventDefault()}
+        onClick={() => {
+          window.dispatchEvent(new CustomEvent('open-add-dialog'));
+        }}
+        className={cn(
+          'flex items-center justify-center w-12 h-12 rounded-full shadow-[inset_0_0_0_2px_rgba(255,255,255,0.1)] bg-gradient-to-b from-black/85 to-black/75 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] shadow-[0_2px_8px_rgba(0,0,0,0.2)] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.15)] shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.05)] hover:bg-white/20 active:scale-90 transition-all duration-300 relative overflow-hidden touch-action-manipulation select-none',
+          location.pathname === '/player' &&
+            'opacity-0 w-0 p-0 pointer-events-none'
+        )}
+      >
+        {(ripples['add'] || []).map((ripple) => (
+          <span
+            key={ripple.key}
+            className="absolute rounded-full bg-white/20 animate-ping"
+            style={{
+              left: ripple.x,
+              top: ripple.y,
+              width: '200px',
+              height: '200px',
+              marginLeft: '-100px',
+              marginTop: '-100px',
+              animationDuration: '1.5s',
+            }}
+          />
+        ))}
+        <Plus className="h-5 w-5 relative z-10 text-foreground" />
+      </button>
     </div>
   );
 }
