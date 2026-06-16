@@ -15,11 +15,13 @@ import {
   SunMoon,
   Heart,
   Image,
+  Search,
 } from 'lucide-react';
 import { YouTubeAPI } from '@/services/youtube-api';
 import { useLocation, Link } from 'react-router-dom';
 import { LogoBlack, LogoWhite } from '@/components/ui/logo';
 import { useTheme } from '@/contexts/theme-context';
+import { useSearch } from '@/contexts/search-context';
 import { cn } from '@/lib/utils';
 
 const NAVIGATION_ITEMS = [
@@ -94,6 +96,7 @@ NavButton.displayName = 'NavButton';
 export function TopNav() {
   const location = useLocation();
   const { theme, setTheme, toggleAutoTheme } = useTheme();
+  const { searchQuery, setSearchQuery } = useSearch();
   const [backgroundMode, setBackgroundMode] = useState<'normal' | 'custom'>(
     () => {
       const savedMode = localStorage.getItem('background-mode');
@@ -120,8 +123,9 @@ export function TopNav() {
   const accountPopupRef = useRef<HTMLDivElement>(null);
   const settingsBtnRef = useRef<HTMLButtonElement>(null);
   const settingsPopupRef = useRef<HTMLDivElement>(null);
-  const [scrolled, setScrolled] = useState(false);
   const [isNavHovered, setIsNavHovered] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true);
@@ -138,10 +142,20 @@ export function TopNav() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 0);
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        // Scrolling down - hide nav
+        setIsVisible(false);
+      } else if (currentScrollY < lastScrollY.current) {
+        // Scrolling up - show nav
+        setIsVisible(true);
+      }
+
+      lastScrollY.current = currentScrollY;
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -255,12 +269,13 @@ export function TopNav() {
     <>
       <header
         className={cn(
-          'top-nav fixed top-0 left-0 right-0 h-16 z-50 transition-colors',
-          scrolled && 'backdrop-blur-md bg-background/0'
+          'top-nav fixed top-0 left-0 right-0 h-16 z-50 transition-transform duration-300 ease-in-out',
+          'backdrop-blur-xl',
+          isVisible ? 'translate-y-0' : '-translate-y-full'
         )}
       >
-        <div className="flex h-full items-center justify-between px-4 md:px-6">
-          <div className="flex items-center gap-2 md:gap-4">
+        <div className="flex h-full items-center px-4 md:px-6">
+          <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
             <Link to="/" className="flex items-center gap-2">
               <div className="flex items-center rounded-xl p-1">
                 <LogoBlack className="h-8 w-auto dark:hidden" />
@@ -298,7 +313,22 @@ export function TopNav() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex-1 flex items-center px-8">
+            <div className="relative w-full flex items-center group focus-within:text-foreground">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-hover:text-foreground group-focus-within:text-foreground transition-colors duration-150" />
+              <input
+                type="text"
+                id="search-input"
+                name="search"
+                placeholder="Search"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-10 w-full bg-transparent border-none focus:ring-0 text-muted-foreground group-hover:text-foreground group-focus-within:text-foreground placeholder:text-muted-foreground group-hover:placeholder:text-foreground group-focus-within:placeholder:text-foreground transition-colors duration-150 ease-in-out"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-shrink-0">
             {!isOnline && (
               <div className="flex items-center gap-1.5 px-2 py-2 rounded-xl text-sm text-white transition-colors">
                 <WifiOff className="h-4 w-4" />

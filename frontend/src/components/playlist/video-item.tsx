@@ -70,6 +70,7 @@ export const VideoItem = memo(function VideoItem({
     url: string;
     name: string;
   } | null>(null);
+  const [removePrompt, setRemovePrompt] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -136,12 +137,15 @@ export const VideoItem = memo(function VideoItem({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const handleCopyVideoUrl = (e: React.MouseEvent) => {
+  const handleRemoveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const videoUrl = `https://www.youtube.com/watch?v=${video.id}`;
-    navigator.clipboard.writeText(videoUrl);
-    setCopiedId(video.id);
-    setTimeout(() => setCopiedId(null), 2000);
+    setRemovePrompt(true);
+    setMenuOpen(false);
+  };
+
+  const confirmRemove = () => {
+    onRemove(video.id);
+    setRemovePrompt(false);
   };
 
   // Layout-specific classes
@@ -212,6 +216,68 @@ export const VideoItem = memo(function VideoItem({
               >
                 Open
                 <ExternalLink className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Remove confirmation popup */}
+      {removePrompt && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm cursor-default"
+          onClick={(e) => {
+            e.stopPropagation();
+            setRemovePrompt(false);
+          }}
+        >
+          <div
+            className="bg-card border border-border rounded-2xl shadow-xl p-6 w-96 max-w-[90vw] flex flex-col gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-2">
+                <Trash2 className="h-5 w-5 text-destructive" />
+                <span className="font-semibold text-foreground text-base">
+                  Remove video?
+                </span>
+              </div>
+              <div className="flex gap-3">
+                <div className="w-24 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
+                  {loadThumbnails && !isFallbackData ? (
+                    <img
+                      src={getYouTubeThumbnailUrl(video.id, thumbnailQuality)}
+                      alt={details.title}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-muted/30" />
+                  )}
+                </div>
+                <div className="flex flex-col gap-1 min-w-0">
+                  <span className="text-sm font-medium text-foreground line-clamp-2">
+                    {details.title}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {details.author_name}
+                  </span>
+                </div>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                Are you sure you want to remove this video from your playlist?
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setRemovePrompt(false)}
+                className="flex-1 px-4 py-2 rounded-xl text-sm font-medium border border-border text-muted-foreground hover:text-foreground hover:bg-accent transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmRemove}
+                className="flex-1 px-4 py-2 rounded-xl text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors cursor-pointer"
+              >
+                Remove
               </button>
             </div>
           </div>
@@ -329,70 +395,62 @@ export const VideoItem = memo(function VideoItem({
                     </button>
                     {/* Dropdown menu */}
                     {menuOpen && (
-                      <div className="absolute right-0 bottom-full mb-1 bg-card/80 backdrop-blur-md border border-border/50 rounded-lg shadow-xl py-1 min-w-[140px] z-50">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleCopyVideoUrl(e);
-                            setMenuOpen(false);
-                          }}
-                          className="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors flex items-center gap-2"
-                        >
-                          {copiedId === video.id ? (
-                            <>
-                              <CheckIcon className="h-4 w-4" />
-                              <span>Copied!</span>
-                            </>
-                          ) : (
-                            <>
-                              <Copy className="h-4 w-4" />
-                              <span>Copy URL</span>
-                            </>
+                      <div className="absolute right-0 bottom-full mb-1 bg-card/80 backdrop-blur-md border border-border/50 rounded-lg shadow-xl min-w-[180px] z-50">
+                        <div className="py-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCopyVideoId(e);
+                            }}
+                            className="w-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+                          >
+                            {copiedId === video.id ? (
+                              <CheckIcon className="h-4 w-4 flex-shrink-0" />
+                            ) : (
+                              <Copy className="h-4 w-4 flex-shrink-0" />
+                            )}
+                            <span className="font-mono">{video.id}</span>
+                          </button>
+                          {onSetBackground && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSetBackground(video.id);
+                                setMenuOpen(false);
+                              }}
+                              className="w-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+                            >
+                              <ImagePlay className="h-4 w-4" />
+                              <span>
+                                {currentBackgroundVideoId === video.id
+                                  ? 'Remove Wallpaper'
+                                  : 'Wallpaper'}
+                              </span>
+                            </button>
                           )}
-                        </button>
-                        {onSetBackground && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onSetBackground(video.id);
-                              setMenuOpen(false);
-                            }}
-                            className="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors flex items-center gap-2"
-                          >
-                            <ImagePlay className="h-4 w-4" />
-                            <span>
-                              {currentBackgroundVideoId === video.id
-                                ? 'Remove background'
-                                : 'Set as background'}
-                            </span>
-                          </button>
-                        )}
-                        {onUpdate && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleStartEdit(e);
-                              setMenuOpen(false);
-                            }}
-                            className="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors flex items-center gap-2"
-                          >
-                            <Edit2 className="h-4 w-4" />
-                            <span>Edit</span>
-                          </button>
-                        )}
-                        {onRemove && (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onRemove(video.id);
-                              setMenuOpen(false);
-                            }}
-                            className="w-full px-3 py-2 text-left text-sm hover:bg-destructive/10 hover:text-destructive transition-colors flex items-center gap-2"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            <span>Remove</span>
-                          </button>
-                        )}
+                          {onUpdate && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleStartEdit(e);
+                                setMenuOpen(false);
+                              }}
+                              className="w-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+                            >
+                              <Edit2 className="h-4 w-4" />
+                              <span>Edit</span>
+                            </button>
+                          )}
+                          {onRemove && (
+                            <button
+                              onClick={handleRemoveClick}
+                              className="w-full px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              <span>Remove</span>
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -431,8 +489,8 @@ export const VideoItem = memo(function VideoItem({
                 }`}
                 title={
                   currentBackgroundVideoId === video.id
-                    ? 'Remove background'
-                    : 'Set as background'
+                    ? 'Remove Wallpaper'
+                    : 'Wallpaper'
                 }
               >
                 <ImagePlay className="h-4 w-4" />

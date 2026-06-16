@@ -1,115 +1,209 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import type { Video } from '@/types/index';
+import type { Video, Playlist } from '@/types/index';
 
-const STORAGE_KEY = 'videoLibrary';
-const STORAGE_VERSION = 1;
+const PLAYLISTS_KEY = 'playlists';
+const ACTIVE_KEY = 'activePlaylistId';
+const STORAGE_VERSION = 2;
 
 interface VideoContextType {
+  playlists: Playlist[];
+  activePlaylistId: string;
   videos: Video[];
+  setActivePlaylist: (id: string) => void;
+  addPlaylist: (playlist: Playlist) => void;
+  removePlaylist: (id: string) => void;
+  renamePlaylist: (id: string, name: string) => void;
+  createBlankPlaylist: (name: string) => void;
   addVideo: (video: Video) => void;
   removeVideo: (videoId: string) => void;
   reorderVideos: (fromIndex: number, toIndex: number) => void;
   resetToDefaults: () => void;
   exportLibrary: () => void;
-  importLibrary: (data: Video[], mergeStrategy: 'replace' | 'append') => void;
+  importLibrary: (data: any, name: string) => void;
 }
 
 const VideoContext = createContext<VideoContextType | undefined>(undefined);
 
-const initializeDefaultStorage = (): Video[] => {
-  const defaultVideos: Video[] = [
-    { id: 'd_xyD3nNQuo' },
-    { id: 'OdYsO1FAFQk' },
-    { id: 'hVvEISFw9w0' },
-  ];
+const DEFAULT_PLAYLIST_ID = 'default';
 
-  const storage = {
-    version: STORAGE_VERSION,
-    videos: defaultVideos,
-  };
+const makeDefaultPlaylists = (): Playlist[] => [
+  {
+    id: DEFAULT_PLAYLIST_ID,
+    name: 'Library',
+    videos: [
+      { id: 'd_xyD3nNQuo' },
+      { id: 'OdYsO1FAFQk' },
+      { id: 'hVvEISFw9w0' },
+    ],
+  },
+];
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(storage));
-  return defaultVideos;
+const savePlaylists = (playlists: Playlist[]) => {
+  localStorage.setItem(
+    PLAYLISTS_KEY,
+    JSON.stringify({ version: STORAGE_VERSION, playlists })
+  );
 };
 
-const migrateFromOldFormat = (oldData: any): Video[] => {
-  // Migrate from old tag-based format to flat list
-  let videos: Video[] = [];
+const loadPlaylists = (): { playlists: Playlist[]; activeId: string } => {
+  const stored = localStorage.getItem(PLAYLISTS_KEY);
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (
+        parsed.version === STORAGE_VERSION &&
+        Array.isArray(parsed.playlists)
+      ) {
+        const activeId =
+          localStorage.getItem(ACTIVE_KEY) ||
+          parsed.playlists[0]?.id ||
+          DEFAULT_PLAYLIST_ID;
+        return { playlists: parsed.playlists, activeId };
+      }
+    } catch {
+      /* fall through */
+    }
+  }
 
-  if (oldData.groups && Array.isArray(oldData.groups)) {
-    oldData.groups.forEach((group: any) => {
-      if (group.videos && Array.isArray(group.videos)) {
-        group.videos.forEach((video: any) => {
-          if (!video.deleted) {
-            videos.push({ id: video.id });
+  // Migrate from old single-library format (version 1)
+  const oldStored = localStorage.getItem('videoLibrary');
+  if (oldStored) {
+    try {
+      const oldParsed = JSON.parse(oldStored);
+      if (oldParsed.version === 1 && Array.isArray(oldParsed.videos)) {
+        const migrated: Playlist[] = [
+          {
+            id: DEFAULT_PLAYLIST_ID,
+            name: 'Library',
+            videos: oldParsed.videos,
+          },
+        ];
+        savePlaylists(migrated);
+        localStorage.removeItem('videoLibrary');
+        return { playlists: migrated, activeId: DEFAULT_PLAYLIST_ID };
+      }
+    } catch {
+      /* fall through */
+    }
+  }
+
+  // Migrate from old tag-based format
+  const tagStorage = localStorage.getItem('tagStorage');
+  if (tagStorage) {
+    try {
+      const oldData = JSON.parse(tagStorage);
+      const videos: Video[] = [];
+      if (oldData.groups && Array.isArray(oldData.groups)) {
+        oldData.groups.forEach((group: any) => {
+          if (group.videos && Array.isArray(group.videos)) {
+            group.videos.forEach((video: any) => {
+              if (!video.deleted) videos.push({ id: video.id });
+            });
           }
         });
       }
-    });
+      const migrated: Playlist[] = [
+        { id: DEFAULT_PLAYLIST_ID, name: 'Library', videos },
+      ];
+      savePlaylists(migrated);
+      localStorage.removeItem('tagStorage');
+      return { playlists: migrated, activeId: DEFAULT_PLAYLIST_ID };
+    } catch {
+      /* fall through */
+    }
   }
 
-  const storage = {
-    version: STORAGE_VERSION,
-    videos,
-  };
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(storage));
-  localStorage.removeItem('tagStorage');
-  return videos;
+  const defaults = makeDefaultPlaylists();
+  savePlaylists(defaults);
+  return { playlists: defaults, activeId: DEFAULT_PLAYLIST_ID };
 };
 
+const _initialState = loadPlaylists();
+
 export function VideoProvider({ children }: { children: ReactNode }) {
-  const [videos, setVideos] = useState<Video[]>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed.version === STORAGE_VERSION) {
-          return parsed.videos;
-        }
-        // Migration needed for older versions
-        return initializeDefaultStorage();
-      } catch {
-        return initializeDefaultStorage();
+  const [playlists, setPlaylists] = useState<Playlist[]>(
+    _initialState.playlists
+  );
+  const [activePlaylistId, setActivePlaylistId] = useState<string>(
+    _initialState.activeId
+  );
+
+  const activePlaylist =
+    playlists.find((p) => p.id === activePlaylistId) ?? playlists[0];
+  const videos = activePlaylist?.videos ?? [];
+
+  const updatePlaylists = useCallback((updated: Playlist[]) => {
+    setPlaylists(updated);
+    savePlaylists(updated);
+  }, []);
+
+  const setActivePlaylist = useCallback((id: string) => {
+    setActivePlaylistId(id);
+    localStorage.setItem(ACTIVE_KEY, id);
+  }, []);
+
+  const addPlaylist = useCallback(
+    (playlist: Playlist) => {
+      updatePlaylists([...playlists, playlist]);
+    },
+    [playlists, updatePlaylists]
+  );
+
+  const removePlaylist = useCallback(
+    (id: string) => {
+      const updated = playlists.filter((p) => p.id !== id);
+      updatePlaylists(updated);
+      if (activePlaylistId === id) {
+        const newActive = updated[0]?.id ?? '';
+        setActivePlaylist(newActive);
       }
-    }
-    // Try to migrate from old tag-based format
-    const oldStorage = localStorage.getItem('tagStorage');
-    if (oldStorage) {
-      try {
-        return migrateFromOldFormat(JSON.parse(oldStorage));
-      } catch {
-        return initializeDefaultStorage();
-      }
-    }
-    return initializeDefaultStorage();
-  });
+    },
+    [playlists, activePlaylistId, updatePlaylists, setActivePlaylist]
+  );
+
+  const renamePlaylist = useCallback(
+    (id: string, name: string) => {
+      updatePlaylists(playlists.map((p) => (p.id === id ? { ...p, name } : p)));
+    },
+    [playlists, updatePlaylists]
+  );
+
+  const createBlankPlaylist = useCallback(
+    (name: string) => {
+      const newPlaylist: Playlist = {
+        id: `playlist-${Date.now()}`,
+        name,
+        videos: [],
+      };
+      updatePlaylists([...playlists, newPlaylist]);
+      setActivePlaylist(newPlaylist.id);
+    },
+    [playlists, updatePlaylists, setActivePlaylist]
+  );
+
+  const patchActiveVideos = useCallback(
+    (newVideos: Video[]) => {
+      const updated = playlists.map((p) =>
+        p.id === activePlaylist?.id ? { ...p, videos: newVideos } : p
+      );
+      updatePlaylists(updated);
+    },
+    [playlists, activePlaylist, updatePlaylists]
+  );
 
   const addVideo = useCallback(
     (videoData: Video) => {
-      const updatedVideos = [...videos, videoData];
-      setVideos(updatedVideos);
-      const storage = {
-        version: STORAGE_VERSION,
-        videos: updatedVideos,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(storage));
+      patchActiveVideos([...videos, videoData]);
     },
-    [videos]
+    [videos, patchActiveVideos]
   );
 
   const removeVideo = useCallback(
     (videoId: string) => {
-      const updatedVideos = videos.filter((v) => v.id !== videoId);
-      setVideos(updatedVideos);
-      const storage = {
-        version: STORAGE_VERSION,
-        videos: updatedVideos,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(storage));
+      patchActiveVideos(videos.filter((v) => v.id !== videoId));
     },
-    [videos]
+    [videos, patchActiveVideos]
   );
 
   const reorderVideos = useCallback(
@@ -121,29 +215,24 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         toIndex >= videos.length
       )
         return;
-
       const reordered = [...videos];
       const [moved] = reordered.splice(fromIndex, 1);
       reordered.splice(toIndex, 0, moved);
-
-      setVideos(reordered);
-      const storage = {
-        version: STORAGE_VERSION,
-        videos: reordered,
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(storage));
+      patchActiveVideos(reordered);
     },
-    [videos]
+    [videos, patchActiveVideos]
   );
 
   const resetToDefaults = useCallback(() => {
-    const defaultVideos = initializeDefaultStorage();
-    setVideos(defaultVideos);
-  }, []);
+    const defaults = makeDefaultPlaylists();
+    updatePlaylists(defaults);
+    setActivePlaylist(DEFAULT_PLAYLIST_ID);
+  }, [updatePlaylists, setActivePlaylist]);
 
   const exportLibrary = useCallback(() => {
     const exportData = {
-      version: STORAGE_VERSION,
+      version: 1,
+      name: activePlaylist?.name ?? 'playlist',
       videos,
     };
     const json = JSON.stringify(exportData, null, 2);
@@ -151,46 +240,44 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `veodee-library-${new Date().toISOString().split('T')[0]}.json`;
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    link.download = `veodee-export-${year}-${month}-${day}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }, [videos]);
+  }, [videos, activePlaylist]);
 
   const importLibrary = useCallback(
-    (data: any, mergeStrategy: 'replace' | 'append') => {
-      const importedVideos = data.videos || [];
-
-      if (mergeStrategy === 'replace') {
-        setVideos(importedVideos);
-        const storage = {
-          version: STORAGE_VERSION,
-          videos: importedVideos,
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(storage));
-      } else {
-        // Merge strategy: combine video lists, avoiding duplicates
-        const existingIds = new Set(videos.map((v) => v.id));
-        const newVideos = importedVideos.filter(
-          (v: Video) => !existingIds.has(v.id)
-        );
-        const mergedVideos = [...videos, ...newVideos];
-        setVideos(mergedVideos);
-        const storage = {
-          version: STORAGE_VERSION,
-          videos: mergedVideos,
-        };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(storage));
-      }
+    (data: any, name: string) => {
+      const importedVideos: Video[] = data.videos || [];
+      const playlistName = data.name || name;
+      const newPlaylist: Playlist = {
+        id: `playlist-${Date.now()}`,
+        name: playlistName,
+        videos: importedVideos,
+      };
+      const updated = [...playlists, newPlaylist];
+      updatePlaylists(updated);
+      setActivePlaylist(newPlaylist.id);
     },
-    [videos]
+    [playlists, updatePlaylists, setActivePlaylist]
   );
 
   return (
     <VideoContext.Provider
       value={{
+        playlists,
+        activePlaylistId,
         videos,
+        setActivePlaylist,
+        addPlaylist,
+        removePlaylist,
+        renamePlaylist,
+        createBlankPlaylist,
         addVideo,
         removeVideo,
         reorderVideos,

@@ -6,7 +6,7 @@ import { LibraryVideoItem } from '@/components/playlist/library-video-item';
 import { Button } from '@/components/ui/button';
 import { X, Upload, Download } from 'lucide-react';
 import { YouTubePermissionBanner } from '@/components/ui/youtube-permission-banner';
-import { EmptyState } from '@/components/ui/empty-state';
+import { VideoEmptyState } from '@/components/ui/empty-state';
 import { Footer } from '@/components/ui/footer';
 import { YouTubeAPI } from '@/services/youtube-api';
 import type { Video } from '@/types/index';
@@ -492,7 +492,7 @@ export function Library() {
           </div>
 
           {/* Empty State */}
-          {isEmptyState && <EmptyState />}
+          {isEmptyState && <VideoEmptyState />}
 
           {/* No Results State */}
           {!isEmptyState && filteredVideos.length === 0 && (

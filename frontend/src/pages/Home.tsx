@@ -7,19 +7,12 @@ import React, {
 } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useVideo } from '@/contexts/video-context';
+import { useSearch } from '@/contexts/search-context';
 import { VideoContainer } from '@/components/playlist/video-container';
-import {
-  Search,
-  ChevronDown,
-  LayoutGrid,
-  List,
-  Upload,
-  Download,
-  Plus,
-  X,
-} from 'lucide-react';
+import { ChevronDown, Upload, Download, Plus, X } from 'lucide-react';
+import { PlaylistSelector } from '@/components/ui/playlist-selector';
 import { YouTubePermissionBanner } from '@/components/ui/youtube-permission-banner';
-import { EmptyState } from '@/components/ui/empty-state';
+import { VideoEmptyState } from '@/components/ui/empty-state';
 import { Footer } from '@/components/ui/footer';
 import { YouTubeAPI } from '@/services/youtube-api';
 import type { Video } from '@/types/index';
@@ -29,24 +22,12 @@ const LOAD_STEP = 12;
 export function Home() {
   const navigate = useNavigate();
   const location = useLocation();
-  const {
-    addVideo,
-    removeVideo,
-    reorderVideos,
-    exportLibrary,
-    importLibrary,
-    videos,
-  } = useVideo();
-  const [searchQuery, setSearchQuery] = useState('');
+  const { addVideo, removeVideo, exportLibrary, importLibrary, videos } =
+    useVideo();
+  const { searchQuery, setSearchQuery } = useSearch();
+  const fileInputRef2 = useRef<HTMLInputElement>(null);
   const [visibleCount, setVisibleCount] = useState(0);
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const normalButtonRef = useRef<HTMLButtonElement>(null);
-  const listButtonRef = useRef<HTMLButtonElement>(null);
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const [indicatorStyle, setIndicatorStyle] = useState<{
-    left: number;
-    width: number;
-  }>({ left: 0, width: 0 });
 
   const [youtubePermission, setYoutubePermission] = useState(() => {
     const saved = localStorage.getItem('youtube-permission');
@@ -57,12 +38,6 @@ export function Home() {
     return saved === 'true';
   });
 
-  const [viewMode, setViewMode] = useState<'normal' | 'list'>(() => {
-    const saved = localStorage.getItem('view-mode');
-    if (saved === 'normal' || saved === 'list') return saved;
-    return 'normal';
-  });
-  const [isSliderHovered, setIsSliderHovered] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [selectedImportFile, setSelectedImportFile] = useState<File | null>(
@@ -244,6 +219,31 @@ export function Home() {
     fileInputRef.current?.click();
   };
 
+  const handleSelectorImportClick = () => {
+    fileInputRef2.current?.click();
+  };
+
+  const handleSelectorImportFile = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    const file = files[0];
+    const name = file.name.replace(/\.json$/i, '');
+    event.target.value = '';
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target?.result as string);
+        if (!data.videos || !Array.isArray(data.videos)) return;
+        importLibrary(data, name);
+      } catch {
+        /* ignore */
+      }
+    };
+    reader.readAsText(file);
+  };
+
   const handleConfirmImport = () => {
     if (!selectedImportFile) return;
 
@@ -256,7 +256,8 @@ export function Home() {
           return;
         }
 
-        importLibrary(data, 'append');
+        const name = selectedImportFile.name.replace(/\.json$/i, '');
+        importLibrary(data, name);
         setShowImportDialog(false);
         setSelectedImportFile(null);
         setImportFileInfo(null);
@@ -266,21 +267,6 @@ export function Home() {
     };
     reader.readAsText(selectedImportFile);
   };
-
-  // Update indicator position when view mode changes
-  useEffect(() => {
-    const activeButton =
-      viewMode === 'list' ? listButtonRef.current : normalButtonRef.current;
-    const container = sliderRef.current;
-    if (activeButton && container) {
-      const containerRect = container.getBoundingClientRect();
-      const buttonRect = activeButton.getBoundingClientRect();
-      const buttonCenter =
-        buttonRect.left - containerRect.left + buttonRect.width / 2;
-      const width = isSliderHovered ? 48 : 16;
-      setIndicatorStyle({ left: buttonCenter - width / 2, width });
-    }
-  }, [viewMode, isSliderHovered]);
 
   const handlePlayVideo = useCallback(
     (video: Video) => {
@@ -294,31 +280,6 @@ export function Home() {
       removeVideo(videoId);
     },
     [removeVideo]
-  );
-
-  const handleReorderVideos = useCallback(
-    (fromVisible: number, toVisible: number) => {
-      reorderVideos(fromVisible, toVisible);
-    },
-    [reorderVideos]
-  );
-
-  const handleMoveUp = useCallback(
-    (index: number) => {
-      if (index > 0) {
-        handleReorderVideos(index, index - 1);
-      }
-    },
-    [handleReorderVideos]
-  );
-
-  const handleMoveDown = useCallback(
-    (index: number) => {
-      if (index < visibleVideos.length - 1) {
-        handleReorderVideos(index, index + 1);
-      }
-    },
-    [visibleVideos.length, handleReorderVideos]
   );
 
   const extractVideoId = (url: string): string | null => {
@@ -401,73 +362,9 @@ export function Home() {
 
       <div className="relative z-10 md:px-8 md:py-8">
         <div className="max-w-7xl mx-auto">
-          {/* Search Bar and Tag Filter */}
-          <div className="mb-6 space-y-4 px-4 sm:px-0">
-            <div className="flex flex-wrap gap-4">
-              <div className="relative max-w-md flex-1 flex items-center group focus-within:text-foreground">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-hover:text-foreground group-focus-within:text-foreground transition-colors duration-150" />
-                <div className="flex-1">
-                  <input
-                    type="text"
-                    id="search-input"
-                    name="search"
-                    placeholder="Search"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 h-10 w-full bg-transparent border-none focus:ring-0 text-muted-foreground group-hover:text-foreground group-focus-within:text-foreground placeholder:text-muted-foreground group-hover:placeholder:text-foreground group-focus-within:placeholder:text-foreground transition-colors duration-150 ease-in-out"
-                  />
-                </div>
-              </div>
-              <div
-                ref={sliderRef}
-                className="relative flex items-center"
-                onMouseEnter={() => setIsSliderHovered(true)}
-                onMouseLeave={() => setIsSliderHovered(false)}
-              >
-                <button
-                  ref={normalButtonRef}
-                  onClick={() => {
-                    setViewMode('normal');
-                    localStorage.setItem('view-mode', 'normal');
-                  }}
-                  className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                    viewMode === 'normal'
-                      ? 'text-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                  <span>Normal</span>
-                </button>
-                <button
-                  ref={listButtonRef}
-                  onClick={() => {
-                    setViewMode('list');
-                    localStorage.setItem('view-mode', 'list');
-                  }}
-                  className={`flex flex-col items-center gap-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                    viewMode === 'list'
-                      ? 'text-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <List className="h-4 w-4" />
-                  <span>List</span>
-                </button>
-                <div
-                  className="absolute bottom-1 h-0.5 bg-foreground rounded-full transition-all duration-300 ease-out"
-                  style={{
-                    left: indicatorStyle.left,
-                    width: indicatorStyle.width,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Video Count */}
-          <div className="text-sm text-muted-foreground px-4 sm:px-0 py-2">
-            {filteredVideos.length} videos
+          {/* Playlist Selector */}
+          <div className="mb-3 px-4 sm:px-0">
+            <PlaylistSelector onImportClick={handleSelectorImportClick} />
           </div>
 
           {/* YouTube Permission Banner */}
@@ -481,16 +378,10 @@ export function Home() {
               videos={visibleVideos}
               onPlay={handlePlayVideo}
               onRemove={handleRemoveVideo}
-              onReorder={viewMode === 'list' ? handleReorderVideos : undefined}
-              onVideoAdded={
-                viewMode === 'list' ? (video) => addVideo(video) : undefined
-              }
-              layout={viewMode === 'list' ? 'list' : 'grid'}
+              layout="grid"
               enableMaxresThumbnails={true}
               onSetBackground={handleSetBackground}
               currentBackgroundVideoId={currentBackgroundVideoId}
-              onMoveUp={viewMode === 'list' ? handleMoveUp : undefined}
-              onMoveDown={viewMode === 'list' ? handleMoveDown : undefined}
             />
           </div>
 
@@ -498,7 +389,9 @@ export function Home() {
           <div ref={loadMoreRef} className="h-48" />
 
           {/* Empty State */}
-          {filteredVideos.length === 0 && !searchQuery.trim() && <EmptyState />}
+          {filteredVideos.length === 0 && !searchQuery.trim() && (
+            <VideoEmptyState />
+          )}
 
           {/* No Search Results State */}
           {filteredVideos.length === 0 && searchQuery.trim() !== '' && (
@@ -726,6 +619,13 @@ export function Home() {
         type="file"
         accept=".json"
         onChange={handleImportLibrary}
+        className="hidden"
+      />
+      <input
+        ref={fileInputRef2}
+        type="file"
+        accept=".json"
+        onChange={handleSelectorImportFile}
         className="hidden"
       />
     </div>

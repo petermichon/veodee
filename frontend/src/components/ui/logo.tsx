@@ -27,7 +27,7 @@ export const LogoBlack = ({ className }: LogoProps) => (
       <path
         d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z"
         stroke="black"
-        stroke-width="4"
+        strokeWidth="4"
       />
     </g>
     <defs>
@@ -38,9 +38,9 @@ export const LogoBlack = ({ className }: LogoProps) => (
         width="32"
         height="32"
         filterUnits="userSpaceOnUse"
-        color-interpolation-filters="sRGB"
+        colorInterpolationFilters="sRGB"
       >
-        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feFlood floodOpacity="0" result="BackgroundImageFix" />
         <feColorMatrix
           in="SourceAlpha"
           type="matrix"
@@ -95,7 +95,7 @@ export const LogoWhite = ({ className }: LogoProps) => (
       <path
         d="M16 26C21.5228 26 26 21.5228 26 16C26 10.4772 21.5228 6 16 6C10.4772 6 6 10.4772 6 16C6 21.5228 10.4772 26 16 26Z"
         stroke="white"
-        stroke-width="4"
+        strokeWidth="4"
       />
     </g>
     <defs>
@@ -106,9 +106,9 @@ export const LogoWhite = ({ className }: LogoProps) => (
         width="32"
         height="32"
         filterUnits="userSpaceOnUse"
-        color-interpolation-filters="sRGB"
+        colorInterpolationFilters="sRGB"
       >
-        <feFlood flood-opacity="0" result="BackgroundImageFix" />
+        <feFlood floodOpacity="0" result="BackgroundImageFix" />
         <feColorMatrix
           in="SourceAlpha"
           type="matrix"

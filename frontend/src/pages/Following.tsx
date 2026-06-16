@@ -56,6 +56,37 @@ export function Following() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const addVideoInputRef = useRef<HTMLInputElement>(null);
 
+  const [backgroundImage, setBackgroundImage] = useState(() => {
+    return localStorage.getItem('home-background');
+  });
+  const [backgroundMode, setBackgroundMode] = useState<'normal' | 'custom'>(
+    () => {
+      const savedMode = localStorage.getItem('background-mode');
+      if (savedMode === 'normal' || savedMode === 'custom') {
+        return savedMode;
+      }
+      return localStorage.getItem('home-background') ? 'custom' : 'normal';
+    }
+  );
+
+  // Listen for background changes
+  useEffect(() => {
+    const handleBackgroundChange = () => {
+      setBackgroundImage(localStorage.getItem('home-background'));
+      const savedMode = localStorage.getItem('background-mode');
+      if (savedMode === 'normal' || savedMode === 'custom') {
+        setBackgroundMode(savedMode);
+      } else {
+        setBackgroundMode(
+          localStorage.getItem('home-background') ? 'custom' : 'normal'
+        );
+      }
+    };
+    window.addEventListener('background-changed', handleBackgroundChange);
+    return () =>
+      window.removeEventListener('background-changed', handleBackgroundChange);
+  }, []);
+
   const parseChannelInput = (
     input: string
   ): { channelId: string; channelUrl: string; channelName: string } | null => {
@@ -264,14 +295,15 @@ export function Following() {
     fileInputRef.current?.click();
   };
 
-  const handleImportSubmit = (mergeStrategy: 'replace' | 'append') => {
+  const handleImportSubmit = () => {
     if (!selectedImportFile) return;
+    const name = selectedImportFile.name.replace(/\.json$/i, '');
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const data = JSON.parse(e.target?.result as string);
         if (data.videos && Array.isArray(data.videos)) {
-          importLibrary(data, mergeStrategy);
+          importLibrary(data, name);
           setShowImportDialog(false);
           setSelectedImportFile(null);
           setImportFileInfo(null);
@@ -329,6 +361,35 @@ export function Following() {
 
   return (
     <div className="relative">
+      {backgroundMode === 'custom' && backgroundImage && (
+        <div
+          className="fixed inset-0"
+          style={{
+            backgroundImage:
+              backgroundImage.startsWith('linear-gradient') ||
+              backgroundImage.startsWith('radial-gradient')
+                ? backgroundImage
+                : `url(${backgroundImage})`,
+            backgroundSize:
+              backgroundImage?.startsWith('linear-gradient') ||
+              backgroundImage?.startsWith('radial-gradient')
+                ? 'cover'
+                : 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            zIndex: 0,
+            transition: 'background-image 0.5s ease-in-out',
+          }}
+        >
+          <div
+            className="absolute inset-0 backdrop-blur-[100px]"
+            style={{
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            }}
+          />
+        </div>
+      )}
+
       <div className="relative z-10 md:px-8 md:py-8">
         <div className="max-w-7xl mx-auto">
           {/* Subscription count */}
@@ -437,15 +498,16 @@ export function Following() {
       {/* Redirect confirmation popup */}
       {redirectPrompt && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm cursor-default"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm cursor-default"
           onClick={(e) => {
             e.stopPropagation();
             setRedirectPrompt(null);
           }}
         >
           <div
-            className="bg-card border border-border rounded-2xl shadow-xl p-6 w-80 max-w-[90vw] flex flex-col gap-4"
+            className="bg-card/90 backdrop-blur-lg border border-border rounded-xl shadow-xl p-6 w-80 max-w-[90vw] flex flex-col gap-4"
             onClick={(e) => e.stopPropagation()}
+            style={{ animation: 'fadeIn 150ms ease-out' }}
           >
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
@@ -754,12 +816,13 @@ export function Following() {
       {/* Import Dialog */}
       {showImportDialog && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-background/50 shadow-2xl transition-opacity duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-black/30 backdrop-blur-sm"
           onClick={() => setShowImportDialog(false)}
         >
           <div
-            className="bg-card border border-border rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-4 pointer-events-auto"
+            className="bg-card/90 backdrop-blur-lg border border-border rounded-xl shadow-xl max-w-sm w-full p-6 space-y-4 pointer-events-auto"
             onClick={(e) => e.stopPropagation()}
+            style={{ animation: 'fadeIn 150ms ease-out' }}
           >
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-foreground">
@@ -788,16 +851,10 @@ export function Following() {
                 </div>
                 <div className="space-y-2">
                   <button
-                    onClick={() => handleImportSubmit('append')}
+                    onClick={() => handleImportSubmit()}
                     className="w-full px-3 py-2 rounded-md border border-border text-muted-foreground hover:text-foreground transition-colors border-none cursor-pointer"
                   >
-                    Append to current library
-                  </button>
-                  <button
-                    onClick={() => handleImportSubmit('replace')}
-                    className="w-full px-3 py-2 rounded-md border border-border text-muted-foreground hover:text-foreground transition-colors border-none cursor-pointer"
-                  >
-                    Replace current library
+                    Import as new playlist
                   </button>
                 </div>
               </div>
