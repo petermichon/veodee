@@ -13,6 +13,7 @@ import {
   Sun,
   Moon,
   SunMoon,
+  Heart,
 } from 'lucide-react';
 import { YouTubeAPI } from '@/services/youtube-api';
 import { useLocation, Link } from 'react-router-dom';
@@ -22,7 +23,7 @@ import { cn } from '@/lib/utils';
 const NAVIGATION_ITEMS = [
   { name: 'Home', href: '/', icon: Home },
   { name: 'Player', href: '/player', icon: Play },
-  { name: 'Channels', href: '/channels', icon: UserPlus },
+  { name: 'Following', href: '/following', icon: Heart },
 ];
 
 interface NavButtonProps {
@@ -227,7 +228,7 @@ export function TopNav() {
     <>
       <header
         className={cn(
-          'top-nav fixed top-0 left-0 right-0 h-16 z-50 transition-colors',
+          'top-nav fixed top-0 left-0 right-0 h-16 z-50 transition-colors overscroll-none',
           scrolled && 'backdrop-blur-md bg-background/80'
         )}
       >

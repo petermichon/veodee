@@ -46,7 +46,7 @@ export function Theme() {
   };
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative">
       {/* Background Image */}
       {currentBackground && (
         <div

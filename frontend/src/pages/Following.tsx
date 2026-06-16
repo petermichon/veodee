@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 
-export function Channels() {
+export function Following() {
   const {
     subscriptions,
     addSubscription,
@@ -316,14 +316,14 @@ export function Channels() {
   };
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative">
       <div className="relative z-10 md:px-8 md:py-8">
         <div className="max-w-7xl mx-auto">
           {/* Subscription count and action buttons */}
           <div className="flex flex-wrap gap-4 items-center justify-between px-4 sm:px-0 py-2">
             <div className="text-sm text-muted-foreground">
               {subscriptions.length}{' '}
-              {subscriptions.length === 1 ? 'channel' : 'channels'}
+              {subscriptions.length === 1 ? 'following' : 'following'}
             </div>
             <div className="flex gap-2">
               <button
@@ -360,7 +360,7 @@ export function Channels() {
             className="hidden"
           />
 
-          {/* Channels Grid */}
+          {/* Following Grid */}
           {subscriptions.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-4 sm:px-0">
               {subscriptions.map((subscription) => (

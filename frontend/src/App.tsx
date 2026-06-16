@@ -5,26 +5,22 @@ import { VideoProvider } from '@/contexts/video-context';
 import { SubscriptionsProvider } from '@/contexts/subscriptions-context';
 import { ThemeProvider } from '@/contexts/theme-context';
 import { Player } from '@/pages/Player';
-import { Thread } from '@/pages/Thread';
-import { Channels } from '@/pages/Channels';
+import { Home } from '@/pages/Home';
+import { Following } from '@/pages/Following';
 
 function AppContent() {
   return (
     <>
-      <div className="min-h-screen">
-        <div className="flex min-h-screen">
-          <div className="flex flex-col flex-1 relative">
-            <TopNav />
-            <div className="flex min-h-screen pt-16 app-layout">
-              <main className="flex-1">
-                <Routes>
-                  <Route path="/" element={<Thread />} />
-                  <Route path="/player" element={<Player />} />
-                  <Route path="/channels" element={<Channels />} />
-                </Routes>
-              </main>
-            </div>
-          </div>
+      <div>
+        <TopNav />
+        <div className="pt-16 pb-16 md:pb-0 app-layout">
+          <main>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/player" element={<Player />} />
+              <Route path="/following" element={<Following />} />
+            </Routes>
+          </main>
         </div>
         <BottomNav />
       </div>

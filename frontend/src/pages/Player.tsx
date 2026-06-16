@@ -569,7 +569,7 @@ export function Player() {
   };
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative">
       {(thumbnailBackgroundUrl || customBackground) && (
         <div
           className="fixed inset-0"

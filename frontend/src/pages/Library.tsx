@@ -179,7 +179,7 @@ export function Library() {
   const isEmptyState = videos.length === 0;
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative">
       {/* Background Image */}
       {backgroundImage && (
         <div

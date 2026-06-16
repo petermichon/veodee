@@ -15,7 +15,6 @@ import {
   List,
   Upload,
   Download,
-  RotateCcw,
   Plus,
   X,
 } from 'lucide-react';
@@ -27,7 +26,7 @@ import type { Video } from '@/types/index';
 
 const LOAD_STEP = 12;
 
-export function Thread() {
+export function Home() {
   const navigate = useNavigate();
   const location = useLocation();
   const {
@@ -36,7 +35,6 @@ export function Thread() {
     reorderVideos,
     exportLibrary,
     importLibrary,
-    resetToDefaults,
     videos,
   } = useVideo();
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,7 +65,6 @@ export function Thread() {
   const [isSliderHovered, setIsSliderHovered] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
-  const [showResetDialog, setShowResetDialog] = useState(false);
   const [selectedImportFile, setSelectedImportFile] = useState<File | null>(
     null
   );
@@ -342,7 +339,7 @@ export function Thread() {
   );
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative">
       {/* Background Image */}
       {backgroundImage && (
         <div
@@ -402,13 +399,6 @@ export function Thread() {
               >
                 <Upload className="h-5 w-5" />
                 <span className="text-sm">Export</span>
-              </button>
-              <button
-                onClick={() => setShowResetDialog(true)}
-                className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer text-muted-foreground hover:text-foreground"
-              >
-                <RotateCcw className="h-5 w-5" />
-                <span className="text-sm">Reset</span>
               </button>
             </div>
             <div className="flex flex-wrap gap-4">
@@ -683,59 +673,6 @@ export function Thread() {
                   Import
                 </button>
               )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Reset Dialog */}
-      {showResetDialog && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center pointer-events-auto bg-background/50 shadow-2xl transition-opacity duration-200"
-          onClick={() => setShowResetDialog(false)}
-        >
-          <div
-            className="bg-card border border-border rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-4 pointer-events-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-foreground">
-                Reset Library
-              </h3>
-              <button
-                onClick={() => setShowResetDialog(false)}
-                className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
-              >
-                <ChevronDown className="h-5 w-5 rotate-45" />
-              </button>
-            </div>
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                This will permanently remove all your videos.
-              </p>
-              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Videos:</span>
-                  <span className="font-medium">{videos.length}</span>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-2 pt-2">
-              <button
-                onClick={() => setShowResetDialog(false)}
-                className="flex-1 px-3 py-2 rounded-md border border-border text-muted-foreground hover:text-foreground transition-colors border-none cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  resetToDefaults();
-                  setShowResetDialog(false);
-                }}
-                className="flex-1 px-3 py-2 rounded-md bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors border-none cursor-pointer"
-              >
-                Reset
-              </button>
             </div>
           </div>
         </div>
