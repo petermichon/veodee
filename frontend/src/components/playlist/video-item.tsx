@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useRef, useEffect } from 'react';
 import {
   Trash2,
   Edit2,
@@ -12,6 +12,7 @@ import {
   Youtube,
   ArrowUp,
   ArrowDown,
+  MoreVertical,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useThumbnailQuality } from '@/hooks/use-thumbnail-quality';
@@ -69,6 +70,19 @@ export const VideoItem = memo(function VideoItem({
     url: string;
     name: string;
   } | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleAuthorClick = (
     e: React.MouseEvent,
@@ -122,8 +136,16 @@ export const VideoItem = memo(function VideoItem({
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const handleCopyVideoUrl = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const videoUrl = `https://www.youtube.com/watch?v=${video.id}`;
+    navigator.clipboard.writeText(videoUrl);
+    setCopiedId(video.id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   // Layout-specific classes
-  const containerClasses = `group overflow-hidden ${isEditing ? 'cursor-default' : 'cursor-pointer'}`;
+  const containerClasses = `group ${isEditing ? 'cursor-default' : 'cursor-pointer'}`;
 
   const thumbnailClasses =
     layout === 'grid'
@@ -212,7 +234,7 @@ export const VideoItem = memo(function VideoItem({
           </div>
 
           {/* Content Section */}
-          <div className={contentClasses}>
+          <div className={contentClasses + ' relative overflow-visible'}>
             {isEditing ? (
               /* Edit Form */
               <div
@@ -264,7 +286,7 @@ export const VideoItem = memo(function VideoItem({
                 )}
 
                 {/* Author & Video ID */}
-                <div className="flex items-center gap-2 min-w-0 overflow-hidden">
+                <div className="flex items-center gap-2 min-w-0">
                   {!isFallbackData && details?.author_name ? (
                     <>
                       {details?.author_url ? (
@@ -277,7 +299,7 @@ export const VideoItem = memo(function VideoItem({
                               details.author_name!
                             )
                           }
-                          className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 truncate min-w-0 flex-1 cursor-pointer"
+                          className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 truncate min-w-0 cursor-pointer"
                         >
                           <span className="truncate">
                             {details.author_name}
@@ -285,14 +307,95 @@ export const VideoItem = memo(function VideoItem({
                           <ExternalLink className="h-3 w-3 flex-shrink-0" />
                         </a>
                       ) : (
-                        <span className="text-sm font-medium text-muted-foreground truncate min-w-0 flex-1">
+                        <span className="text-sm font-medium text-muted-foreground truncate min-w-0">
                           {details.author_name}
                         </span>
                       )}
                     </>
                   ) : (
-                    <div className="h-4 w-24 bg-muted/30 rounded flex-1" />
+                    <div className="h-4 w-24 bg-muted/30 rounded" />
                   )}
+                  {/* Vertical ellipsis menu button */}
+                  <div className="relative ml-auto" ref={menuRef}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMenuOpen(!menuOpen);
+                      }}
+                      className="p-1.5 rounded-full text-muted-foreground hover:text-foreground transition-colors cursor-pointer flex-shrink-0"
+                      aria-label="More options"
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </button>
+                    {/* Dropdown menu */}
+                    {menuOpen && (
+                      <div className="absolute right-0 bottom-full mb-1 bg-card/80 backdrop-blur-md border border-border/50 rounded-lg shadow-xl py-1 min-w-[140px] z-50">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleCopyVideoUrl(e);
+                            setMenuOpen(false);
+                          }}
+                          className="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors flex items-center gap-2"
+                        >
+                          {copiedId === video.id ? (
+                            <>
+                              <CheckIcon className="h-4 w-4" />
+                              <span>Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="h-4 w-4" />
+                              <span>Copy URL</span>
+                            </>
+                          )}
+                        </button>
+                        {onSetBackground && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSetBackground(video.id);
+                              setMenuOpen(false);
+                            }}
+                            className="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors flex items-center gap-2"
+                          >
+                            <ImagePlay className="h-4 w-4" />
+                            <span>
+                              {currentBackgroundVideoId === video.id
+                                ? 'Remove background'
+                                : 'Set as background'}
+                            </span>
+                          </button>
+                        )}
+                        {onUpdate && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleStartEdit(e);
+                              setMenuOpen(false);
+                            }}
+                            className="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors flex items-center gap-2"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                            <span>Edit</span>
+                          </button>
+                        )}
+                        {onRemove && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onRemove(video.id);
+                              setMenuOpen(false);
+                            }}
+                            className="w-full px-3 py-2 text-left text-sm hover:bg-destructive/10 hover:text-destructive transition-colors flex items-center gap-2"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span>Remove</span>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

@@ -44,6 +44,15 @@ export function Library() {
   const [backgroundImage, setBackgroundImage] = useState(() => {
     return localStorage.getItem('home-background');
   });
+  const [backgroundMode, setBackgroundMode] = useState<'normal' | 'custom'>(
+    () => {
+      const savedMode = localStorage.getItem('background-mode');
+      if (savedMode === 'normal' || savedMode === 'custom') {
+        return savedMode;
+      }
+      return localStorage.getItem('home-background') ? 'custom' : 'normal';
+    }
+  );
 
   // Save raw mode preference to localStorage when it changes
   useEffect(() => {
@@ -54,6 +63,14 @@ export function Library() {
   useEffect(() => {
     const handleBackgroundChange = () => {
       setBackgroundImage(localStorage.getItem('home-background'));
+      const savedMode = localStorage.getItem('background-mode');
+      if (savedMode === 'normal' || savedMode === 'custom') {
+        setBackgroundMode(savedMode);
+      } else {
+        setBackgroundMode(
+          localStorage.getItem('home-background') ? 'custom' : 'normal'
+        );
+      }
     };
     window.addEventListener('background-changed', handleBackgroundChange);
     return () =>
@@ -181,7 +198,7 @@ export function Library() {
   return (
     <div className="relative">
       {/* Background Image */}
-      {backgroundImage && (
+      {backgroundMode === 'custom' && backgroundImage && (
         <div
           className="fixed inset-0"
           style={{

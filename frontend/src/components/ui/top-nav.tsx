@@ -14,9 +14,11 @@ import {
   Moon,
   SunMoon,
   Heart,
+  Image,
 } from 'lucide-react';
 import { YouTubeAPI } from '@/services/youtube-api';
 import { useLocation, Link } from 'react-router-dom';
+import { LogoBlack, LogoWhite } from '@/components/ui/logo';
 import { useTheme } from '@/contexts/theme-context';
 import { cn } from '@/lib/utils';
 
@@ -92,6 +94,15 @@ NavButton.displayName = 'NavButton';
 export function TopNav() {
   const location = useLocation();
   const { theme, setTheme, toggleAutoTheme } = useTheme();
+  const [backgroundMode, setBackgroundMode] = useState<'normal' | 'custom'>(
+    () => {
+      const savedMode = localStorage.getItem('background-mode');
+      if (savedMode === 'normal' || savedMode === 'custom') {
+        return savedMode;
+      }
+      return localStorage.getItem('home-background') ? 'custom' : 'normal';
+    }
+  );
   const [isOnline, setIsOnline] = useState(() => navigator.onLine);
   const [indicatorStyle, setIndicatorStyle] = useState<{
     left: number;
@@ -132,6 +143,22 @@ export function TopNav() {
 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleBackgroundChange = () => {
+      const savedMode = localStorage.getItem('background-mode');
+      if (savedMode === 'normal' || savedMode === 'custom') {
+        setBackgroundMode(savedMode);
+      } else {
+        setBackgroundMode(
+          localStorage.getItem('home-background') ? 'custom' : 'normal'
+        );
+      }
+    };
+    window.addEventListener('background-changed', handleBackgroundChange);
+    return () =>
+      window.removeEventListener('background-changed', handleBackgroundChange);
   }, []);
 
   useEffect(() => {
@@ -236,20 +263,8 @@ export function TopNav() {
           <div className="flex items-center gap-2 md:gap-4">
             <Link to="/" className="flex items-center gap-2">
               <div className="flex items-center rounded-xl p-1">
-                <img
-                  src="/logo-black.svg"
-                  alt="veodee logo"
-                  className="h-8 w-auto dark:hidden"
-                  width="108"
-                  height="32"
-                />
-                <img
-                  src="/logo-white.svg"
-                  alt="veodee logo"
-                  className="h-8 w-auto hidden dark:block"
-                  width="108"
-                  height="32"
-                />
+                <LogoBlack className="h-8 w-auto dark:hidden" />
+                <LogoWhite className="h-8 w-auto hidden dark:block" />
               </div>
             </Link>
 
@@ -338,13 +353,11 @@ export function TopNav() {
                 <div className="flex items-center gap-1 mt-2">
                   <button
                     onClick={() => setTheme('light')}
-                    disabled={theme === 'auto'}
                     className={cn(
                       'flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors',
                       theme === 'light'
                         ? 'text-foreground bg-foreground/10'
-                        : 'text-muted-foreground hover:text-foreground',
-                      theme === 'auto' && 'opacity-50'
+                        : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
                     <Sun className="h-3.5 w-3.5" />
@@ -352,31 +365,73 @@ export function TopNav() {
                   </button>
                   <button
                     onClick={() => setTheme('dark')}
-                    disabled={theme === 'auto'}
                     className={cn(
                       'flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors',
                       theme === 'dark'
                         ? 'text-foreground bg-foreground/10'
-                        : 'text-muted-foreground hover:text-foreground',
-                      theme === 'auto' && 'opacity-50'
+                        : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
                     <Moon className="h-3.5 w-3.5" />
                     <span>Dark</span>
                   </button>
+                  <button
+                    onClick={toggleAutoTheme}
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors',
+                      theme === 'auto'
+                        ? 'text-foreground bg-foreground/10'
+                        : 'text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    <SunMoon className="h-3.5 w-3.5" />
+                    <span>System</span>
+                  </button>
                 </div>
-                <button
-                  onClick={toggleAutoTheme}
-                  className={cn(
-                    'w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors mt-1',
-                    theme === 'auto'
-                      ? 'text-foreground bg-foreground/10'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                >
-                  <SunMoon className="h-3.5 w-3.5" />
-                  <span>System</span>
-                </button>
+              </div>
+              <div className="border-t border-border my-1" />
+              <div className="px-3 py-2">
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Background
+                </span>
+                <div className="flex items-center gap-1 mt-2">
+                  <button
+                    onClick={() => {
+                      localStorage.setItem('background-mode', 'normal');
+                      setBackgroundMode('normal');
+                      window.dispatchEvent(
+                        new CustomEvent('background-changed')
+                      );
+                    }}
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors',
+                      backgroundMode === 'normal'
+                        ? 'text-foreground bg-foreground/10'
+                        : 'text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    <Sun className="h-3.5 w-3.5" />
+                    <span>Normal</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      localStorage.setItem('background-mode', 'custom');
+                      setBackgroundMode('custom');
+                      window.dispatchEvent(
+                        new CustomEvent('background-changed')
+                      );
+                    }}
+                    className={cn(
+                      'flex-1 flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-md text-xs font-medium transition-colors',
+                      backgroundMode === 'custom'
+                        ? 'text-foreground bg-foreground/10'
+                        : 'text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    <Image className="h-3.5 w-3.5" />
+                    <span>Custom</span>
+                  </button>
+                </div>
               </div>
               <div className="border-t border-border my-1" />
               <button

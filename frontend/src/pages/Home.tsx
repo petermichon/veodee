@@ -76,6 +76,15 @@ export function Home() {
   const [backgroundImage, setBackgroundImage] = useState(() => {
     return localStorage.getItem('home-background');
   });
+  const [backgroundMode, setBackgroundMode] = useState<'normal' | 'custom'>(
+    () => {
+      const savedMode = localStorage.getItem('background-mode');
+      if (savedMode === 'normal' || savedMode === 'custom') {
+        return savedMode;
+      }
+      return localStorage.getItem('home-background') ? 'custom' : 'normal';
+    }
+  );
 
   const [showAddVideoDialog, setShowAddVideoDialog] = useState(false);
   const [newVideoUrl, setNewVideoUrl] = useState('');
@@ -113,6 +122,14 @@ export function Home() {
   useEffect(() => {
     const handleBackgroundChange = () => {
       setBackgroundImage(localStorage.getItem('home-background'));
+      const savedMode = localStorage.getItem('background-mode');
+      if (savedMode === 'normal' || savedMode === 'custom') {
+        setBackgroundMode(savedMode);
+      } else {
+        setBackgroundMode(
+          localStorage.getItem('home-background') ? 'custom' : 'normal'
+        );
+      }
     };
     window.addEventListener('background-changed', handleBackgroundChange);
     return () =>
@@ -353,7 +370,7 @@ export function Home() {
   return (
     <div className="relative">
       {/* Background Image */}
-      {backgroundImage && (
+      {backgroundMode === 'custom' && backgroundImage && (
         <div
           className="fixed inset-0"
           style={{

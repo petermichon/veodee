@@ -258,6 +258,15 @@ export function Player() {
   const [customBackground, setCustomBackground] = useState(() => {
     return localStorage.getItem('home-background');
   });
+  const [backgroundMode, setBackgroundMode] = useState<'normal' | 'custom'>(
+    () => {
+      const savedMode = localStorage.getItem('background-mode');
+      if (savedMode === 'normal' || savedMode === 'custom') {
+        return savedMode;
+      }
+      return localStorage.getItem('home-background') ? 'custom' : 'normal';
+    }
+  );
   const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null);
   const [isYouTubeMusicVideo, setIsYouTubeMusicVideo] = useState(false);
   const [forceSquareRatio, setForceSquareRatio] = useState(() => {
@@ -432,6 +441,14 @@ export function Player() {
   useEffect(() => {
     const handleBackgroundChange = () => {
       setCustomBackground(localStorage.getItem('home-background'));
+      const savedMode = localStorage.getItem('background-mode');
+      if (savedMode === 'normal' || savedMode === 'custom') {
+        setBackgroundMode(savedMode);
+      } else {
+        setBackgroundMode(
+          localStorage.getItem('home-background') ? 'custom' : 'normal'
+        );
+      }
     };
     window.addEventListener('background-changed', handleBackgroundChange);
     return () =>
@@ -570,31 +587,32 @@ export function Player() {
 
   return (
     <div className="relative">
-      {(thumbnailBackgroundUrl || customBackground) && (
-        <div
-          className="fixed inset-0"
-          style={{
-            backgroundImage: thumbnailBackgroundUrl
-              ? `url(${thumbnailBackgroundUrl})`
-              : customBackground.startsWith('linear-gradient') ||
-                  customBackground.startsWith('radial-gradient')
-                ? customBackground
-                : `url(${customBackground})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            zIndex: 0,
-            transition: 'background-image 0.5s ease-in-out',
-          }}
-        >
+      {backgroundMode === 'custom' &&
+        (thumbnailBackgroundUrl || customBackground) && (
           <div
-            className="absolute inset-0 backdrop-blur-[100px]"
+            className="fixed inset-0"
             style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              backgroundImage: thumbnailBackgroundUrl
+                ? `url(${thumbnailBackgroundUrl})`
+                : customBackground.startsWith('linear-gradient') ||
+                    customBackground.startsWith('radial-gradient')
+                  ? customBackground
+                  : `url(${customBackground})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              zIndex: 0,
+              transition: 'background-image 0.5s ease-in-out',
             }}
-          />
-        </div>
-      )}
+          >
+            <div
+              className="absolute inset-0 backdrop-blur-[100px]"
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              }}
+            />
+          </div>
+        )}
       <div
         className={`relative z-10 ${fillScreen ? 'w-full h-screen flex items-center justify-center' : 'container mx-auto px-4 sm:px-6 lg:px-8 pt-0 sm:pt-4 pb-8'}`}
       >
