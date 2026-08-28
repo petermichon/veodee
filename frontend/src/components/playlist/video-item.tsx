@@ -251,6 +251,7 @@ export const VideoItem = memo(function VideoItem({
                     <img
                       src={getYouTubeThumbnailUrl(video.id, thumbnailQuality)}
                       alt={details.title}
+                      loading="lazy"
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -296,6 +297,7 @@ export const VideoItem = memo(function VideoItem({
               <img
                 src={getYouTubeThumbnailUrl(video.id, thumbnailQuality)}
                 alt={details.title}
+                loading="lazy"
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -474,6 +476,7 @@ export const VideoItem = memo(function VideoItem({
               <img
                 src={getYouTubeThumbnailUrl(video.id, thumbnailQuality)}
                 alt={details.title}
+                loading="lazy"
                 className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setImageLoaded(true)}
               />

@@ -89,6 +89,7 @@ export const LibraryVideoItem = memo(function LibraryVideoItem({
               <img
                 src={details.thumbnail}
                 alt={details.title}
+                loading="lazy"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.currentTarget.src = `https://img.youtube.com/vi/${video.id}/mqdefault.jpg`;
@@ -139,6 +140,7 @@ export const LibraryVideoItem = memo(function LibraryVideoItem({
               <img
                 src={details.thumbnail}
                 alt={details.title}
+                loading="lazy"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   e.currentTarget.src = `https://img.youtube.com/vi/${video.id}/mqdefault.jpg`;
