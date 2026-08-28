@@ -15,13 +15,11 @@ import {
   SunMoon,
   Heart,
   Image,
-  Search,
 } from 'lucide-react';
 import { YouTubeAPI } from '@/services/youtube-api';
 import { useLocation, Link } from 'react-router-dom';
 import { LogoBlack, LogoWhite } from '@/components/ui/logo';
 import { useTheme } from '@/contexts/theme-context';
-import { useSearch } from '@/contexts/search-context';
 import { cn } from '@/lib/utils';
 
 const NAVIGATION_ITEMS = [
@@ -96,7 +94,6 @@ NavButton.displayName = 'NavButton';
 export function TopNav() {
   const location = useLocation();
   const { theme, setTheme, toggleAutoTheme } = useTheme();
-  const { searchQuery, setSearchQuery } = useSearch();
   const [backgroundMode, setBackgroundMode] = useState<'normal' | 'custom'>(
     () => {
       const savedMode = localStorage.getItem('background-mode');
@@ -313,20 +310,7 @@ export function TopNav() {
             </div>
           </div>
 
-          <div className="flex-1 flex items-center px-8">
-            <div className="relative w-full flex items-center group focus-within:text-foreground">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-hover:text-foreground group-focus-within:text-foreground transition-colors duration-150" />
-              <input
-                type="text"
-                id="search-input"
-                name="search"
-                placeholder="Search"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-10 w-full bg-transparent border-none focus:ring-0 text-muted-foreground group-hover:text-foreground group-focus-within:text-foreground placeholder:text-muted-foreground group-hover:placeholder:text-foreground group-focus-within:placeholder:text-foreground transition-colors duration-150 ease-in-out"
-              />
-            </div>
-          </div>
+          <div className="flex-1" />
 
           <div className="flex items-center gap-2 flex-shrink-0">
             {!isOnline && (

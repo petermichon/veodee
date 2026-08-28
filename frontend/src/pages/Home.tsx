@@ -7,7 +7,6 @@ import React, {
 } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useVideo } from '@/contexts/video-context';
-import { useSearch } from '@/contexts/search-context';
 import { VideoContainer } from '@/components/playlist/video-container';
 import { ChevronDown, Upload, Download, X } from 'lucide-react';
 import { PlaylistSelector } from '@/components/ui/playlist-selector';
@@ -30,18 +29,13 @@ export function Home() {
     videos,
     activePlaylist,
   } = useVideo();
-  const { searchQuery, setSearchQuery } = useSearch();
   const fileInputRef2 = useRef<HTMLInputElement>(null);
-  const [visibleCountByQuery, setVisibleCountByQuery] = useState<
-    Record<string, number>
-  >({});
-  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const [youtubePermission, setYoutubePermission] = useState(() => {
     const saved = localStorage.getItem('youtube-permission');
     if (saved === null) {
-      localStorage.setItem('youtube-permission', 'false');
-      return false;
+      localStorage.setItem('youtube-permission', 'true');
+      return true;
     }
     return saved === 'true';
   });
@@ -123,66 +117,6 @@ export function Home() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
-
-  // Handle search from custom event
-  useEffect(() => {
-    const handleSearchEvent = (e: Event) => {
-      const customEvent = e as CustomEvent<string>;
-      setSearchQuery(customEvent.detail);
-    };
-    window.addEventListener('video-search', handleSearchEvent);
-    return () => window.removeEventListener('video-search', handleSearchEvent);
-  }, [setSearchQuery]);
-
-  // Filter videos by search query
-  const filteredVideos = useMemo(() => {
-    let result = videos;
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter((video) => {
-        return video.id.toLowerCase().includes(query);
-      });
-    }
-
-    return result;
-  }, [searchQuery, videos]);
-
-  // Slice videos for infinite scroll (always reversed). Counts are tracked per
-  // search query so changing the query resets the visible window naturally.
-  const visibleCount = visibleCountByQuery[searchQuery] ?? 0;
-  const visibleVideos = [...filteredVideos].reverse().slice(0, visibleCount);
-  const hasMore = filteredVideos.length > visibleCount;
-
-  // Intersection observer for infinite scroll (always enabled)
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          setVisibleCountByQuery((prev) => ({
-            ...prev,
-            [searchQuery]: Math.min(
-              (prev[searchQuery] ?? 0) + LOAD_STEP,
-              filteredVideos.length
-            ),
-          }));
-        }
-      },
-      { rootMargin: '0px', threshold: 0 }
-    );
-
-    const currentRef = loadMoreRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
-  }, [hasMore, filteredVideos.length, searchQuery]);
 
   const handleGrantPermission = () => {
     setYoutubePermission(true);

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useVideo } from '@/contexts/video-context';
 import { LibraryControls } from '@/components/playlist/playlist-controls';
@@ -23,7 +23,6 @@ export function Library() {
     activePlaylist,
   } = useVideo();
 
-  const [searchQuery, setSearchQuery] = useState('');
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
@@ -94,31 +93,6 @@ export function Library() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
-
-  // Auto-fill search query from navigation state
-  const stateSearchQuery = location.state?.searchQuery as string | undefined;
-  const prevStateSearchRef = useRef(stateSearchQuery);
-  if (prevStateSearchRef.current !== stateSearchQuery) {
-    prevStateSearchRef.current = stateSearchQuery;
-    if (stateSearchQuery) {
-      setSearchQuery(stateSearchQuery);
-    }
-  }
-
-  // Filter videos by search query
-  const filteredVideos = useMemo(() => {
-    let result = videos;
-
-    // Filter by search query
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      result = result.filter((video) => {
-        return video.id.toLowerCase().includes(query);
-      });
-    }
-
-    return result;
-  }, [searchQuery, videos]);
 
   // Callback functions with useCallback for performance
   const handlePlayVideo = useCallback(
@@ -462,7 +436,7 @@ export function Library() {
           {/* Videos Display */}
           <div className="p-4">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-              {filteredVideos.map((video) => (
+              {videos.map((video) => (
                 <div key={video.id} className="relative">
                   <button
                     onClick={(e) => {
@@ -503,23 +477,6 @@ export function Library() {
 
           {/* Empty State */}
           {isEmptyState && <VideoEmptyState />}
-
-          {/* No Results State */}
-          {!isEmptyState && filteredVideos.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">
-                No videos match your search
-              </p>
-              <button
-                onClick={() => {
-                  setSearchQuery('');
-                }}
-                className="text-sm text-primary hover:underline mt-2"
-              >
-                Clear filters
-              </button>
-            </div>
-          )}
         </div>
         <Footer />
       </div>
