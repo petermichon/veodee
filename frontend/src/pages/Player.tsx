@@ -283,7 +283,7 @@ export function Player() {
       if (savedMode === 'normal' || savedMode === 'custom') {
         return savedMode;
       }
-      return localStorage.getItem('home-background') ? 'custom' : 'normal';
+      return 'custom';
     }
   );
   const [aspectByVideo, setAspectByVideo] = useState<
@@ -442,9 +442,7 @@ export function Player() {
       if (savedMode === 'normal' || savedMode === 'custom') {
         setBackgroundMode(savedMode);
       } else {
-        setBackgroundMode(
-          localStorage.getItem('home-background') ? 'custom' : 'normal'
-        );
+        setBackgroundMode('custom');
       }
     };
     window.addEventListener('background-changed', handleBackgroundChange);

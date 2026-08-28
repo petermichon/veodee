@@ -55,7 +55,7 @@ export function Library() {
       if (savedMode === 'normal' || savedMode === 'custom') {
         return savedMode;
       }
-      return localStorage.getItem('home-background') ? 'custom' : 'normal';
+      return 'custom';
     }
   );
 
@@ -72,9 +72,7 @@ export function Library() {
       if (savedMode === 'normal' || savedMode === 'custom') {
         setBackgroundMode(savedMode);
       } else {
-        setBackgroundMode(
-          localStorage.getItem('home-background') ? 'custom' : 'normal'
-        );
+        setBackgroundMode('custom');
       }
     };
     window.addEventListener('background-changed', handleBackgroundChange);
