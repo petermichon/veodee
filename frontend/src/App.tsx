@@ -11,17 +11,15 @@ import { Following } from '@/pages/Following';
 function AppContent() {
   return (
     <>
-      <div>
+      <div className="flex min-h-dvh flex-col">
         <TopNav />
-        <div className="pt-16 pb-16 md:pb-0 app-layout">
-          <main>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/player" element={<Player />} />
-              <Route path="/following" element={<Following />} />
-            </Routes>
-          </main>
-        </div>
+        <main className="app-layout flex-1 pt-16 pb-16 md:pb-0 grid">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/player" element={<Player />} />
+            <Route path="/following" element={<Following />} />
+          </Routes>
+        </main>
         <BottomNav />
       </div>
     </>
