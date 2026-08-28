@@ -366,31 +366,35 @@ export function Player() {
   useEffect(() => {
     const activeIndex = isYouTubeType ? 0 : 1;
     const playerBtn = playerBtnRefs.current[activeIndex];
-    if (!playerBtn) return;
+    if (!playerBtn || !showPlayerSettings) return;
 
     const parent = playerBtn.parentElement;
     if (!parent) return;
 
     const parentRect = parent.getBoundingClientRect();
+    if (parentRect.width === 0 || parentRect.height === 0) return;
+
     const btnRect = playerBtn.getBoundingClientRect();
     const lineCenter = btnRect.left - parentRect.left + btnRect.width / 2;
     setPlayerIndicatorStyle({ left: lineCenter - 8, width: 16 });
-  }, [playerType, isYouTubeType]);
+  }, [playerType, isYouTubeType, showPlayerSettings]);
 
   // Calculate fullscreen mode indicator position
   useEffect(() => {
     const activeIndex = fullscreenMode === 'cover' ? 0 : 1;
     const fullscreenBtn = fullscreenBtnRefs.current[activeIndex];
-    if (!fullscreenBtn) return;
+    if (!fullscreenBtn || !showPlayerSettings) return;
 
     const parent = fullscreenBtn.parentElement;
     if (!parent) return;
 
     const parentRect = parent.getBoundingClientRect();
+    if (parentRect.width === 0 || parentRect.height === 0) return;
+
     const btnRect = fullscreenBtn.getBoundingClientRect();
     const lineCenter = btnRect.left - parentRect.left + btnRect.width / 2;
     setFullscreenIndicatorStyle({ left: lineCenter - 8, width: 16 });
-  }, [fullscreenMode]);
+  }, [fullscreenMode, showPlayerSettings]);
 
   // Handle cookie toggle - switches between normal and youtube when on YouTube
   const handleCookieToggle = () => {

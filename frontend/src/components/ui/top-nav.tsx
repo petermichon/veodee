@@ -171,13 +171,14 @@ export function TopNav() {
       const parent = navItem.parentElement;
       if (parent) {
         const parentRect = parent.getBoundingClientRect();
+        if (parentRect.width === 0 || parentRect.height === 0) return;
         const navRect = navItem.getBoundingClientRect();
         const lineCenter = navRect.left - parentRect.left + navRect.width / 2;
         const width = isNavHovered ? 48 : 16;
         setIndicatorStyle({ left: lineCenter - width / 2, width });
       }
     }
-  }, [location.pathname, isNavHovered]);
+  }, [location.pathname, isNavHovered, isVisible]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
