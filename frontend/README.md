@@ -4,11 +4,16 @@ A modern YouTube playlist manager built with React 19, TypeScript, and Vite.
 
 ## Features
 
-- Organize videos with custom tags
-- Multiple player options (YouTube, Plyr)
-- Dark/light theme
-- Export/import library
-- Responsive design
+- Organize videos in multiple playlists (create, rename, delete, import)
+- Add videos from URLs, video IDs, or drag-and-drop
+- Multiple player options (YouTube, YouTube no-cookie, Plyr)
+- Follow YouTube channels
+- Aspect ratio and fullscreen controls for the player
+- Dark/light/system theme
+- Custom page background
+- Export/import library as JSON
+- Offline support (PWA)
+- Lazy-loaded video metadata and thumbnails
 
 ## Tech Stack
 
@@ -19,19 +24,24 @@ A modern YouTube playlist manager built with React 19, TypeScript, and Vite.
 - **React Router** - Client-side routing
 - **Radix UI** - Accessible UI components
 - **Lucide React** - Icons
+- **Plyr** - Video player
+- **Vite PWA** - Offline support
 
 ## Project Structure
 
 ```txt
 frontend/
 ├── public/
+│   ├── 404.html
+│   ├── favicon*.svg
+│   ├── logo-*.svg
 │   └── pre-style.js  # Sets the initial background to prevent flash of unstyled content
 ├── src/
 │   ├── components/
 │   │   ├── player/   # Video player components
 │   │   ├── playlist/ # Playlist management components
 │   │   └── ui/       # Reusable UI components
-│   ├── contexts/     # React contexts (theme, video state)
+│   ├── contexts/     # React contexts (theme, playlists, subscriptions)
 │   ├── hooks/        # Custom React hooks
 │   ├── lib/          # Utility functions
 │   ├── pages/        # Page components
@@ -46,17 +56,9 @@ frontend/
 
 ## Development
 
-Run from the project root (using npm workspaces):
-
-```bash
-npm run dev
-```
-
-Or run directly in the frontend directory:
-
 ```bash
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
