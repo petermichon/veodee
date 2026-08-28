@@ -2,6 +2,12 @@
 
 Veodee is a browser-based YouTube player and playlist manager. There's no account or backend — your playlists and followed channels live in your browser's localStorage.
 
+![License](https://img.shields.io/github/license/petermichon/veodee)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
+
 ## Features
 
 - Multiple playlists: create, rename, import, reorder videos via drag-and-drop
