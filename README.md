@@ -5,7 +5,7 @@ Veodee is a browser-based YouTube player and playlist manager. There's no accoun
 ![License](https://img.shields.io/github/license/petermichon/veodee)
 ![veodee.com](https://img.shields.io/website?url=https://veodee.com&label=veodee.com&up_message=online)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![React](https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
 
