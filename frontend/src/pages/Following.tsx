@@ -698,19 +698,19 @@ export function Following() {
       {/* Add Video Dialog */}
       {showAddVideoDialog && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
           onClick={() => {
             setShowAddVideoDialog(false);
             setNewVideoUrl('');
           }}
         >
           <div
-            className="bg-card/90 backdrop-blur-lg border border-border rounded-xl shadow-xl w-full max-w-md p-5 space-y-4"
+            className="w-full max-w-sm rounded-2xl border border-border/60 bg-card/20 backdrop-blur-xl"
             onClick={(e) => e.stopPropagation()}
             style={{ animation: 'fadeIn 150ms ease-out' }}
           >
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-foreground/80 uppercase tracking-wider">
+            <div className="flex items-center justify-between px-5 pt-5 pb-4">
+              <span className="text-sm font-medium text-foreground">
                 Add video
               </span>
               <button
@@ -718,35 +718,45 @@ export function Following() {
                   setShowAddVideoDialog(false);
                   setNewVideoUrl('');
                 }}
-                className="p-1 rounded-md text-muted-foreground hover:text-foreground transition-colors"
+                className="p-1.5 rounded-lg text-foreground/60 hover:text-foreground transition-colors"
+                aria-label="Close"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="space-y-3">
-              <div className="flex gap-2">
-                <input
-                  id="add-video-input"
-                  name="add-video-input"
-                  ref={addVideoInputRef}
-                  type="text"
-                  placeholder="YouTube URL or video ID"
-                  value={newVideoUrl}
-                  onChange={(e) => setNewVideoUrl(e.target.value)}
-                  onKeyDown={handleAddVideoKeyDown}
-                  className="flex-1 h-10 px-3 rounded-lg bg-muted/50 border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-                <button
-                  onClick={handleAddVideoSubmit}
-                  disabled={!extractVideoId(newVideoUrl.trim())}
-                  className="px-4 h-10 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  Add
-                </button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Paste a YouTube link or an 11-character video ID
-              </p>
+
+            <div className="px-5 pb-5">
+              <input
+                id="add-video-input"
+                name="add-video-input"
+                ref={addVideoInputRef}
+                type="text"
+                placeholder="Paste a YouTube URL or video ID"
+                value={newVideoUrl}
+                onChange={(e) => setNewVideoUrl(e.target.value)}
+                onKeyDown={handleAddVideoKeyDown}
+                autoFocus
+                className="w-full h-11 px-4 rounded-xl border border-border/60 bg-transparent text-sm text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-foreground/50 transition-colors"
+              />
+            </div>
+
+            <div className="flex gap-2 px-5 pb-5">
+              <button
+                onClick={() => {
+                  setShowAddVideoDialog(false);
+                  setNewVideoUrl('');
+                }}
+                className="flex-1 h-10 rounded-xl text-sm text-foreground/60 hover:text-foreground transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddVideoSubmit}
+                disabled={!extractVideoId(newVideoUrl.trim())}
+                className="flex-1 h-10 rounded-xl text-sm font-medium text-foreground hover:bg-foreground/10 transition-colors disabled:opacity-40"
+              >
+                Add
+              </button>
             </div>
           </div>
         </div>
