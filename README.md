@@ -14,7 +14,6 @@ Veodee is a browser-based YouTube player and playlist manager. There's no accoun
 ## Getting started
 
 ```bash
-cd frontend
 npm ci
 npm run dev
 ```
