@@ -5,14 +5,12 @@ import {
 } from '@/contexts/subscriptions-context';
 import { useVideo } from '@/contexts/video-context';
 import {
-  Plus,
   MoreVertical,
   Youtube,
   ExternalLink,
   X,
   Edit,
   Upload,
-  Download,
 } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 
@@ -95,7 +93,7 @@ export function Following() {
 
     // Check if it's a full YouTube URL
     const urlMatch = trimmed.match(
-      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:channel\/|@)([^\/\s]+)/
+      /(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:channel\/|@)([^/\s]+)/
     );
     if (urlMatch) {
       const identifier = urlMatch[1];
@@ -175,7 +173,7 @@ export function Following() {
 
       // Position menu above the button, aligned to the right
       let left = rect.right - menuWidth;
-      let top = rect.top - 4;
+      const top = rect.top - 4;
 
       // Ensure menu doesn't go off the left edge of the screen
       if (left < 8) {
@@ -265,10 +263,6 @@ export function Following() {
     setTimeout(() => editInputRef.current?.focus(), 50);
   };
 
-  const handleExportLibrary = () => {
-    setShowExportDialog(true);
-  };
-
   const handleImportLibrary = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
@@ -283,16 +277,12 @@ export function Following() {
         } else {
           setImportFileInfo(null);
         }
-      } catch (error) {
+      } catch {
         setImportFileInfo(null);
       }
     };
     reader.readAsText(file);
     setShowImportDialog(true);
-  };
-
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
   };
 
   const handleImportSubmit = () => {
@@ -311,7 +301,7 @@ export function Following() {
           alert('Invalid file format');
           return;
         }
-      } catch (error) {
+      } catch {
         alert('Failed to parse JSON file');
       }
     };

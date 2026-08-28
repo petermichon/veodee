@@ -55,12 +55,17 @@ function VideoPlayer({
     ? `https://${playerType === 'youtube' ? 'www.youtube-nocookie.com' : 'www.youtube.com'}/embed/${videoId}?autoplay=${autoPlayEnabled ? 1 : 0}&rel=0&modestbranding=1${loopEnabled ? `&loop=1&playlist=${videoId}` : ''}`
     : null;
 
-  useEffect(() => {
+  const prevPlayerKeyRef = useRef<string | null>(null);
+  const playerKey = videoId
+    ? `${videoId}:${playerType}:${autoPlayEnabled}:${loopEnabled}`
+    : null;
+  if (prevPlayerKeyRef.current !== playerKey) {
+    prevPlayerKeyRef.current = playerKey;
     if (videoId) {
       setIsLoading(true);
       setError(null);
     }
-  }, [videoId, playerType, autoPlayEnabled, loopEnabled]);
+  }
 
   const handleLoad = () => {
     requestAnimationFrame(() => {
@@ -210,7 +215,17 @@ export function Player() {
   const [searchParams] = useSearchParams();
   const { addVideo, removeVideo, videos } = useVideo();
   const { toast } = useToast();
-  const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
+
+  // Helper to save preference to localStorage
+  const savePreference = (key: string, value: boolean | string) => {
+    localStorage.setItem(key, String(value));
+  };
+
+  const [currentVideoId, setCurrentVideoId] = useState<string | null>(() => {
+    const fromParam = searchParams.get('videoId');
+    const fromState = (location.state?.video as Video | undefined)?.id ?? null;
+    return fromState ?? fromParam;
+  });
   const [videoUrl, setVideoUrl] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [cookiesEnabled, setCookiesEnabled] = useState(
@@ -236,7 +251,11 @@ export function Player() {
     }
     return saved === 'true';
   });
-  const [showPermissionModal, setShowPermissionModal] = useState(false);
+  const [showPermissionModal, setShowPermissionModal] = useState(() => {
+    const fromParam = searchParams.get('videoId');
+    const fromState = (location.state?.video as Video | undefined)?.id ?? null;
+    return !youtubePermission && (!!fromState || !!fromParam);
+  });
   const [shareClicked, setShareClicked] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [playerIndicatorStyle, setPlayerIndicatorStyle] = useState<{
@@ -252,9 +271,9 @@ export function Player() {
   const editInputRef = useRef<HTMLDivElement>(null);
   const videoIdInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [thumbnailBackgroundUrl, setThumbnailBackgroundUrl] = useState<
-    string | null
-  >(null);
+  const thumbnailBackgroundUrl = currentVideoId
+    ? getYouTubeThumbnailUrl(currentVideoId, 'hqdefault')
+    : null;
   const [customBackground, setCustomBackground] = useState(() => {
     return localStorage.getItem('home-background');
   });
@@ -267,8 +286,14 @@ export function Player() {
       return localStorage.getItem('home-background') ? 'custom' : 'normal';
     }
   );
-  const [videoAspectRatio, setVideoAspectRatio] = useState<number | null>(null);
-  const [isYouTubeMusicVideo, setIsYouTubeMusicVideo] = useState(false);
+  const [aspectByVideo, setAspectByVideo] = useState<
+    Record<string, { ratio: number | null; isMusic: boolean }>
+  >({});
+  const aspectInfo = currentVideoId ? aspectByVideo[currentVideoId] : undefined;
+  const videoAspectRatio = youtubePermission
+    ? (aspectInfo?.ratio ?? null)
+    : null;
+  const isYouTubeMusicVideo = youtubePermission ? !!aspectInfo?.isMusic : false;
   const [forceSquareRatio, setForceSquareRatio] = useState(() => {
     const saved = localStorage.getItem('force-square-ratio');
     return saved === 'true';
@@ -292,11 +317,6 @@ export function Player() {
   const isInLibrary = currentVideoId
     ? videos.some((v) => v.id === currentVideoId)
     : false;
-
-  // Helper to save preference to localStorage
-  const savePreference = (key: string, value: boolean | string) => {
-    localStorage.setItem(key, String(value));
-  };
 
   // Video URL extraction utilities
   const extractVideoId = (url: string): string | null => {
@@ -386,55 +406,32 @@ export function Player() {
     window.scrollTo(0, 0);
   }, [location]);
 
-  // Handle video from navigation and thumbnail updates
-  useEffect(() => {
-    const videoIdFromParam = searchParams.get('videoId');
-    if (location.state?.video) {
-      const video = location.state.video as Video;
-      if (video && video.id) {
-        setCurrentVideoId(video.id);
-        if (!youtubePermission) {
-          setShowPermissionModal(true);
-        }
-      }
-    } else if (videoIdFromParam) {
-      setCurrentVideoId(videoIdFromParam);
-      if (!youtubePermission) {
-        setShowPermissionModal(true);
-      }
-    }
-  }, [location.state, youtubePermission, searchParams]);
-
-  useEffect(() => {
-    setThumbnailBackgroundUrl(
-      currentVideoId
-        ? getYouTubeThumbnailUrl(currentVideoId, 'hqdefault')
-        : null
-    );
-  }, [currentVideoId]);
+  // Handle video from navigation
+  // (currentVideoId is initialized from the route above; local edits update it directly)
 
   // Fetch video details to get aspect ratio
   useEffect(() => {
-    if (!currentVideoId || !youtubePermission) {
-      setVideoAspectRatio(null);
-      setIsYouTubeMusicVideo(false);
-      return;
-    }
+    if (!currentVideoId || !youtubePermission) return;
+    let cancelled = false;
 
     YouTubeAPI.getVideoDetails(currentVideoId).then((details) => {
+      if (cancelled) return;
+      let ratio: number | null = null;
+      let isMusic = false;
       if (details && details.width && details.height) {
-        const ratio = details.width / details.height;
-
+        ratio = details.width / details.height;
         // Detect YouTube Music videos (200x150 = 4:3 ratio)
-        const isMusicVideo = details.width === 200 && details.height === 150;
-        setIsYouTubeMusicVideo(isMusicVideo);
-
-        setVideoAspectRatio(ratio);
-      } else {
-        setVideoAspectRatio(null);
-        setIsYouTubeMusicVideo(false);
+        isMusic = details.width === 200 && details.height === 150;
       }
+      setAspectByVideo((prev) => ({
+        ...prev,
+        [currentVideoId]: { ratio, isMusic },
+      }));
     });
+
+    return () => {
+      cancelled = true;
+    };
   }, [currentVideoId, youtubePermission]);
 
   // Listen for background changes
@@ -561,7 +558,7 @@ export function Player() {
             description: `Video ${currentVideoId} has been added to your library`,
           });
         }
-      } catch (error) {
+      } catch {
         toast({
           title: 'Error',
           description: 'Failed to update library',

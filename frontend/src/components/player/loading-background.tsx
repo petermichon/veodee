@@ -6,8 +6,13 @@ interface LoadingBackgroundProps {
   isLoading: boolean;
 }
 
-export function LoadingBackground({ videoId, isLoading }: LoadingBackgroundProps) {
-  const [thumbnailQuality, setThumbnailQuality] = useState<'maxresdefault' | 'hqdefault'>('hqdefault');
+export function LoadingBackground({
+  videoId,
+  isLoading,
+}: LoadingBackgroundProps) {
+  const [thumbnailQuality, setThumbnailQuality] = useState<
+    'maxresdefault' | 'hqdefault'
+  >('hqdefault');
 
   useEffect(() => {
     if (videoId) {

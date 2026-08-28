@@ -59,9 +59,13 @@ export async function fetchYouTubeVideoData(
     return data as YouTubeVideoData;
   } catch (error) {
     if (error instanceof Error) {
-      throw new Error(`Failed to fetch YouTube video data: ${error.message}`);
+      throw new Error(`Failed to fetch YouTube video data: ${error.message}`, {
+        cause: error,
+      });
     }
-    throw new Error('Failed to fetch YouTube video data: Unknown error');
+    throw new Error('Failed to fetch YouTube video data: Unknown error', {
+      cause: error,
+    });
   }
 }
 

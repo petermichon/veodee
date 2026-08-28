@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import * as Plyr from 'plyr';
+import Plyr from 'plyr';
 import 'plyr/dist/plyr.css';
 import { LoadingBackground } from './loading-background';
 
@@ -21,7 +21,7 @@ export function SimpleYoutubePlayer({
   forcedAspectRatio,
 }: SimpleYoutubePlayerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<Plyr | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const previousVideoIdRef = useRef<string | null>(null);
@@ -82,7 +82,7 @@ export function SimpleYoutubePlayer({
       }
 
       // Initialize Plyr with npm package
-      const player = new (Plyr as any).default(playerElement as HTMLElement, {
+      const player = new Plyr(playerElement as HTMLElement, {
         autoplay: autoPlayEnabled,
         muted: autoPlayEnabled,
         loop: { active: loopEnabled },
@@ -158,17 +158,21 @@ export function SimpleYoutubePlayer({
     return () => {
       if (playerRef.current) {
         try {
-          // Check if player is initialized before destroying
-          if (playerRef.current.initialised) {
-            playerRef.current.destroy();
-          }
+          playerRef.current.destroy();
         } catch (err) {
           console.warn('Plyr cleanup error:', err);
         }
         playerRef.current = null;
       }
     };
-  }, [videoId, onReady, onError, autoPlayEnabled, loopEnabled]);
+  }, [
+    videoId,
+    onReady,
+    onError,
+    autoPlayEnabled,
+    loopEnabled,
+    forcedAspectRatio,
+  ]);
 
   return (
     <div className="relative w-full h-full overflow-hidden">

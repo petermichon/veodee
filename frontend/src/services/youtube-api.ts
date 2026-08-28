@@ -44,7 +44,7 @@ export class YouTubeAPI {
     // Check YouTube permission
     const hasPermission = localStorage.getItem('youtube-permission') === 'true';
     if (!hasPermission) {
-      return this.getFallbackVideoDetails(videoId, false);
+      return this.getFallbackVideoDetails(videoId);
     }
 
     // Add to queue for rate limiting
@@ -112,16 +112,15 @@ export class YouTubeAPI {
       // Cache the result
       this.cache.set(videoId, videoDetails);
       return videoDetails;
-    } catch (error) {
+    } catch {
       // Add to failed cache to prevent infinite retries
       this.failedCache.add(videoId);
-      return this.getFallbackVideoDetails(videoId, true);
+      return this.getFallbackVideoDetails(videoId);
     }
   }
 
   private static getFallbackVideoDetails(
-    videoId: string,
-    _hasPermission: boolean
+    videoId: string
   ): YouTubeVideoDetails | null {
     // Return basic details with empty thumbnail so cards can still render
     return {

@@ -96,11 +96,14 @@ export function Library() {
   }, [location]);
 
   // Auto-fill search query from navigation state
-  useEffect(() => {
-    if (location.state?.searchQuery) {
-      setSearchQuery(location.state.searchQuery);
+  const stateSearchQuery = location.state?.searchQuery as string | undefined;
+  const prevStateSearchRef = useRef(stateSearchQuery);
+  if (prevStateSearchRef.current !== stateSearchQuery) {
+    prevStateSearchRef.current = stateSearchQuery;
+    if (stateSearchQuery) {
+      setSearchQuery(stateSearchQuery);
     }
-  }, [location.state]);
+  }
 
   // Filter videos by search query
   const filteredVideos = useMemo(() => {
@@ -160,7 +163,7 @@ export function Library() {
           setImportFileInfo({
             videos: data.videos.length,
           });
-        } catch (error) {
+        } catch {
           setImportFileInfo(null);
         }
       };
@@ -191,7 +194,7 @@ export function Library() {
         setShowImportDialog(false);
         setSelectedImportFile(null);
         setImportFileInfo(null);
-      } catch (error) {
+      } catch {
         alert('Failed to parse JSON file');
       }
     };

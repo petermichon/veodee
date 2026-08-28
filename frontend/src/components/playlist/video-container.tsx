@@ -81,17 +81,14 @@ export const VideoContainer = memo(function VideoContainer({
     [onVideoAdded]
   );
 
-  const handleContainerDragLeave = useCallback(
-    (_e: React.DragEvent) => {
-      if (!onVideoAdded) return;
-      textDragCounterRef.current -= 1;
-      if (textDragCounterRef.current <= 0) {
-        textDragCounterRef.current = 0;
-        setIsTextDragOver(false);
-      }
-    },
-    [onVideoAdded]
-  );
+  const handleContainerDragLeave = useCallback(() => {
+    if (!onVideoAdded) return;
+    textDragCounterRef.current -= 1;
+    if (textDragCounterRef.current <= 0) {
+      textDragCounterRef.current = 0;
+      setIsTextDragOver(false);
+    }
+  }, [onVideoAdded]);
 
   const handleContainerDragOver = useCallback(
     (e: React.DragEvent) => {
@@ -183,7 +180,7 @@ export const VideoContainer = memo(function VideoContainer({
   }, []);
 
   const handleTouchStart = useCallback(
-    (index: number, _e: React.TouchEvent) => {
+    (index: number) => {
       if (!onReorder) return;
       touchDragActive.current = false;
       dragIndexRef.current = index;

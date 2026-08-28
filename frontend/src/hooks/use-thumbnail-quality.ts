@@ -5,26 +5,28 @@ export function useThumbnailQuality(
   videoId: string | null,
   enableMaxres: boolean = true
 ) {
-  const [thumbnailQuality, setThumbnailQuality] = useState<
-    'maxresdefault' | 'hqdefault'
-  >('hqdefault');
+  const [maxresAvailableIds, setMaxresAvailableIds] = useState<Set<string>>(
+    () => new Set()
+  );
 
   useEffect(() => {
-    if (videoId && enableMaxres) {
-      // Start with hqdefault, try to upgrade to maxresdefault if available
-      const img = new window.Image();
-      img.src = getYouTubeThumbnailUrl(videoId, 'maxresdefault');
-      img.onload = () => {
-        // YouTube returns a 120x90 placeholder when thumbnail doesn't exist
-        if (img.naturalWidth > 120) {
-          setThumbnailQuality('maxresdefault');
-        }
-      };
-    } else if (videoId && !enableMaxres) {
-      // Force hqdefault if maxres is disabled
-      setThumbnailQuality('hqdefault');
-    }
+    if (!videoId || !enableMaxres) return;
+
+    // Probe maxresdefault; YouTube returns a 120x90 placeholder when it doesn't exist
+    const img = new window.Image();
+    img.src = getYouTubeThumbnailUrl(videoId, 'maxresdefault');
+    img.onload = () => {
+      if (img.naturalWidth > 120) {
+        setMaxresAvailableIds((prev) => new Set(prev).add(videoId));
+      }
+    };
+
+    return () => {
+      img.onload = null;
+      img.src = '';
+    };
   }, [videoId, enableMaxres]);
 
-  return thumbnailQuality;
+  if (!videoId || !enableMaxres) return 'hqdefault';
+  return maxresAvailableIds.has(videoId) ? 'maxresdefault' : 'hqdefault';
 }

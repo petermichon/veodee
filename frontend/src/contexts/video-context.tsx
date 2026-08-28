@@ -1,4 +1,11 @@
-import { createContext, useContext, useState, useCallback } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 import type { ReactNode } from 'react';
 import type { Video, Playlist } from '@/types/index';
 
@@ -22,7 +29,13 @@ interface VideoContextType {
   reorderVideos: (fromIndex: number, toIndex: number) => void;
   resetToDefaults: () => void;
   exportLibrary: () => void;
-  importLibrary: (data: any, name: string) => void;
+  importLibrary: (data: ImportLibraryData, name: string) => void;
+}
+
+interface ImportLibraryData {
+  videos?: Video[];
+  name?: string;
+  ratio?: string;
 }
 
 const VideoContext = createContext<VideoContextType | undefined>(undefined);
@@ -99,13 +112,15 @@ const loadPlaylists = (): { playlists: Playlist[]; activeId: string } => {
       const oldData = JSON.parse(tagStorage);
       const videos: Video[] = [];
       if (oldData.groups && Array.isArray(oldData.groups)) {
-        oldData.groups.forEach((group: any) => {
-          if (group.videos && Array.isArray(group.videos)) {
-            group.videos.forEach((video: any) => {
-              if (!video.deleted) videos.push({ id: video.id });
-            });
+        oldData.groups.forEach(
+          (group: { videos?: Array<{ deleted?: boolean; id?: string }> }) => {
+            if (group.videos && Array.isArray(group.videos)) {
+              group.videos.forEach((video) => {
+                if (!video.deleted && video.id) videos.push({ id: video.id });
+              });
+            }
           }
-        });
+        );
       }
       const migrated: Playlist[] = [
         { id: DEFAULT_PLAYLIST_ID, name: 'Playlist', videos, ratio: '16:9' },
@@ -135,7 +150,7 @@ export function VideoProvider({ children }: { children: ReactNode }) {
 
   const activePlaylist =
     playlists.find((p) => p.id === activePlaylistId) ?? playlists[0];
-  const videos = activePlaylist?.videos ?? [];
+  const videos = useMemo(() => activePlaylist?.videos ?? [], [activePlaylist]);
 
   const updatePlaylists = useCallback((updated: Playlist[]) => {
     setPlaylists(updated);
@@ -267,7 +282,7 @@ export function VideoProvider({ children }: { children: ReactNode }) {
   }, [videos, activePlaylist]);
 
   const importLibrary = useCallback(
-    (data: any, name: string) => {
+    (data: ImportLibraryData, name: string) => {
       const importedVideos: Video[] = data.videos || [];
       const playlistName = data.name || name;
       const playlistRatio: '16:9' | '1:1' =

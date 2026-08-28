@@ -9,7 +9,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useVideo } from '@/contexts/video-context';
 import { useSearch } from '@/contexts/search-context';
 import { VideoContainer } from '@/components/playlist/video-container';
-import { ChevronDown, Upload, Download, Plus, X } from 'lucide-react';
+import { ChevronDown, Upload, Download, X } from 'lucide-react';
 import { PlaylistSelector } from '@/components/ui/playlist-selector';
 import { YouTubePermissionBanner } from '@/components/ui/youtube-permission-banner';
 import { VideoEmptyState } from '@/components/ui/empty-state';
@@ -32,7 +32,9 @@ export function Home() {
   } = useVideo();
   const { searchQuery, setSearchQuery } = useSearch();
   const fileInputRef2 = useRef<HTMLInputElement>(null);
-  const [visibleCount, setVisibleCount] = useState(0);
+  const [visibleCountByQuery, setVisibleCountByQuery] = useState<
+    Record<string, number>
+  >({});
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const [youtubePermission, setYoutubePermission] = useState(() => {
@@ -130,12 +132,7 @@ export function Home() {
     };
     window.addEventListener('video-search', handleSearchEvent);
     return () => window.removeEventListener('video-search', handleSearchEvent);
-  }, []);
-
-  // Reset visible count when filters change
-  useEffect(() => {
-    setVisibleCount(0);
-  }, [searchQuery]);
+  }, [setSearchQuery]);
 
   // Filter videos by search query
   const filteredVideos = useMemo(() => {
@@ -152,7 +149,9 @@ export function Home() {
     return result;
   }, [searchQuery, videos]);
 
-  // Slice videos for infinite scroll (always reversed)
+  // Slice videos for infinite scroll (always reversed). Counts are tracked per
+  // search query so changing the query resets the visible window naturally.
+  const visibleCount = visibleCountByQuery[searchQuery] ?? 0;
   const visibleVideos = [...filteredVideos].reverse().slice(0, visibleCount);
   const hasMore = filteredVideos.length > visibleCount;
 
@@ -161,9 +160,13 @@ export function Home() {
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore) {
-          setVisibleCount((prev) =>
-            Math.min(prev + LOAD_STEP, filteredVideos.length)
-          );
+          setVisibleCountByQuery((prev) => ({
+            ...prev,
+            [searchQuery]: Math.min(
+              (prev[searchQuery] ?? 0) + LOAD_STEP,
+              filteredVideos.length
+            ),
+          }));
         }
       },
       { rootMargin: '0px', threshold: 0 }
@@ -179,17 +182,13 @@ export function Home() {
         observer.unobserve(currentRef);
       }
     };
-  }, [hasMore, filteredVideos.length]);
+  }, [hasMore, filteredVideos.length, searchQuery]);
 
   const handleGrantPermission = () => {
     setYoutubePermission(true);
     localStorage.setItem('youtube-permission', 'true');
     YouTubeAPI.clearCache();
     window.dispatchEvent(new CustomEvent('youtube-permission-granted'));
-  };
-
-  const handleExportLibrary = () => {
-    setShowExportDialog(true);
   };
 
   const handleImportLibrary = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -213,16 +212,12 @@ export function Home() {
         setImportFileInfo({
           videos: data.videos.length,
         });
-      } catch (error) {
+      } catch {
         setImportFileInfo(null);
       }
     };
     reader.readAsText(file);
     setShowImportDialog(true);
-  };
-
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
   };
 
   const handleSelectorImportClick = () => {
@@ -267,7 +262,7 @@ export function Home() {
         setShowImportDialog(false);
         setSelectedImportFile(null);
         setImportFileInfo(null);
-      } catch (error) {
+      } catch {
         alert('Failed to parse JSON file');
       }
     };
