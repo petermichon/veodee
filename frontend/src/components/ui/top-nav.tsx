@@ -1,12 +1,8 @@
 import { useState, useEffect, useRef, forwardRef } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  User,
   Play,
   Home,
-  LogOut,
-  LogIn,
-  UserPlus,
   WifiOff,
   Settings,
   Youtube,
@@ -108,16 +104,12 @@ export function TopNav() {
     left: number;
     width: number;
   }>({ left: 0, width: 0 });
-  const [accountOpen, setAccountOpen] = useState(false);
-  const [accountPos, setAccountPos] = useState({ top: 0, right: 0 });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsPos, setSettingsPos] = useState({ top: 0, right: 0 });
   const [youtubePermission, setYoutubePermission] = useState(
-    () => localStorage.getItem('youtube-permission') === 'true'
+    () => localStorage.getItem('youtube-permission') !== 'false'
   );
   const navRefs = useRef<(HTMLAnchorElement | null)[]>([]);
-  const accountBtnRef = useRef<HTMLButtonElement>(null);
-  const accountPopupRef = useRef<HTMLDivElement>(null);
   const settingsBtnRef = useRef<HTMLButtonElement>(null);
   const settingsPopupRef = useRef<HTMLDivElement>(null);
   const [isNavHovered, setIsNavHovered] = useState(false);
@@ -193,22 +185,6 @@ export function TopNav() {
     function handleClickOutside(e: MouseEvent) {
       const target = e.target as Node;
       if (
-        accountBtnRef.current &&
-        !accountBtnRef.current.contains(target) &&
-        accountPopupRef.current &&
-        !accountPopupRef.current.contains(target)
-      ) {
-        setAccountOpen(false);
-      }
-    }
-    if (accountOpen) document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [accountOpen]);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      const target = e.target as Node;
-      if (
         settingsBtnRef.current &&
         !settingsBtnRef.current.contains(target) &&
         settingsPopupRef.current &&
@@ -221,21 +197,11 @@ export function TopNav() {
     return () => document.removeEventListener('click', handleClickOutside);
   }, [settingsOpen]);
 
-  const openAccount = () => {
-    if (accountBtnRef.current) {
-      const rect = accountBtnRef.current.getBoundingClientRect();
-      setAccountPos({ top: 64, right: window.innerWidth - rect.right });
-    }
-    setSettingsOpen(false);
-    setAccountOpen((prev) => !prev);
-  };
-
   const openSettings = () => {
     if (settingsBtnRef.current) {
       const rect = settingsBtnRef.current.getBoundingClientRect();
       setSettingsPos({ top: 64, right: window.innerWidth - rect.right });
     }
-    setAccountOpen(false);
     setSettingsOpen((prev) => !prev);
   };
 
@@ -327,18 +293,6 @@ export function TopNav() {
               ref={settingsBtnRef}
               buttonClassName={cn(
                 settingsOpen
-                  ? 'text-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            />
-            <NavButton
-              icon={User}
-              text="Account"
-              onClick={openAccount}
-              isActive={accountOpen}
-              ref={accountBtnRef}
-              buttonClassName={cn(
-                accountOpen
                   ? 'text-foreground'
                   : 'text-muted-foreground hover:text-foreground'
               )}
@@ -471,57 +425,6 @@ export function TopNav() {
                     )}
                   />
                 </div>
-              </button>
-            </div>
-          </div>,
-          document.getElementById('root')!
-        )}
-
-      {accountOpen &&
-        createPortal(
-          <div
-            ref={accountPopupRef}
-            className="fixed w-56 rounded-lg border border-border bg-card/20 backdrop-blur-md shadow-lg z-[200]"
-            style={{ top: accountPos.top, right: accountPos.right }}
-          >
-            <div className="px-4 py-3 border-b border-border">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
-                  <User className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-foreground">
-                    Guest
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    Not signed in
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="py-1">
-              <button
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                onClick={() => setAccountOpen(false)}
-              >
-                <LogIn className="h-4 w-4" />
-                Sign in
-              </button>
-              <button
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                onClick={() => setAccountOpen(false)}
-              >
-                <UserPlus className="h-4 w-4" />
-                Create account
-              </button>
-            </div>
-            <div className="border-t border-border py-1">
-              <button
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                onClick={() => setAccountOpen(false)}
-              >
-                <LogOut className="h-4 w-4" />
-                Sign out
               </button>
             </div>
           </div>,
