@@ -25,9 +25,10 @@ export function PlaylistSelector({ onImportClick }: PlaylistSelectorProps) {
   } = useVideo();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [addMenu, setAddMenu] = useState<AddMenuState | null>(null);
-  const [globalMenu, setGlobalMenu] = useState<{ x: number; y: number } | null>(
-    null
-  );
+  const [globalMenu, setGlobalMenu] = useState<{
+    right: number;
+    top: number;
+  } | null>(null);
   const [renaming, setRenaming] = useState<{
     id: string;
     value: string;
@@ -74,7 +75,10 @@ export function PlaylistSelector({ onImportClick }: PlaylistSelectorProps) {
   const openGlobalMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    setGlobalMenu({ x: rect.left, y: rect.bottom + 4 });
+    setGlobalMenu({
+      right: window.innerWidth - rect.right,
+      top: rect.bottom + 4,
+    });
   };
 
   const openAddMenu = (e: React.MouseEvent) => {
@@ -92,6 +96,11 @@ export function PlaylistSelector({ onImportClick }: PlaylistSelectorProps) {
     setAddMenu(null);
     const name = `Playlist ${playlists.length + 1}`;
     createBlankPlaylist(name);
+  };
+
+  const openAddVideo = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.dispatchEvent(new CustomEvent('open-add-dialog'));
   };
 
   const commitRename = useCallback(() => {
@@ -194,8 +203,15 @@ export function PlaylistSelector({ onImportClick }: PlaylistSelectorProps) {
           <Plus className="h-4 w-4" />
         </button>
         <button
-          onClick={openGlobalMenu}
+          onClick={openAddVideo}
           className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full text-muted-foreground hover:text-foreground transition-colors duration-150 border-none cursor-pointer ml-auto"
+          title="Add video"
+        >
+          <Plus className="h-4 w-4" />
+        </button>
+        <button
+          onClick={openGlobalMenu}
+          className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full text-muted-foreground hover:text-foreground transition-colors duration-150 border-none cursor-pointer"
           title="Playlist settings"
         >
           <Pencil className="h-4 w-4" />
@@ -234,8 +250,8 @@ export function PlaylistSelector({ onImportClick }: PlaylistSelectorProps) {
           ref={globalMenuRef}
           className="fixed z-[300] min-w-[140px] rounded-lg border border-border bg-card/90 backdrop-blur-md shadow-lg py-1"
           style={{
-            top: globalMenu.y,
-            left: globalMenu.x,
+            top: globalMenu.top,
+            right: globalMenu.right,
             animation: 'fadeIn 150ms ease-out',
           }}
         >
