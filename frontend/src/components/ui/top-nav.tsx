@@ -305,7 +305,7 @@ export function TopNav() {
         createPortal(
           <div
             ref={settingsPopupRef}
-            className="fixed w-56 rounded-lg border border-border bg-card/20 backdrop-blur-md shadow-lg z-[200]"
+            className="fixed w-72 rounded-lg border border-border bg-card/20 backdrop-blur-md shadow-lg z-[200]"
             style={{ top: settingsPos.top, right: settingsPos.right }}
           >
             <div className="px-4 py-3 border-b border-border">

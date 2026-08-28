@@ -1327,7 +1327,7 @@ export function Player() {
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => handleShare('youtube')}
-                className="w-full px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg text-sm font-medium transition-colors text-left"
+                className="w-full px-4 py-2 rounded-lg text-sm font-medium text-left hover:bg-foreground/5 transition-colors"
               >
                 YouTube URL
                 <span className="block text-xs text-muted-foreground mt-1">
@@ -1336,9 +1336,9 @@ export function Player() {
               </button>
               <button
                 onClick={() => handleShare('current')}
-                className="w-full px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg text-sm font-medium transition-colors text-left"
+                className="w-full px-4 py-2 rounded-lg text-sm font-medium text-left hover:bg-foreground/5 transition-colors"
               >
-                Current Page URL
+                Veodee URL
                 <span className="block text-xs text-muted-foreground mt-1">
                   {window.location.href}
                 </span>
