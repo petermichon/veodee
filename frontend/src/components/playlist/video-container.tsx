@@ -255,13 +255,12 @@ export const VideoContainer = memo(function VideoContainer({
     };
   }, []);
 
-  // Fetch details for all visible videos
+  // Fetch details for all videos (YouTubeAPI rate-limits internally)
   useEffect(() => {
     const toFetch = videos.filter((v) => !fetchedOrFetching.current.has(v.id));
     if (toFetch.length === 0) return;
 
-    const batch = toFetch.slice(0, 12);
-    const batchIds = new Set(batch.map((v) => v.id));
+    const batchIds = new Set(toFetch.map((v) => v.id));
 
     // Mark as fetching synchronously via ref to prevent duplicate fetches
     batchIds.forEach((id) => fetchedOrFetching.current.add(id));
@@ -270,7 +269,7 @@ export const VideoContainer = memo(function VideoContainer({
       // No permission: populate fallback details immediately without querying YouTube
       setDetails((prev) => {
         const next = { ...prev };
-        batch.forEach((v) => {
+        toFetch.forEach((v) => {
           next[v.id] = {
             id: v.id,
             title: v.id,
@@ -286,13 +285,13 @@ export const VideoContainer = memo(function VideoContainer({
 
     setFetchingIds((prev) => new Set([...prev, ...batchIds]));
 
-    // Fetch all in parallel
+    // Fetch all in parallel (the API queues and rate-limits requests)
     Promise.all(
-      batch.map((v) => YouTubeAPI.getVideoDetails(v.id).catch(() => null))
+      toFetch.map((v) => YouTubeAPI.getVideoDetails(v.id).catch(() => null))
     ).then((results) => {
       setDetails((prev) => {
         const next = { ...prev };
-        batch.forEach((v, i) => {
+        toFetch.forEach((v, i) => {
           if (results[i]) next[v.id] = results[i]!;
         });
         return next;
@@ -309,9 +308,6 @@ export const VideoContainer = memo(function VideoContainer({
   useEffect(() => {
     onLoadingChange?.(fetchingIds.size > 0);
   }, [fetchingIds, onLoadingChange]);
-
-  // Filter videos that have their details populated
-  const readyVideos = videos.filter((v) => details[v.id]);
 
   return (
     <div
@@ -339,7 +335,7 @@ export const VideoContainer = memo(function VideoContainer({
         {onVideoAdded && layout === 'list' && (
           <EmptyVideoCard onVideoAdded={onVideoAdded} layout="list" />
         )}
-        {readyVideos.map((video, index) => (
+        {videos.map((video, index) => (
           <div
             key={video.id}
             ref={(el) => {
@@ -373,7 +369,7 @@ export const VideoContainer = memo(function VideoContainer({
               onSetBackground={onSetBackground}
               currentBackgroundVideoId={currentBackgroundVideoId}
               index={index}
-              totalVideos={readyVideos.length}
+              totalVideos={videos.length}
               onMoveUp={onMoveUp ? () => onMoveUp(index) : undefined}
               onMoveDown={onMoveDown ? () => onMoveDown(index) : undefined}
               ratio={ratio}
@@ -381,25 +377,6 @@ export const VideoContainer = memo(function VideoContainer({
           </div>
         ))}
       </div>
-
-      {/* Loading skeleton cards when actively fetching */}
-      {fetchingIds.size > 0 && layout !== 'list' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
-          {Array.from({ length: Math.min(fetchingIds.size, 4) }).map(
-            (_, idx) => (
-              <div key={`skeleton-${idx}`} className="space-y-3">
-                {/* Thumbnail skeleton */}
-                <div className="aspect-video bg-muted/30 rounded-xl animate-pulse" />
-                {/* Content skeleton */}
-                <div className="px-3 sm:px-4 py-2 space-y-2">
-                  <div className="h-4 sm:h-5 bg-muted/30 rounded animate-pulse" />
-                  <div className="h-3 sm:h-4 w-20 sm:w-24 bg-muted/30 rounded animate-pulse" />
-                </div>
-              </div>
-            )
-          )}
-        </div>
-      )}
 
       {onVideoAdded && layout !== 'list' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">

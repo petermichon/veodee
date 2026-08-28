@@ -16,8 +16,6 @@ import { Footer } from '@/components/ui/footer';
 import { YouTubeAPI } from '@/services/youtube-api';
 import type { Video } from '@/types/index';
 
-const LOAD_STEP = 12;
-
 export function Home() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -70,6 +68,8 @@ export function Home() {
   const currentBackgroundVideoId = backgroundImage
     ? (backgroundImage.match(/\/vi\/([^/]+)\//)?.[1] ?? null)
     : null;
+
+  const reversedVideos = useMemo(() => [...videos].reverse(), [videos]);
 
   // Listen for YouTube permission changes
   useEffect(() => {
@@ -310,7 +310,7 @@ export function Home() {
           {/* Videos Grid */}
           <div className="transition-all duration-300">
             <VideoContainer
-              videos={visibleVideos}
+              videos={reversedVideos}
               onPlay={handlePlayVideo}
               onRemove={handleRemoveVideo}
               layout="grid"
@@ -321,39 +321,10 @@ export function Home() {
             />
           </div>
 
-          {/* Load more sentinel */}
-          <div ref={loadMoreRef} className="h-48" />
-
           {/* Empty State */}
-          {filteredVideos.length === 0 && !searchQuery.trim() && (
-            <VideoEmptyState />
-          )}
+          {videos.length === 0 && <VideoEmptyState />}
 
-          {/* No Search Results State */}
-          {filteredVideos.length === 0 && searchQuery.trim() !== '' && (
-            <div className="p-32 text-center">
-              <h3 className="text-xl font-semibold mb-2">
-                No videos match your search
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Try adjusting your search terms
-              </p>
-              <button
-                onClick={() => {
-                  setSearchQuery('');
-                }}
-                className="text-sm text-primary"
-              >
-                Clear filters
-              </button>
-            </div>
-          )}
-
-          {/* Footer when no more videos to load or no search results */}
-          {(!hasMore ||
-            (filteredVideos.length === 0 && searchQuery.trim() !== '')) && (
-            <Footer />
-          )}
+          <Footer />
         </div>
       </div>
       <div className="h-16 md:hidden" />
