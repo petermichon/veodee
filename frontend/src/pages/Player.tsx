@@ -246,8 +246,8 @@ export function Player() {
   const [youtubePermission, setYoutubePermission] = useState(() => {
     const saved = localStorage.getItem('youtube-permission');
     if (saved === null) {
-      savePreference('youtube-permission', false);
-      return false;
+      savePreference('youtube-permission', true);
+      return true;
     }
     return saved === 'true';
   });

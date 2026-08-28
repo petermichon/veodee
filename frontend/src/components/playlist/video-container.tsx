@@ -219,7 +219,7 @@ export const VideoContainer = memo(function VideoContainer({
   );
 
   const [youtubePermission, setYoutubePermission] = useState(
-    () => localStorage.getItem('youtube-permission') === 'true'
+    () => localStorage.getItem('youtube-permission') !== 'false'
   );
 
   // Listen for YouTube permission changes

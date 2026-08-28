@@ -42,7 +42,8 @@ export class YouTubeAPI {
     }
 
     // Check YouTube permission
-    const hasPermission = localStorage.getItem('youtube-permission') === 'true';
+    const hasPermission =
+      localStorage.getItem('youtube-permission') !== 'false';
     if (!hasPermission) {
       return this.getFallbackVideoDetails(videoId);
     }
