@@ -20,6 +20,14 @@ npm run dev
 
 Open http://localhost:5173.
 
+## Project structure
+
+```txt
+veodee/
+├── package.json   # Root workspace with shared scripts
+└── frontend/      # React frontend (npm workspace)
+```
+
 ## Scripts
 
 | Command           | Description                  |
