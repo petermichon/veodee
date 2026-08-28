@@ -1,8 +1,6 @@
 # Veodee
 
-A YouTube player and playlist manager.
-
-A single-page React app that stores playlists and subscriptions in the browser, fetches video metadata lazily, and supports multiple players (YouTube, no-cookie YouTube, Plyr).
+Veodee is a browser-based YouTube player and playlist manager. There's no account or backend — your playlists and followed channels live in your browser's localStorage.
 
 ## Features
 
