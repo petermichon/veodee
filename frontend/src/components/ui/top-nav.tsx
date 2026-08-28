@@ -265,13 +265,15 @@ export function TopNav() {
                   />
                 );
               })}
-              <div
-                className="absolute bottom-[-4px] h-0.5 bg-foreground rounded-full transition-all duration-300 ease-out"
-                style={{
-                  left: indicatorStyle.left,
-                  width: indicatorStyle.width,
-                }}
-              />
+              {indicatorStyle.width > 0 && (
+                <div
+                  className="absolute bottom-[-4px] h-0.5 bg-foreground rounded-full transition-all duration-300 ease-out"
+                  style={{
+                    left: indicatorStyle.left,
+                    width: indicatorStyle.width,
+                  }}
+                />
+              )}
             </div>
           </div>
 

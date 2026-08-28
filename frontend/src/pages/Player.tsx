@@ -1054,14 +1054,16 @@ export function Player() {
                 />
                 <span className="text-sm">Plyr</span>
               </button>
-              <div
-                className="absolute bottom-[-4px] h-0.5 rounded-full transition-all duration-300 ease-out"
-                style={{
-                  left: playerIndicatorStyle.left,
-                  width: playerIndicatorStyle.width,
-                  backgroundColor: 'white',
-                }}
-              />
+              {playerIndicatorStyle.width > 0 && (
+                <div
+                  className="absolute bottom-[-4px] h-0.5 rounded-full transition-all duration-300 ease-out"
+                  style={{
+                    left: playerIndicatorStyle.left,
+                    width: playerIndicatorStyle.width,
+                    backgroundColor: 'white',
+                  }}
+                />
+              )}
             </div>
 
             {/* Fullscreen Mode */}
@@ -1139,14 +1141,16 @@ export function Player() {
                 />
                 <span className="text-sm">Contain</span>
               </button>
-              <div
-                className="absolute bottom-[-4px] h-0.5 rounded-full transition-all duration-300 ease-out"
-                style={{
-                  left: fullscreenIndicatorStyle.left,
-                  width: fullscreenIndicatorStyle.width,
-                  backgroundColor: 'white',
-                }}
-              />
+              {fullscreenIndicatorStyle.width > 0 && (
+                <div
+                  className="absolute bottom-[-4px] h-0.5 rounded-full transition-all duration-300 ease-out"
+                  style={{
+                    left: fullscreenIndicatorStyle.left,
+                    width: fullscreenIndicatorStyle.width,
+                    backgroundColor: 'white',
+                  }}
+                />
+              )}
             </div>
 
             {/* Cookies */}
