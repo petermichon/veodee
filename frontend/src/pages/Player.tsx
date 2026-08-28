@@ -22,7 +22,6 @@ import { LoadingBackground } from '@/components/player/loading-background';
 import { YouTubeAPI } from '@/services/youtube-api';
 import { useVideo } from '@/contexts/video-context';
 import { useToast } from '@/hooks/use-toast';
-import { Footer } from '@/components/ui/footer';
 import type { Video } from '@/types/index';
 import { getYouTubeThumbnailUrl } from '@/lib/color-extractor';
 
@@ -1349,8 +1348,6 @@ export function Player() {
           </div>
         </div>
       )}
-
-      {!fillScreen && <Footer />}
     </div>
   );
 }

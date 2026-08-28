@@ -12,7 +12,6 @@ import { ChevronDown, Upload, Download, X } from 'lucide-react';
 import { PlaylistSelector } from '@/components/ui/playlist-selector';
 import { YouTubePermissionBanner } from '@/components/ui/youtube-permission-banner';
 import { VideoEmptyState } from '@/components/ui/empty-state';
-import { Footer } from '@/components/ui/footer';
 import { YouTubeAPI } from '@/services/youtube-api';
 import type { Video } from '@/types/index';
 
@@ -321,8 +320,6 @@ export function Home() {
 
           {/* Empty State */}
           {videos.length === 0 && <VideoEmptyState />}
-
-          <Footer />
         </div>
       </div>
       <div className="h-16 md:hidden" />

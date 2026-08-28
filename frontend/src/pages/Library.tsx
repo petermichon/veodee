@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { X, Upload, Download } from 'lucide-react';
 import { YouTubePermissionBanner } from '@/components/ui/youtube-permission-banner';
 import { VideoEmptyState } from '@/components/ui/empty-state';
-import { Footer } from '@/components/ui/footer';
 import { YouTubeAPI } from '@/services/youtube-api';
 import type { Video } from '@/types/index';
 
@@ -476,7 +475,6 @@ export function Library() {
           {/* Empty State */}
           {isEmptyState && <VideoEmptyState />}
         </div>
-        <Footer />
       </div>
     </div>
   );

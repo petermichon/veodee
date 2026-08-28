@@ -127,6 +127,11 @@ html.player-fullscreen .bottom-nav {
   display: none !important;
 }
 
+/* Hide footer in player fullscreen mode */
+html.player-fullscreen .app-footer {
+  display: none !important;
+}
+
 /* Remove top padding from main content in player fullscreen mode */
 html.player-fullscreen main {
   padding-top: 0 !important;

@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { TopNav } from '@/components/ui/top-nav';
 import { BottomNav } from '@/components/ui/bottom-nav';
+import { Footer } from '@/components/ui/footer';
 import { VideoProvider } from '@/contexts/video-context';
 import { SubscriptionsProvider } from '@/contexts/subscriptions-context';
 import { ThemeProvider } from '@/contexts/theme-context';
@@ -20,6 +21,7 @@ function AppContent() {
             <Route path="/following" element={<Following />} />
           </Routes>
         </main>
+        <Footer />
         <BottomNav />
       </div>
     </>
