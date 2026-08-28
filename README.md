@@ -7,8 +7,6 @@ Veodee is a browser-based YouTube player and playlist manager. There's no accoun
 ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white)
-![React Router](https://img.shields.io/badge/React_Router-CA4245?logo=react-router&logoColor=white)
-![Plyr](https://img.shields.io/badge/Plyr-00B2FF?logo=plyr&logoColor=white)
 
 ## Features
 
