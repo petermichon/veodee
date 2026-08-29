@@ -64,6 +64,12 @@ function VideoPlayer({
       setIsLoading(true);
       setError(null);
     }
+    console.log(
+      '%c[PlyrDbg]',
+      'color:#00bcd4;font-weight:bold',
+      'VideoPlayer: playerKey changed',
+      playerKey
+    );
   }
 
   const handleLoad = () => {
@@ -112,8 +118,20 @@ function VideoPlayer({
               autoPlayEnabled={autoPlayEnabled}
               loopEnabled={loopEnabled}
               forcedAspectRatio={forcedAspectRatio}
-              onReady={() => setIsLoading(false)}
+              onReady={() => {
+                console.log(
+                  '%c[PlyrDbg]',
+                  'color:#00bcd4;font-weight:bold',
+                  'VideoPlayer: SimpleYoutubePlayer onReady called'
+                );
+                setIsLoading(false);
+              }}
               onError={() => {
+                console.log(
+                  '%c[PlyrDbg]',
+                  'color:#00bcd4;font-weight:bold',
+                  'VideoPlayer: SimpleYoutubePlayer onError called'
+                );
                 setError('Failed to load Plyr player');
                 setIsLoading(false);
               }}
@@ -411,6 +429,29 @@ export function Player() {
 
   // Handle video from navigation
   // (currentVideoId is initialized from the route above; local edits update it directly)
+
+  useEffect(() => {
+    if (videoAspectRatio || fillScreen) {
+      console.log(
+        '%c[PlyrDbg]',
+        'color:#00bcd4;font-weight:bold',
+        'Player: VideoPlayer mounted',
+        {
+          videoAspectRatio,
+          fillScreen,
+          playerType,
+          currentVideoId,
+          youtubePermission,
+        }
+      );
+    }
+  }, [
+    videoAspectRatio,
+    fillScreen,
+    playerType,
+    currentVideoId,
+    youtubePermission,
+  ]);
 
   // Fetch video details to get aspect ratio
   useEffect(() => {
