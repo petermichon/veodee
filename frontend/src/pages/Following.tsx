@@ -703,7 +703,7 @@ export function Following() {
           }}
         >
           <div
-            className="w-full max-w-sm rounded-2xl border border-border/60 bg-card/20 backdrop-blur-xl"
+            className="w-full max-w-sm rounded-2xl border border-border bg-card/95 backdrop-blur-lg"
             onClick={(e) => e.stopPropagation()}
             style={{ animation: 'fadeIn 150ms ease-out' }}
           >
