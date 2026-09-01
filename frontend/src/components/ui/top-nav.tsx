@@ -26,7 +26,7 @@ const NAVIGATION_ITEMS = [
 
 interface NavButtonProps {
   icon: React.ComponentType<{ className?: string }>;
-  text: string;
+  text?: string;
   onClick?: () => void;
   href?: string;
   isActive?: boolean;
@@ -46,7 +46,7 @@ const NavButton = forwardRef<
       <div className="relative px-3 py-2 -mx-3 -my-2">
         <div className="relative flex items-center gap-2">
           <Icon className="h-4 w-4" />
-          <span>{text}</span>
+          {text && <span>{text}</span>}
         </div>
       </div>
     );
@@ -288,7 +288,6 @@ export function TopNav() {
             )}
             <NavButton
               icon={Settings}
-              text="Settings"
               onClick={openSettings}
               isActive={settingsOpen}
               ref={settingsBtnRef}
@@ -306,7 +305,7 @@ export function TopNav() {
         createPortal(
           <div
             ref={settingsPopupRef}
-            className="fixed w-72 rounded-lg border border-border bg-card/20 backdrop-blur-md shadow-lg z-[200]"
+            className="fixed w-72 rounded-lg border border-border bg-card/95 backdrop-blur-lg shadow-lg z-[200]"
             style={{ top: settingsPos.top, right: settingsPos.right }}
           >
             <div className="px-4 py-3 border-b border-border">
