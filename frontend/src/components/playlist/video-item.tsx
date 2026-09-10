@@ -14,7 +14,6 @@ import {
   MoreVertical,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { YouTubeIcon } from '@/components/ui/youtube-icon';
 import { useThumbnailQuality } from '@/hooks/use-thumbnail-quality';
 import { getYouTubeThumbnailUrl } from '@/lib/color-extractor';
 import type { YouTubeVideoDetails } from '@/services/youtube-api';
@@ -194,7 +193,6 @@ export const VideoItem = memo(function VideoItem({
           >
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <YouTubeIcon className="h-5 w-5" />
                 <span className="font-semibold text-foreground text-base">
                   Opening YouTube
                 </span>

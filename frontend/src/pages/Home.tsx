@@ -231,7 +231,7 @@ export function Home() {
   );
 
   return (
-    <div className="relative">
+    <div className="relative select-none-touch">
       <div className="relative z-10 md:px-8 md:py-8">
         <div className="max-w-7xl mx-auto">
           {/* Playlist Selector */}

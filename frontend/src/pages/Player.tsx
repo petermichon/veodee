@@ -16,7 +16,6 @@ import {
   Settings,
   Info,
 } from 'lucide-react';
-import { YouTubeIcon } from '@/components/ui/youtube-icon';
 import { SimpleYoutubePlayer } from '@/components/player/simple-youtube-player';
 import { LoadingBackground } from '@/components/player/loading-background';
 import { YouTubeAPI } from '@/services/youtube-api';
@@ -92,7 +91,6 @@ function VideoPlayer({
       {showPermissionModal && (
         <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
           <div className="rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-4 pointer-events-auto text-center">
-            <YouTubeIcon className="h-10 w-10 mx-auto" />
             <h3 className="text-lg font-semibold text-foreground">
               Allow YouTube Connection
             </h3>
@@ -657,7 +655,7 @@ export function Player() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative select-none-touch">
       {backgroundMode === 'custom' && pageBackground && (
         <div
           className="fixed inset-0"
@@ -1068,7 +1066,6 @@ export function Player() {
                     : 'hsl(var(--muted-foreground))',
                 }}
               >
-                <YouTubeIcon className="h-5 w-5" />
                 <span className="text-sm">YouTube</span>
               </button>
               <button

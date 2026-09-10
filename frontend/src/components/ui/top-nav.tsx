@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, forwardRef } from 'react';
 import { createPortal } from 'react-dom';
 import { WifiOff, Settings, Sun, Moon, SunMoon, Image } from 'lucide-react';
-import { YouTubeIcon } from '@/components/ui/youtube-icon';
 import { YouTubeAPI } from '@/services/youtube-api';
 import { useLocation, Link } from 'react-router-dom';
 import { LogoBlack, LogoWhite } from '@/components/ui/logo';
@@ -184,7 +183,7 @@ export function TopNav() {
     <>
       <header
         className={cn(
-          'top-nav fixed top-0 left-0 right-0 h-16 z-50 transition-transform duration-300 ease-in-out',
+          'top-nav fixed top-0 left-0 right-0 h-16 z-50 transition-transform duration-300 ease-in-out select-none-touch',
           'backdrop-blur-xl',
           isVisible ? 'translate-y-0' : '-translate-y-full'
         )}
@@ -250,7 +249,7 @@ export function TopNav() {
         createPortal(
           <div
             ref={settingsPopupRef}
-            className="fixed w-72 rounded-lg border border-border bg-card/95 backdrop-blur-lg shadow-lg z-[200]"
+            className="fixed w-72 rounded-lg border border-border bg-card/95 backdrop-blur-lg shadow-lg z-[200] select-none-touch"
             style={{ top: settingsPos.top, right: settingsPos.right }}
           >
             <div className="px-4 py-3 border-b border-border">
@@ -352,7 +351,6 @@ export function TopNav() {
                 onClick={toggleYoutubePermission}
               >
                 <div className="flex items-center gap-2">
-                  <YouTubeIcon className="h-4 w-4" />
                   <span>Allow YouTube</span>
                 </div>
                 <div

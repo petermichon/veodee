@@ -1,5 +1,3 @@
-import { YouTubeIcon } from '@/components/ui/youtube-icon';
-
 interface YouTubePermissionBannerProps {
   onAllow: () => void;
 }
@@ -13,17 +11,14 @@ export function YouTubePermissionBanner({
       onClick={onAllow}
     >
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <YouTubeIcon className="h-10 w-10 flex-shrink-0" />
-          <div>
-            <h3 className="text-lg font-semibold text-foreground mb-1">
-              Allow YouTube Connection
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              YouTube may collect IP address, browser info, and viewing data per
-              their privacy policy
-            </p>
-          </div>
+        <div>
+          <h3 className="text-lg font-semibold text-foreground mb-1">
+            Allow YouTube Connection
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            YouTube may collect IP address, browser info, and viewing data per
+            their privacy policy
+          </p>
         </div>
         <span className="flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
           Allow
