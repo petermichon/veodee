@@ -4,15 +4,9 @@ import {
   type Subscription,
 } from '@/contexts/subscriptions-context';
 import { useVideo } from '@/contexts/video-context';
-import {
-  MoreVertical,
-  Youtube,
-  ExternalLink,
-  X,
-  Edit,
-  Upload,
-} from 'lucide-react';
+import { MoreVertical, ExternalLink, X, Edit, Upload } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
+import { YouTubeIcon } from '@/components/ui/youtube-icon';
 import { isYouTubeHostedUrl } from '@/lib/youtube';
 
 export function Following() {
@@ -442,7 +436,7 @@ export function Following() {
                   <div className="flex flex-col gap-3">
                     {/* Channel icon placeholder */}
                     <div className="w-16 h-16 rounded-full bg-muted/30 flex items-center justify-center mx-auto">
-                      <Youtube className="h-8 w-8 text-muted-foreground" />
+                      <YouTubeIcon className="h-8 w-8" />
                     </div>
 
                     {/* Channel name */}
@@ -517,7 +511,7 @@ export function Following() {
           >
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <Youtube className="h-5 w-5 text-white" />
+                <YouTubeIcon className="h-5 w-5" />
                 <span className="font-semibold text-foreground text-base">
                   Opening YouTube
                 </span>

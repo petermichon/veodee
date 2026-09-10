@@ -1,14 +1,7 @@
 import { useState, useEffect, useRef, forwardRef } from 'react';
 import { createPortal } from 'react-dom';
-import {
-  WifiOff,
-  Settings,
-  Youtube,
-  Sun,
-  Moon,
-  SunMoon,
-  Image,
-} from 'lucide-react';
+import { WifiOff, Settings, Sun, Moon, SunMoon, Image } from 'lucide-react';
+import { YouTubeIcon } from '@/components/ui/youtube-icon';
 import { YouTubeAPI } from '@/services/youtube-api';
 import { useLocation, Link } from 'react-router-dom';
 import { LogoBlack, LogoWhite } from '@/components/ui/logo';
@@ -359,7 +352,7 @@ export function TopNav() {
                 onClick={toggleYoutubePermission}
               >
                 <div className="flex items-center gap-2">
-                  <Youtube className="h-4 w-4" />
+                  <YouTubeIcon className="h-4 w-4" />
                   <span>Allow YouTube</span>
                 </div>
                 <div

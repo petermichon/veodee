@@ -1,4 +1,4 @@
-import { Youtube } from 'lucide-react';
+import { YouTubeIcon } from '@/components/ui/youtube-icon';
 
 interface YouTubePermissionBannerProps {
   onAllow: () => void;
@@ -14,7 +14,7 @@ export function YouTubePermissionBanner({
     >
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Youtube className="h-10 w-10 text-white flex-shrink-0" />
+          <YouTubeIcon className="h-10 w-10 flex-shrink-0" />
           <div>
             <h3 className="text-lg font-semibold text-foreground mb-1">
               Allow YouTube Connection
