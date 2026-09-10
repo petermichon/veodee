@@ -78,13 +78,19 @@
 }
 
 @layer base {
-  body {
-    @apply bg-background text-foreground;
-    font-family: system-ui;
-  }
-
   html {
     -webkit-tap-highlight-color: transparent;
+    background-color: hsl(var(--background));
+    background-image: var(--app-background-image, none);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
+  body {
+    @apply text-foreground;
+    font-family: system-ui;
   }
 
   img {
@@ -122,15 +128,15 @@
 }
 
 /* Scrollbar */
-.scroll-container::-webkit-scrollbar-track {
+html::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.scroll-container::-webkit-scrollbar-thumb {
+html::-webkit-scrollbar-thumb {
   background-color: hsl(0 0% 100% / 0.2) !important;
 }
 
-.scroll-container {
+html {
   scrollbar-color: hsl(0 0% 100% / 0.2) transparent;
 }
 
@@ -173,18 +179,13 @@ html.player-fullscreen main {
   padding-top: 0 !important;
 }
 
-/* Remove pt-16 from parent flex container in player fullscreen mode */
-html.player-fullscreen .app-layout {
-  padding-top: 0 !important;
-}
-
-/* Hide scrollbar in player fullscreen mode */
-html.player-fullscreen .scroll-container {
-  overflow-y: auto !important;
+/* Lock scrolling and hide the scrollbar in player fullscreen mode */
+html.player-fullscreen {
+  overflow: hidden !important;
   scrollbar-width: none !important;
 }
 
-html.player-fullscreen .scroll-container::-webkit-scrollbar {
+html.player-fullscreen::-webkit-scrollbar {
   width: 0px;
   height: 0px;
 }

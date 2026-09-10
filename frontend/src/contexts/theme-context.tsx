@@ -16,8 +16,11 @@ const LIGHT_BG = '#ffffff';
 const DARK_BG = '#0a0a0a';
 
 function setMetaThemeColor(isDark: boolean) {
+  const bg = isDark ? DARK_BG : LIGHT_BG;
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', isDark ? DARK_BG : LIGHT_BG);
+  if (meta) meta.setAttribute('content', bg);
+  // Keep the html background in sync; it paints the canvas (incl. scrollbar).
+  document.documentElement.style.backgroundColor = bg;
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {

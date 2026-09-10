@@ -60,35 +60,32 @@ function AppContent() {
       window.removeEventListener('background-changed', handleBackgroundChange);
   }, []);
 
+  useEffect(() => {
+    const root = document.documentElement;
+    if (!showBackground) {
+      root.style.removeProperty('--app-background-image');
+      return;
+    }
+    const isGradient =
+      backgroundImage.startsWith('linear-gradient') ||
+      backgroundImage.startsWith('radial-gradient');
+    root.style.setProperty(
+      '--app-background-image',
+      isGradient ? backgroundImage : `url(${backgroundImage})`
+    );
+  }, [showBackground, backgroundImage]);
+
   return (
     <>
       {showBackground && (
         <div
-          className="fixed inset-0 pointer-events-none"
-          style={{
-            backgroundImage:
-              backgroundImage.startsWith('linear-gradient') ||
-              backgroundImage.startsWith('radial-gradient')
-                ? backgroundImage
-                : `url(${backgroundImage})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            zIndex: 0,
-            transition: 'background-image 0.5s ease-in-out',
-          }}
-        >
-          <div
-            className="absolute inset-0 backdrop-blur-[100px]"
-            style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            }}
-          />
-        </div>
+          className="fixed inset-0 pointer-events-none backdrop-blur-[100px]"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)', zIndex: 0 }}
+        />
       )}
-      <div className="flex h-dvh flex-col overflow-hidden relative z-10">
+      <div className="relative z-10">
         <TopNav />
-        <main className="app-layout flex-1 min-h-0 pt-16 pb-16 md:pb-0 grid overflow-y-auto overscroll-y-contain scroll-container">
+        <main className="app-layout min-h-dvh pt-16 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/player" element={<Player />} />
