@@ -169,7 +169,7 @@ export function Home() {
 
   const handlePlayVideo = useCallback(
     (video: Video) => {
-      navigate('/player', { state: { video } });
+      navigate(`/watch?v=${video.id}`);
     },
     [navigate]
   );

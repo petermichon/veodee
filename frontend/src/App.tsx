@@ -88,7 +88,7 @@ function AppContent() {
         <main className="app-layout min-h-dvh pt-16 pb-[calc(5rem+env(safe-area-inset-bottom))] md:pb-0">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/player" element={<Player />} />
+            <Route path="/watch" element={<Player />} />
             <Route path="/following" element={<Following />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />

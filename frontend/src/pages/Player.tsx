@@ -239,7 +239,7 @@ export function Player() {
   };
 
   const [currentVideoId, setCurrentVideoId] = useState<string | null>(() => {
-    const fromParam = searchParams.get('videoId');
+    const fromParam = searchParams.get('v');
     const fromState = (location.state?.video as Video | undefined)?.id ?? null;
     return fromState ?? fromParam;
   });
@@ -269,7 +269,7 @@ export function Player() {
     return saved === 'true';
   });
   const [showPermissionModal, setShowPermissionModal] = useState(() => {
-    const fromParam = searchParams.get('videoId');
+    const fromParam = searchParams.get('v');
     const fromState = (location.state?.video as Video | undefined)?.id ?? null;
     return !youtubePermission && (!!fromState || !!fromParam);
   });

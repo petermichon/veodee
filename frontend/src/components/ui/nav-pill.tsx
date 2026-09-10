@@ -131,7 +131,7 @@ export function AddButton() {
       className={cn(
         'flex items-center justify-center w-12 h-12 rounded-full hover:bg-foreground/10 active:scale-90 transition-all duration-300 relative overflow-hidden touch-action-manipulation select-none cursor-pointer',
         pillClass,
-        location.pathname === '/player' &&
+        location.pathname === '/watch' &&
           'opacity-0 w-0 p-0 pointer-events-none'
       )}
     >
