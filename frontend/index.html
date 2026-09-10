@@ -20,6 +20,21 @@
     />
     <title>Veodee</title>
     <script src="/pre-style.js"></script>
+    <script>
+      // Restore a deep link stashed by public/404.html (GitHub Pages SPA
+      // fallback) before the router reads window.location.
+      (function () {
+        try {
+          var redirect = sessionStorage.getItem('spa-redirect');
+          if (redirect) {
+            sessionStorage.removeItem('spa-redirect');
+            window.history.replaceState(null, '', redirect);
+          }
+        } catch {
+          // sessionStorage/history unavailable - ignore.
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

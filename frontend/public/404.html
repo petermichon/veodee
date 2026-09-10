@@ -1,11 +1,18 @@
 <!doctype html>
 <html>
   <head>
+    <meta charset="UTF-8" />
+    <title>Veodee</title>
     <script>
-      const path = window.location.pathname;
-      const segments = path.split('/').filter(Boolean);
-      const redirectPath = segments.length > 0 ? '/#' + path : '/';
-      window.location.replace(redirectPath);
+      // GitHub Pages serves this file (with a 404 status) for any path that
+      // isn't a real file. Stash the requested URL so index.html can restore
+      // it with history.replaceState before the SPA router boots.
+      try {
+        sessionStorage.setItem('spa-redirect', window.location.href);
+      } catch {
+        // sessionStorage unavailable (e.g. blocked) - fall through to root.
+      }
+      window.location.replace('/');
     </script>
   </head>
   <body></body>
