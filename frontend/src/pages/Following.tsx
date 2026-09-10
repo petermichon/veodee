@@ -13,6 +13,7 @@ import {
   Upload,
 } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
+import { isYouTubeHostedUrl } from '@/lib/youtube';
 
 export function Following() {
   const {
@@ -66,6 +67,9 @@ export function Following() {
       return 'custom';
     }
   );
+  const [youtubePermission, setYoutubePermission] = useState(
+    () => localStorage.getItem('youtube-permission') !== 'false'
+  );
 
   // Listen for background changes
   useEffect(() => {
@@ -81,6 +85,18 @@ export function Following() {
     window.addEventListener('background-changed', handleBackgroundChange);
     return () =>
       window.removeEventListener('background-changed', handleBackgroundChange);
+  }, []);
+
+  // React to YouTube access being granted or revoked
+  useEffect(() => {
+    const handleGranted = () => setYoutubePermission(true);
+    const handleRevoked = () => setYoutubePermission(false);
+    window.addEventListener('youtube-permission-granted', handleGranted);
+    window.addEventListener('youtube-permission-revoked', handleRevoked);
+    return () => {
+      window.removeEventListener('youtube-permission-granted', handleGranted);
+      window.removeEventListener('youtube-permission-revoked', handleRevoked);
+    };
   }, []);
 
   const parseChannelInput = (
@@ -349,34 +365,36 @@ export function Following() {
 
   return (
     <div className="relative">
-      {backgroundMode === 'custom' && backgroundImage && (
-        <div
-          className="fixed inset-0"
-          style={{
-            backgroundImage:
-              backgroundImage.startsWith('linear-gradient') ||
-              backgroundImage.startsWith('radial-gradient')
-                ? backgroundImage
-                : `url(${backgroundImage})`,
-            backgroundSize:
-              backgroundImage?.startsWith('linear-gradient') ||
-              backgroundImage?.startsWith('radial-gradient')
-                ? 'cover'
-                : 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            zIndex: 0,
-            transition: 'background-image 0.5s ease-in-out',
-          }}
-        >
+      {backgroundMode === 'custom' &&
+        backgroundImage &&
+        (youtubePermission || !isYouTubeHostedUrl(backgroundImage)) && (
           <div
-            className="absolute inset-0 backdrop-blur-[100px]"
+            className="fixed inset-0"
             style={{
-              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              backgroundImage:
+                backgroundImage.startsWith('linear-gradient') ||
+                backgroundImage.startsWith('radial-gradient')
+                  ? backgroundImage
+                  : `url(${backgroundImage})`,
+              backgroundSize:
+                backgroundImage?.startsWith('linear-gradient') ||
+                backgroundImage?.startsWith('radial-gradient')
+                  ? 'cover'
+                  : 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              zIndex: 0,
+              transition: 'background-image 0.5s ease-in-out',
             }}
-          />
-        </div>
-      )}
+          >
+            <div
+              className="absolute inset-0 backdrop-blur-[100px]"
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              }}
+            />
+          </div>
+        )}
 
       <div className="relative z-10 md:px-8 md:py-8">
         <div className="max-w-7xl mx-auto">

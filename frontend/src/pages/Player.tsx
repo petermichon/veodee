@@ -24,6 +24,7 @@ import { useVideo } from '@/contexts/video-context';
 import { useToast } from '@/hooks/use-toast';
 import type { Video } from '@/types/index';
 import { getYouTubeThumbnailUrl } from '@/lib/color-extractor';
+import { isYouTubeHostedUrl } from '@/lib/youtube';
 import { PLAYER_MIN_SIZE_PX } from '@/lib/player';
 
 // Video Player Component - Always Visible
@@ -289,9 +290,10 @@ export function Player() {
   const editInputRef = useRef<HTMLDivElement>(null);
   const videoIdInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const thumbnailBackgroundUrl = currentVideoId
-    ? getYouTubeThumbnailUrl(currentVideoId, 'hqdefault')
-    : null;
+  const thumbnailBackgroundUrl =
+    youtubePermission && currentVideoId
+      ? getYouTubeThumbnailUrl(currentVideoId, 'hqdefault')
+      : null;
   const [customBackground, setCustomBackground] = useState(() => {
     return localStorage.getItem('home-background');
   });
@@ -304,6 +306,15 @@ export function Player() {
       return 'custom';
     }
   );
+  const pageBackground = thumbnailBackgroundUrl
+    ? `url(${thumbnailBackgroundUrl})`
+    : customBackground &&
+        (youtubePermission || !isYouTubeHostedUrl(customBackground))
+      ? customBackground.startsWith('linear-gradient') ||
+        customBackground.startsWith('radial-gradient')
+        ? customBackground
+        : `url(${customBackground})`
+      : null;
   const [aspectByVideo, setAspectByVideo] = useState<
     Record<string, { ratio: number | null; isMusic: boolean }>
   >({});
@@ -503,6 +514,18 @@ export function Player() {
       window.removeEventListener('background-changed', handleBackgroundChange);
   }, []);
 
+  // React to YouTube access being granted or revoked
+  useEffect(() => {
+    const handleGranted = () => setYoutubePermission(true);
+    const handleRevoked = () => setYoutubePermission(false);
+    window.addEventListener('youtube-permission-granted', handleGranted);
+    window.addEventListener('youtube-permission-revoked', handleRevoked);
+    return () => {
+      window.removeEventListener('youtube-permission-granted', handleGranted);
+      window.removeEventListener('youtube-permission-revoked', handleRevoked);
+    };
+  }, []);
+
   // Handle click outside for player settings popup
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -635,32 +658,26 @@ export function Player() {
 
   return (
     <div className="relative">
-      {backgroundMode === 'custom' &&
-        (thumbnailBackgroundUrl || customBackground) && (
+      {backgroundMode === 'custom' && pageBackground && (
+        <div
+          className="fixed inset-0"
+          style={{
+            backgroundImage: pageBackground,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            zIndex: 0,
+            transition: 'background-image 0.5s ease-in-out',
+          }}
+        >
           <div
-            className="fixed inset-0"
+            className="absolute inset-0 backdrop-blur-[100px]"
             style={{
-              backgroundImage: thumbnailBackgroundUrl
-                ? `url(${thumbnailBackgroundUrl})`
-                : customBackground.startsWith('linear-gradient') ||
-                    customBackground.startsWith('radial-gradient')
-                  ? customBackground
-                  : `url(${customBackground})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              zIndex: 0,
-              transition: 'background-image 0.5s ease-in-out',
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
             }}
-          >
-            <div
-              className="absolute inset-0 backdrop-blur-[100px]"
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-              }}
-            />
-          </div>
-        )}
+          />
+        </div>
+      )}
       <div
         className={`relative z-10 ${fillScreen ? 'w-full h-screen flex items-center justify-center' : 'container mx-auto px-4 sm:px-6 lg:px-8 pt-0 sm:pt-4 pb-8'}`}
       >

@@ -49,6 +49,22 @@ veodee/
 
 React 19 · TypeScript · Vite · Tailwind CSS · React Router · Plyr
 
+## YouTube compliance
+
+Veodee plays videos through the official YouTube IFrame Player API and loads metadata from the public oEmbed endpoint. It does not scrape, download, re-host content, block ads, or support background playback.
+
+Implemented:
+
+- `/terms` and `/privacy` pages linking the YouTube Terms of Service and Google Privacy Policy.
+- Privacy-enhanced (`youtube-nocookie`) playback by default and autoplay off by default.
+- Referer identity left intact (no `Referrer-Policy` suppression).
+- Embedded player viewport floored at 200×200 per YouTube's Required Minimum Functionality.
+
+Accepted gaps:
+
+- **Explicit agreement flow** — features are not gated behind an explicit privacy-policy acceptance. Low risk for a non-commercial project; revisit by adding a first-run accept if that changes.
+- **Made For Kids (MFK) lookup** — Developer Policies §III.E.4.j asks API clients to check each embedded video's `status.madeForKids` via the Data API and disable tracking for MFK videos. oEmbed cannot provide this, and a Data API key cannot ship in an open-source client (§III.D.1.d), so it would require a server-side proxy. The app is not child-directed and collects no playback data itself.
+
 ## License
 
 Apache 2.0

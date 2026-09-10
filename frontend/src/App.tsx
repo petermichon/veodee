@@ -9,6 +9,7 @@ import { Player } from '@/pages/Player';
 import { Home } from '@/pages/Home';
 import { Following } from '@/pages/Following';
 import { Terms, Privacy } from '@/pages/Legal';
+import { isYouTubeHostedUrl } from '@/lib/youtube';
 
 function AppContent() {
   const [backgroundImage, setBackgroundImage] = useState(() => {
@@ -23,6 +24,25 @@ function AppContent() {
       return 'custom';
     }
   );
+  const [youtubePermission, setYoutubePermission] = useState(
+    () => localStorage.getItem('youtube-permission') !== 'false'
+  );
+
+  useEffect(() => {
+    const handleGranted = () => setYoutubePermission(true);
+    const handleRevoked = () => setYoutubePermission(false);
+    window.addEventListener('youtube-permission-granted', handleGranted);
+    window.addEventListener('youtube-permission-revoked', handleRevoked);
+    return () => {
+      window.removeEventListener('youtube-permission-granted', handleGranted);
+      window.removeEventListener('youtube-permission-revoked', handleRevoked);
+    };
+  }, []);
+
+  const showBackground =
+    backgroundMode === 'custom' &&
+    !!backgroundImage &&
+    (youtubePermission || !isYouTubeHostedUrl(backgroundImage));
 
   useEffect(() => {
     const handleBackgroundChange = () => {
@@ -41,7 +61,7 @@ function AppContent() {
 
   return (
     <>
-      {backgroundMode === 'custom' && backgroundImage && (
+      {showBackground && (
         <div
           className="fixed inset-0 pointer-events-none"
           style={{

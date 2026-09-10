@@ -78,3 +78,22 @@ export function getYouTubeThumbnailUrl(
 ): string {
   return `https://img.youtube.com/vi/${videoId}/${quality}.jpg`;
 }
+
+/**
+ * Whether a URL points at a YouTube/Google-hosted asset, such as a thumbnail.
+ * Used to avoid loading YouTube-hosted images when YouTube access is disabled.
+ */
+export function isYouTubeHostedUrl(url: string | null | undefined): boolean {
+  if (!url) return false;
+  try {
+    const { hostname } = new URL(url);
+    return (
+      hostname === 'youtube.com' ||
+      hostname.endsWith('.youtube.com') ||
+      hostname === 'ytimg.com' ||
+      hostname.endsWith('.ytimg.com')
+    );
+  } catch {
+    return false;
+  }
+}
