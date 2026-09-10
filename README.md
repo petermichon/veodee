@@ -11,7 +11,7 @@ Veodee is a browser-based YouTube player and playlist manager. There's no accoun
 
 ## Features
 
-- Multiple playlists: create, rename, import, reorder videos via drag-and-drop
+- Multiple playlists: create, rename, import
 - Subscriptions page to follow YouTube channels
 - Player options: YouTube / no-cookie / Plyr, autoplay, loop, fullscreen modes
 - Dark / light / system theme and custom page background

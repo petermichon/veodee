@@ -8,9 +8,6 @@ import {
   Copy,
   Check as CheckIcon,
   ImagePlay,
-  GripVertical,
-  ArrowUp,
-  ArrowDown,
   MoreVertical,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -32,10 +29,6 @@ interface VideoItemProps {
   enableMaxresThumbnails?: boolean;
   onSetBackground?: (videoId: string) => void;
   currentBackgroundVideoId?: string | null;
-  onMoveUp?: () => void;
-  onMoveDown?: () => void;
-  index?: number;
-  totalVideos?: number;
   ratio?: '16:9' | '1:1';
 }
 
@@ -50,10 +43,6 @@ export const VideoItem = memo(function VideoItem({
   enableMaxresThumbnails = true,
   onSetBackground,
   currentBackgroundVideoId,
-  onMoveUp,
-  onMoveDown,
-  index = 0,
-  totalVideos = 0,
   ratio = '16:9',
 }: VideoItemProps) {
   // Check if this is fallback data (no real YouTube details)
@@ -152,7 +141,7 @@ export const VideoItem = memo(function VideoItem({
   };
 
   // Layout-specific classes
-  const containerClasses = `group ${isEditing ? 'cursor-default' : 'cursor-pointer'}`;
+  const containerClasses = `group relative ${isEditing ? 'cursor-default' : 'cursor-pointer'}`;
 
   const thumbnailClasses =
     layout === 'grid'
@@ -170,14 +159,7 @@ export const VideoItem = memo(function VideoItem({
       : 'font-semibold text-xs sm:text-sm md:text-base leading-snug text-card-foreground line-clamp-1 group-hover:text-primary transition-colors';
 
   return (
-    <div
-      className={containerClasses}
-      onClick={() => {
-        if (!isEditing) {
-          onPlay(video);
-        }
-      }}
-    >
+    <div className={containerClasses}>
       {/* Redirect confirmation popup */}
       {redirectPrompt && (
         <div
@@ -286,6 +268,14 @@ export const VideoItem = memo(function VideoItem({
           </div>
         </div>
       )}
+      {!isEditing && (
+        <button
+          type="button"
+          onClick={() => onPlay(video)}
+          aria-label={`Play ${details.title}`}
+          className="absolute inset-0 z-10 cursor-pointer rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        />
+      )}
       {layout === 'grid' ? (
         // Grid Layout
         <>
@@ -369,7 +359,7 @@ export const VideoItem = memo(function VideoItem({
                               details.author_name!
                             )
                           }
-                          className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 truncate min-w-0 cursor-pointer"
+                          className="relative z-20 text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 truncate min-w-0 cursor-pointer"
                         >
                           <span className="truncate">
                             {details.author_name}
@@ -386,7 +376,7 @@ export const VideoItem = memo(function VideoItem({
                     <div className="h-4 w-24 bg-muted/30 rounded" />
                   )}
                   {/* Vertical ellipsis menu button */}
-                  <div className="relative ml-auto" ref={menuRef}>
+                  <div className="relative z-20 ml-auto" ref={menuRef}>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -466,8 +456,6 @@ export const VideoItem = memo(function VideoItem({
       ) : (
         // List Layout
         <div className="flex gap-2 sm:gap-3 md:gap-5 items-center rounded-xl px-2 min-w-0 overflow-hidden transition-shadow duration-150 hover:shadow-md group-hover:bg-accent/5">
-          {/* Drag handle */}
-          <GripVertical className="h-5 w-5 flex-shrink-0 text-muted-foreground group-hover:text-foreground transition-colors hidden sm:block" />
           {/* Thumbnail */}
           <div className={`${thumbnailClasses} relative`}>
             {loadThumbnails && !isFallbackData ? (
@@ -487,7 +475,7 @@ export const VideoItem = memo(function VideoItem({
                   e.stopPropagation();
                   onSetBackground(video.id);
                 }}
-                className={`absolute bottom-2 right-2 p-1.5 rounded-lg transition-all duration-150 border-none cursor-pointer ${
+                className={`absolute bottom-2 right-2 z-20 p-1.5 rounded-lg transition-all duration-150 border-none cursor-pointer ${
                   currentBackgroundVideoId === video.id
                     ? 'opacity-100 bg-primary text-primary-foreground'
                     : 'opacity-0 group-hover:opacity-100 bg-black/50 text-white hover:bg-black/70'
@@ -566,7 +554,7 @@ export const VideoItem = memo(function VideoItem({
                                 details.author_name!
                               )
                             }
-                            className="text-xs sm:text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 min-w-0 flex-1 cursor-pointer"
+                            className="relative z-20 text-xs sm:text-sm font-medium text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5 min-w-0 flex-1 cursor-pointer"
                           >
                             <span className="truncate">
                               {details.author_name}
@@ -582,8 +570,10 @@ export const VideoItem = memo(function VideoItem({
                     ) : (
                       <div className="h-4 w-24 bg-muted/30 rounded flex-1" />
                     )}
-                    <div
-                      className="hidden sm:flex items-center gap-1 group/video-id hover:text-foreground transition-colors cursor-pointer flex-shrink-0 min-w-0"
+                    <button
+                      type="button"
+                      aria-label={`Copy video ID ${video.id}`}
+                      className="relative z-20 hidden sm:flex items-center gap-1 group/video-id hover:text-foreground transition-colors cursor-pointer flex-shrink-0 min-w-0"
                       onClick={handleCopyVideoId}
                     >
                       <span className="text-xs sm:text-sm text-muted-foreground font-mono group-hover/video-id:text-foreground truncate">
@@ -594,48 +584,15 @@ export const VideoItem = memo(function VideoItem({
                       ) : (
                         <Copy className="h-3 w-3 text-muted-foreground group-hover/video-id:text-foreground flex-shrink-0" />
                       )}
-                    </div>
+                    </button>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-between">
-                  <div
-                    className="flex items-center gap-1"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {onMoveUp && index > 0 && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onMoveUp();
-                        }}
-                        className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:bg-accent hover:text-accent-foreground transition-all"
-                        aria-label="Move up"
-                      >
-                        <ArrowUp className="h-4 w-4" />
-                      </Button>
-                    )}
-                    {onMoveDown && index < totalVideos - 1 && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onMoveDown();
-                        }}
-                        className="h-8 w-8 opacity-0 group-hover:opacity-100 hover:bg-accent hover:text-accent-foreground transition-all"
-                        aria-label="Move down"
-                      >
-                        <ArrowDown className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
+                <div className="flex items-center justify-end">
                   {(onUpdate || onRemove) && (
                     <div
-                      className="flex items-center gap-1"
+                      className="relative z-20 flex items-center gap-1"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {onUpdate && (

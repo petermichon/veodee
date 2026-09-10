@@ -26,7 +26,6 @@ interface VideoContextType {
   createBlankPlaylist: (name: string) => void;
   addVideo: (video: Video) => void;
   removeVideo: (videoId: string) => void;
-  reorderVideos: (fromIndex: number, toIndex: number) => void;
   resetToDefaults: () => void;
   exportLibrary: () => void;
   importLibrary: (data: ImportLibraryData, name: string) => void;
@@ -235,23 +234,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
     [videos, patchActiveVideos]
   );
 
-  const reorderVideos = useCallback(
-    (fromIndex: number, toIndex: number) => {
-      if (
-        fromIndex === toIndex ||
-        fromIndex < 0 ||
-        toIndex < 0 ||
-        toIndex >= videos.length
-      )
-        return;
-      const reordered = [...videos];
-      const [moved] = reordered.splice(fromIndex, 1);
-      reordered.splice(toIndex, 0, moved);
-      patchActiveVideos(reordered);
-    },
-    [videos, patchActiveVideos]
-  );
-
   const resetToDefaults = useCallback(() => {
     const defaults = makeDefaultPlaylists();
     updatePlaylists(defaults);
@@ -315,7 +297,6 @@ export function VideoProvider({ children }: { children: ReactNode }) {
         createBlankPlaylist,
         addVideo,
         removeVideo,
-        reorderVideos,
         resetToDefaults,
         exportLibrary,
         importLibrary,
