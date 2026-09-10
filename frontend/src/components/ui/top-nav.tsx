@@ -1,6 +1,13 @@
 import { useState, useEffect, useRef, forwardRef } from 'react';
 import { createPortal } from 'react-dom';
-import { WifiOff, Settings, Sun, Moon, SunMoon, Image } from 'lucide-react';
+import {
+  WifiOff,
+  EllipsisVertical,
+  Sun,
+  Moon,
+  SunMoon,
+  Image,
+} from 'lucide-react';
 import { YouTubeAPI } from '@/services/youtube-api';
 import { useLocation, Link } from 'react-router-dom';
 import { LogoBlack, LogoWhite } from '@/components/ui/logo';
@@ -230,7 +237,7 @@ export function TopNav() {
               </div>
             )}
             <NavButton
-              icon={Settings}
+              icon={EllipsisVertical}
               onClick={openSettings}
               isActive={settingsOpen}
               ref={settingsBtnRef}
