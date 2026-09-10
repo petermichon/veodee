@@ -13,7 +13,7 @@ export function AddFab() {
     <button
       onClick={openAddDialog}
       aria-label="Add"
-      className="md:hidden fixed right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-50 flex h-14 w-14 items-center justify-center rounded-full border border-border bg-card dark:bg-neutral-950 text-foreground shadow-lg transition-transform active:scale-95 select-none-touch"
+      className="md:hidden fixed right-4 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-50 flex h-14 w-14 items-center justify-center rounded-full border border-border bg-card/80 dark:bg-neutral-950/80 backdrop-blur-lg text-foreground shadow-lg transition-transform active:scale-95 select-none-touch"
     >
       <Plus className="h-6 w-6" />
     </button>
