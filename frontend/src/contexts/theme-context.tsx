@@ -13,7 +13,7 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const LIGHT_BG = '#ffffff';
-const DARK_BG = '#0d0d0d';
+const DARK_BG = '#0a0a0a';
 
 function setMetaThemeColor(isDark: boolean) {
   const meta = document.querySelector('meta[name="theme-color"]');
