@@ -204,7 +204,10 @@ export function TopNav() {
               </div>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-1 ml-2">
+            <nav
+              aria-label="Primary"
+              className="hidden md:flex items-center gap-1 ml-2"
+            >
               {NAVIGATION_ITEMS.map((item) => {
                 const isActive = location.pathname === item.href;
                 const Icon = item.icon;
@@ -212,6 +215,7 @@ export function TopNav() {
                   <Link
                     key={item.name}
                     to={item.href}
+                    aria-current={isActive ? 'page' : undefined}
                     className={cn(
                       'flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-colors',
                       isActive
