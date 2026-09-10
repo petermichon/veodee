@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/contexts/theme-context';
 import { Player } from '@/pages/Player';
 import { Home } from '@/pages/Home';
 import { Following } from '@/pages/Following';
+import { Terms, Privacy } from '@/pages/Legal';
 
 function AppContent() {
   const [backgroundImage, setBackgroundImage] = useState(() => {
@@ -71,6 +72,8 @@ function AppContent() {
             <Route path="/" element={<Home />} />
             <Route path="/player" element={<Player />} />
             <Route path="/following" element={<Following />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
           </Routes>
         </main>
         <BottomNav />

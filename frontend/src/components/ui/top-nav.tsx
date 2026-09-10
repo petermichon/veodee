@@ -378,6 +378,28 @@ export function TopNav() {
                   />
                 </div>
               </button>
+              <div className="border-t border-border my-1" />
+              <div className="px-3 py-2">
+                <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Legal
+                </span>
+                <div className="flex flex-col mt-1">
+                  <Link
+                    to="/terms"
+                    onClick={() => setSettingsOpen(false)}
+                    className="px-1 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Terms of Use
+                  </Link>
+                  <Link
+                    to="/privacy"
+                    onClick={() => setSettingsOpen(false)}
+                    className="px-1 py-1.5 rounded-md text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Privacy Policy
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>,
           document.getElementById('root')!
