@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { TopNav } from '@/components/ui/top-nav';
 import { BottomNav } from '@/components/ui/bottom-nav';
+import { AddFab } from '@/components/ui/add/add-fab';
 import { VideoProvider } from '@/contexts/video-context';
 import { SubscriptionsProvider } from '@/contexts/subscriptions-context';
 import { ThemeProvider } from '@/contexts/theme-context';
@@ -97,6 +98,7 @@ function AppContent() {
           </Routes>
         </main>
         <BottomNav />
+        <AddFab />
       </div>
     </>
   );
