@@ -4,7 +4,14 @@ import {
   type Subscription,
 } from '@/contexts/subscriptions-context';
 import { useVideo } from '@/contexts/video-context';
-import { MoreVertical, ExternalLink, X, Edit, Upload } from 'lucide-react';
+import {
+  MoreVertical,
+  ExternalLink,
+  X,
+  Edit,
+  Upload,
+  Plus,
+} from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 import { isYouTubeHostedUrl } from '@/lib/youtube';
 
@@ -391,12 +398,21 @@ export function Following() {
 
       <div className="relative z-10 md:px-8 md:py-8">
         <div className="max-w-7xl mx-auto">
-          {/* Subscription count */}
+          {/* Subscription count + add */}
           <div className="flex flex-wrap gap-4 items-center justify-between px-4 sm:px-0 py-2">
             <div className="text-sm text-muted-foreground">
-              {subscriptions.length}{' '}
-              {subscriptions.length === 1 ? 'following' : 'following'}
+              {subscriptions.length} following
             </div>
+            <button
+              onClick={() => {
+                setShowAddDialog(true);
+                setTimeout(() => addInputRef.current?.focus(), 50);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              Add channel
+            </button>
           </div>
           <input
             ref={fileInputRef}

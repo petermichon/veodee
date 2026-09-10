@@ -1,10 +1,11 @@
-import { NavPill, AddButton } from '@/components/ui/nav-pill';
+import { NavTabBar } from '@/components/ui/nav/nav-tab-bar';
 
+/**
+ * Mobile bottom navigation. Uses the docked tab bar.
+ *
+ * The previous glassmorphism nav is preserved in components/ui/nav-pill.tsx
+ * (NavPill) if we want to switch back.
+ */
 export function BottomNav() {
-  return (
-    <div className="bottom-nav-container md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 z-50 select-none-touch">
-      <NavPill />
-      <AddButton />
-    </div>
-  );
+  return <NavTabBar />;
 }
