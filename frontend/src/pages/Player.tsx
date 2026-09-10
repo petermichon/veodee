@@ -24,6 +24,7 @@ import { useVideo } from '@/contexts/video-context';
 import { useToast } from '@/hooks/use-toast';
 import type { Video } from '@/types/index';
 import { getYouTubeThumbnailUrl } from '@/lib/color-extractor';
+import { PLAYER_MIN_SIZE_PX } from '@/lib/player';
 
 // Video Player Component - Always Visible
 function VideoPlayer({
@@ -316,6 +317,14 @@ export function Player() {
     return saved === 'true';
   });
   const [showSquareRatioTooltip, setShowSquareRatioTooltip] = useState(false);
+  const playerAspectRatio =
+    forceSquareRatio && isYouTubeMusicVideo ? 1 : videoAspectRatio || 16 / 9;
+  // Fit the player inside a 16:9 envelope (so non-16:9 videos don't grow the
+  // layout on wide screens), while the min-size floor below still applies.
+  const playerFitWidth =
+    playerAspectRatio < 16 / 9
+      ? `${(playerAspectRatio / (16 / 9)) * 100}%`
+      : '100%';
   const [showCookiesTooltip, setShowCookiesTooltip] = useState(false);
   const [showPlayerSettings, setShowPlayerSettings] = useState(false);
   const playerSettingsBtnRef = useRef<HTMLButtonElement>(null);
@@ -659,7 +668,17 @@ export function Player() {
           <div className={fillScreen ? '' : 'space-y-8'}>
             {/* Main Video Player - Full Width */}
             <div
-              className={`relative ${fillScreen ? 'w-full h-screen' : '-mx-4 sm:mx-0 flex items-center justify-center aspect-video'}`}
+              className={`relative ${
+                fillScreen ? 'w-full h-screen' : '-mx-4 sm:mx-0'
+              }`}
+              style={
+                fillScreen
+                  ? undefined
+                  : {
+                      minWidth: PLAYER_MIN_SIZE_PX,
+                      minHeight: PLAYER_MIN_SIZE_PX,
+                    }
+              }
               onDragEnter={(e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'copy';
@@ -692,64 +711,46 @@ export function Player() {
               }}
             >
               <div
-                className={`relative ${fillScreen ? 'w-full h-full' : ''}`}
-                style={{
-                  width: fillScreen
+                className={`${fillScreen ? '' : 'shadow-2xl overflow-hidden rounded-lg sm:rounded-3xl mx-auto'} ${fillScreen ? 'w-full h-full' : ''} bg-transparent`}
+                style={
+                  fillScreen
                     ? undefined
-                    : (() => {
-                        const ratio =
-                          forceSquareRatio && isYouTubeMusicVideo
-                            ? 1
-                            : videoAspectRatio || 16 / 9;
-                        return ratio < 16 / 9
-                          ? `${(ratio / (16 / 9)) * 100}%`
-                          : '100%';
-                      })(),
-                  height: fillScreen
-                    ? undefined
-                    : (() => {
-                        const ratio =
-                          forceSquareRatio && isYouTubeMusicVideo
-                            ? 1
-                            : videoAspectRatio || 16 / 9;
-                        return ratio > 16 / 9
-                          ? `${(16 / 9 / ratio) * 100}%`
-                          : '100%';
-                      })(),
-                }}
-              >
-                <div
-                  className={`${fillScreen ? '' : 'shadow-2xl overflow-hidden rounded-lg sm:rounded-3xl'} w-full h-full bg-transparent`}
-                >
-                  {(videoAspectRatio || fillScreen) && (
-                    <VideoPlayer
-                      videoId={youtubePermission ? currentVideoId : null}
-                      playerType={playerType}
-                      showPermissionModal={showPermissionModal}
-                      onGrantPermission={handleGrantPermission}
-                      autoPlayEnabled={autoPlayEnabled}
-                      loopEnabled={loopEnabled}
-                      forcedAspectRatio={
-                        forceSquareRatio && isYouTubeMusicVideo ? 1 : null
+                    : {
+                        width: playerFitWidth,
+                        aspectRatio: playerAspectRatio,
+                        minWidth: PLAYER_MIN_SIZE_PX,
+                        minHeight: PLAYER_MIN_SIZE_PX,
                       }
-                      fillScreen={fillScreen}
-                      fullscreenMode={fullscreenMode}
-                    />
-                  )}
-                </div>
-                {isDragging && !fillScreen && (
-                  <div className="absolute inset-0 bg-foreground/20 flex items-center justify-center z-10 backdrop-blur-sm rounded-lg sm:rounded-3xl">
-                    <div className="text-center">
-                      <p className="text-foreground text-lg font-semibold">
-                        Drop video ID here
-                      </p>
-                      <p className="text-foreground/80 text-sm mt-1">
-                        YouTube URL or video ID
-                      </p>
-                    </div>
-                  </div>
+                }
+              >
+                {(currentVideoId || fillScreen) && (
+                  <VideoPlayer
+                    videoId={youtubePermission ? currentVideoId : null}
+                    playerType={playerType}
+                    showPermissionModal={showPermissionModal}
+                    onGrantPermission={handleGrantPermission}
+                    autoPlayEnabled={autoPlayEnabled}
+                    loopEnabled={loopEnabled}
+                    forcedAspectRatio={
+                      forceSquareRatio && isYouTubeMusicVideo ? 1 : null
+                    }
+                    fillScreen={fillScreen}
+                    fullscreenMode={fullscreenMode}
+                  />
                 )}
               </div>
+              {isDragging && !fillScreen && (
+                <div className="absolute inset-0 bg-foreground/20 flex items-center justify-center z-10 backdrop-blur-sm rounded-lg sm:rounded-3xl">
+                  <div className="text-center">
+                    <p className="text-foreground text-lg font-semibold">
+                      Drop video ID here
+                    </p>
+                    <p className="text-foreground/80 text-sm mt-1">
+                      YouTube URL or video ID
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Video Info & Controls - Hidden in fullscreen */}
