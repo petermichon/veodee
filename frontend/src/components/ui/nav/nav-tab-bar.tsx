@@ -17,12 +17,18 @@ export function NavTabBar() {
               to={item.href}
               onContextMenu={(e) => e.preventDefault()}
               className={cn(
-                'flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium transition-colors',
+                'relative flex flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium transition-colors',
                 isActive ? 'text-foreground' : 'text-muted-foreground'
               )}
             >
-              <Icon className={cn('h-5 w-5', isActive && 'stroke-[2.5]')} />
-              <span>{item.name}</span>
+              {isActive && <span aria-hidden="true" className="nav-glow" />}
+              <Icon
+                className={cn(
+                  'relative z-10 h-5 w-5',
+                  isActive && 'stroke-[2.5]'
+                )}
+              />
+              <span className="relative z-10">{item.name}</span>
             </Link>
           );
         })}

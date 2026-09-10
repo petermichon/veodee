@@ -212,6 +212,82 @@ html.player-fullscreen::-webkit-scrollbar {
   }
 }
 
+/* Horizontal light waves along the bottom of the active mobile nav tab */
+.nav-glow {
+  position: absolute;
+  left: 50%;
+  bottom: -0.25rem;
+  width: 100%;
+  height: 1.25rem;
+  transform: translateX(-50%);
+  overflow: hidden;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(
+    50% 110% at 50% 100%,
+    #000 15%,
+    transparent 60%
+  );
+  mask-image: radial-gradient(50% 110% at 50% 100%, #000 15%, transparent 60%);
+}
+
+.nav-glow::before,
+.nav-glow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  background-image: linear-gradient(
+    90deg,
+    hsl(var(--foreground) / 0.15) 0%,
+    hsl(var(--foreground) / 0.55) 12.5%,
+    hsl(var(--foreground) / 0.15) 25%,
+    hsl(var(--foreground) / 0.55) 37.5%,
+    hsl(var(--foreground) / 0.15) 50%,
+    hsl(var(--foreground) / 0.55) 62.5%,
+    hsl(var(--foreground) / 0.15) 75%,
+    hsl(var(--foreground) / 0.55) 87.5%,
+    hsl(var(--foreground) / 0.15) 100%
+  );
+  filter: blur(6px);
+  will-change: transform;
+}
+
+.nav-glow::before {
+  animation: nav-flow 6s linear infinite;
+}
+
+.nav-glow::after {
+  animation: nav-flow 9s linear infinite reverse;
+  opacity: 0.55;
+}
+
+@keyframes nav-flow {
+  from {
+    transform: translate(0) translateY(0) scaleY(1);
+  }
+  25% {
+    transform: translate(-12.5%) translateY(-2px) scaleY(1.12);
+  }
+  50% {
+    transform: translate(-25%) translateY(0) scaleY(1);
+  }
+  75% {
+    transform: translate(-37.5%) translateY(-2px) scaleY(1.12);
+  }
+  to {
+    transform: translate(-50%) translateY(0) scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-glow::before,
+  .nav-glow::after {
+    animation: none;
+  }
+}
+
 ::selection {
   background-color: #d0d0d0;
   color: black;
