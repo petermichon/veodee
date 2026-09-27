@@ -24,7 +24,11 @@ import { useToast } from '@/hooks/use-toast';
 import type { Video } from '@/types/index';
 import { getYouTubeThumbnailUrl } from '@/lib/color-extractor';
 import { isYouTubeHostedUrl } from '@/lib/youtube';
-import { PLAYER_MIN_SIZE_PX } from '@/lib/player';
+import {
+  PLAYER_MIN_SIZE_PX,
+  SQUARE_RATIO_STORAGE_KEY,
+  isSquareRatioEnabled,
+} from '@/lib/player';
 
 // Video Player Component - Always Visible
 function VideoPlayer({
@@ -321,10 +325,9 @@ export function Player() {
     ? (aspectInfo?.ratio ?? null)
     : null;
   const isYouTubeMusicVideo = youtubePermission ? !!aspectInfo?.isMusic : false;
-  const [forceSquareRatio, setForceSquareRatio] = useState(() => {
-    const saved = localStorage.getItem('force-square-ratio');
-    return saved === 'true';
-  });
+  const [forceSquareRatio, setForceSquareRatio] = useState(() =>
+    isSquareRatioEnabled()
+  );
   const [showSquareRatioTooltip, setShowSquareRatioTooltip] = useState(false);
   const playerAspectRatio =
     forceSquareRatio && isYouTubeMusicVideo ? 1 : videoAspectRatio || 16 / 9;
@@ -1303,7 +1306,10 @@ export function Player() {
                 onClick={() => {
                   const newValue = !forceSquareRatio;
                   setForceSquareRatio(newValue);
-                  localStorage.setItem('force-square-ratio', String(newValue));
+                  localStorage.setItem(
+                    SQUARE_RATIO_STORAGE_KEY,
+                    String(newValue)
+                  );
                 }}
                 className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
                 style={{
