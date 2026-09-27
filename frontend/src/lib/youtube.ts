@@ -15,16 +15,22 @@ export interface YouTubeVideoData {
 }
 
 /**
- * Extracts video ID from various YouTube URL formats
+ * Extracts a video ID from various YouTube URL formats, or from a bare
+ * 11-character video ID. Returns null when no valid ID is found.
  */
 export function extractYouTubeVideoId(url: string): string | null {
+  if (!url) return null;
+
+  const input = url.trim();
+  if (/^[a-zA-Z0-9_-]{11}$/.test(input)) return input;
+
   const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-    /youtube\.com\/watch\?.*v=([^&\n?#]+)/,
+    /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+    /[?&]v=([a-zA-Z0-9_-]{11})/,
   ];
 
   for (const pattern of patterns) {
-    const match = url.match(pattern);
+    const match = input.match(pattern);
     if (match) return match[1];
   }
 

@@ -41,6 +41,27 @@ const VideoContext = createContext<VideoContextType | undefined>(undefined);
 
 const DEFAULT_PLAYLIST_ID = 'default';
 
+export const EXPORT_VERSION = 1;
+
+export function buildExportData(
+  playlist: Playlist | null | undefined,
+  videos: Video[]
+): { version: number; name: string; ratio: '16:9' | '1:1'; videos: Video[] } {
+  return {
+    version: EXPORT_VERSION,
+    name: playlist?.name ?? 'playlist',
+    ratio: playlist?.ratio ?? '16:9',
+    videos,
+  };
+}
+
+const makeBlankPlaylist = (): Playlist => ({
+  id: DEFAULT_PLAYLIST_ID,
+  name: 'Playlist',
+  videos: [],
+  ratio: '16:9',
+});
+
 const makeDefaultPlaylists = (): Playlist[] => [
   {
     id: DEFAULT_PLAYLIST_ID,
@@ -170,11 +191,11 @@ export function VideoProvider({ children }: { children: ReactNode }) {
 
   const removePlaylist = useCallback(
     (id: string) => {
-      const updated = playlists.filter((p) => p.id !== id);
+      const remaining = playlists.filter((p) => p.id !== id);
+      const updated = remaining.length > 0 ? remaining : [makeBlankPlaylist()];
       updatePlaylists(updated);
-      if (activePlaylistId === id) {
-        const newActive = updated[0]?.id ?? '';
-        setActivePlaylist(newActive);
+      if (!updated.some((p) => p.id === activePlaylistId)) {
+        setActivePlaylist(updated[0].id);
       }
     },
     [playlists, activePlaylistId, updatePlaylists, setActivePlaylist]
@@ -241,12 +262,7 @@ export function VideoProvider({ children }: { children: ReactNode }) {
   }, [updatePlaylists, setActivePlaylist]);
 
   const exportLibrary = useCallback(() => {
-    const exportData = {
-      version: 1,
-      name: activePlaylist?.name ?? 'playlist',
-      ratio: activePlaylist?.ratio ?? '16:9',
-      videos,
-    };
+    const exportData = buildExportData(activePlaylist, videos);
     const json = JSON.stringify(exportData, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);

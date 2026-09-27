@@ -13,6 +13,7 @@ import { PlaylistSelector } from '@/components/ui/playlist-selector';
 import { YouTubePermissionBanner } from '@/components/ui/youtube-permission-banner';
 import { VideoEmptyState } from '@/components/ui/empty-state';
 import { YouTubeAPI } from '@/services/youtube-api';
+import { extractYouTubeVideoId } from '@/lib/youtube';
 import type { Video } from '@/types/index';
 
 export function Home() {
@@ -181,22 +182,8 @@ export function Home() {
     [removeVideo]
   );
 
-  const extractVideoId = (url: string): string | null => {
-    const rawIdMatch = url.match(/^[a-zA-Z0-9_-]{11}$/);
-    if (rawIdMatch) return rawIdMatch[0];
-    const patterns = [
-      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/|youtube\.com\/shorts\/|youtube\.com\/live\/)([a-zA-Z0-9_-]{11})/,
-      /[?&]v=([a-zA-Z0-9_-]{11})/,
-    ];
-    for (const pattern of patterns) {
-      const match = url.match(pattern);
-      if (match) return match[1];
-    }
-    return null;
-  };
-
   const handleAddVideoSubmit = () => {
-    const videoId = extractVideoId(newVideoUrl.trim());
+    const videoId = extractYouTubeVideoId(newVideoUrl);
     if (videoId) {
       addVideo({ id: videoId });
       setNewVideoUrl('');
@@ -457,7 +444,7 @@ export function Home() {
               </button>
               <button
                 onClick={handleAddVideoSubmit}
-                disabled={!extractVideoId(newVideoUrl.trim())}
+                disabled={!extractYouTubeVideoId(newVideoUrl)}
                 className="flex-1 h-10 rounded-xl text-sm font-medium text-foreground hover:bg-foreground/10 transition-colors disabled:opacity-40"
               >
                 Add
