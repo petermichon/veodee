@@ -61,10 +61,6 @@ export function Player() {
       PLAYER_ENGINES.map((descriptor) => ({
         value: descriptor.id,
         label: descriptor.label,
-        icon:
-          descriptor.id === 'plyr' ? (
-            <PlayCircle className="h-5 w-5" />
-          ) : undefined,
       })),
     []
   );
