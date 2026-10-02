@@ -1,0 +1,21 @@
+# veodee — self-hosted runtime.
+#
+# The app is a static PWA served by nginx. It joins the shared "edge" network
+# owned by the standalone reverse proxy; it publishes no ports itself.
+#
+#   docker compose pull && docker compose up -d
+name: veodee
+
+services:
+  veodee:
+    image: ${VEODEE_IMAGE:-ghcr.io/petermichon/veodee:latest}
+    networks:
+      edge:
+        aliases:
+          - veodee
+    restart: unless-stopped
+
+networks:
+  edge:
+    external: true
+    name: edge
