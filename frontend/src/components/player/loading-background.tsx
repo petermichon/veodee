@@ -32,6 +32,7 @@ export function LoadingBackground({
 
   return (
     <div
+      data-testid="player-loading-cover"
       className="absolute inset-0 flex items-center justify-center z-10"
       style={{
         backgroundImage: `url(${getYouTubeThumbnailUrl(videoId, thumbnailQuality)})`,

@@ -42,14 +42,5 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, '../dist'),
     emptyOutDir: true,
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('plyr')) {
-            return 'media';
-          }
-        },
-      },
-    },
   },
 });

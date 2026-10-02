@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import {
   Cookie,
   PlayCircle,
@@ -16,220 +15,22 @@ import {
   Settings,
   Info,
 } from 'lucide-react';
-import { SimpleYoutubePlayer } from '@/components/player/simple-youtube-player';
-import { LoadingBackground } from '@/components/player/loading-background';
+import { PlayerSurface } from '@/components/player/player-surface';
+import { SegmentedControl } from '@/components/ui/segmented-control';
+import type { SegmentedOption } from '@/components/ui/segmented-control';
 import { YouTubeAPI } from '@/services/youtube-api';
 import { useVideo } from '@/contexts/video-context';
 import { useToast } from '@/hooks/use-toast';
+import { usePlayerSettings } from '@/hooks/use-player-settings';
 import type { Video } from '@/types/index';
 import { getYouTubeThumbnailUrl } from '@/lib/color-extractor';
 import { isYouTubeHostedUrl } from '@/lib/youtube';
 import {
+  FULLSCREEN_MODES,
+  PLAYER_ENGINES,
   PLAYER_MIN_SIZE_PX,
-  SQUARE_RATIO_STORAGE_KEY,
-  isSquareRatioEnabled,
 } from '@/lib/player';
-
-// Video Player Component - Always Visible
-function VideoPlayer({
-  videoId,
-  playerType,
-  showPermissionModal,
-  onGrantPermission,
-  autoPlayEnabled,
-  loopEnabled,
-  forcedAspectRatio,
-  fillScreen,
-  fullscreenMode,
-}: {
-  videoId: string | null;
-  playerType: 'normal' | 'youtube' | 'plyr';
-  showPermissionModal: boolean;
-  onGrantPermission: () => void;
-  autoPlayEnabled: boolean;
-  loopEnabled: boolean;
-  forcedAspectRatio: number | null;
-  fillScreen: boolean;
-  fullscreenMode: 'contain' | 'cover';
-}) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const embedUrl = videoId
-    ? `https://${playerType === 'youtube' ? 'www.youtube-nocookie.com' : 'www.youtube.com'}/embed/${videoId}?autoplay=${autoPlayEnabled ? 1 : 0}&rel=0&modestbranding=1${loopEnabled ? `&loop=1&playlist=${videoId}` : ''}`
-    : null;
-
-  const prevPlayerKeyRef = useRef<string | null>(null);
-  const playerKey = videoId
-    ? `${videoId}:${playerType}:${autoPlayEnabled}:${loopEnabled}`
-    : null;
-  if (prevPlayerKeyRef.current !== playerKey) {
-    prevPlayerKeyRef.current = playerKey;
-    if (videoId) {
-      setIsLoading(true);
-      setError(null);
-    }
-    console.log(
-      '%c[PlyrDbg]',
-      'color:#00bcd4;font-weight:bold',
-      'VideoPlayer: playerKey changed',
-      playerKey
-    );
-  }
-
-  const handleLoad = () => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setIsLoading(false);
-      });
-    });
-  };
-
-  const handleError = () => {
-    setIsLoading(false);
-    setError('Failed to load video');
-  };
-
-  return (
-    <div className="relative w-full h-full">
-      {showPermissionModal && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-          <div className="rounded-2xl shadow-2xl max-w-sm w-full p-6 space-y-4 pointer-events-auto text-center">
-            <h3 className="text-lg font-semibold text-foreground">
-              Allow YouTube Connection
-            </h3>
-            <div className="text-sm text-muted-foreground">
-              <p>
-                YouTube may collect IP address, browser info, and viewing data
-                per their privacy policy
-              </p>
-            </div>
-            <Button
-              onClick={onGrantPermission}
-              className="w-full text-white bg-red-600 hover:bg-red-700"
-            >
-              Allow
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {videoId ? (
-        playerType === 'plyr' ? (
-          <div className="w-full h-full">
-            <SimpleYoutubePlayer
-              videoId={videoId}
-              autoPlayEnabled={autoPlayEnabled}
-              loopEnabled={loopEnabled}
-              forcedAspectRatio={forcedAspectRatio}
-              onReady={() => {
-                console.log(
-                  '%c[PlyrDbg]',
-                  'color:#00bcd4;font-weight:bold',
-                  'VideoPlayer: SimpleYoutubePlayer onReady called'
-                );
-                setIsLoading(false);
-              }}
-              onError={() => {
-                console.log(
-                  '%c[PlyrDbg]',
-                  'color:#00bcd4;font-weight:bold',
-                  'VideoPlayer: SimpleYoutubePlayer onError called'
-                );
-                setError('Failed to load Plyr player');
-                setIsLoading(false);
-              }}
-            />
-          </div>
-        ) : (
-          <div className="w-full h-full relative">
-            <LoadingBackground videoId={videoId} isLoading={isLoading} />
-
-            {error && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/80 z-10">
-                <div className="text-center text-white">
-                  <p className="mb-2">{error}</p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => window.location.reload()}
-                  >
-                    Retry
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            <div
-              style={{
-                aspectRatio: fillScreen
-                  ? fullscreenMode === 'contain'
-                    ? '16 / 9'
-                    : undefined
-                  : '16 / 9',
-                width: fillScreen
-                  ? fullscreenMode === 'contain'
-                    ? 'min(100vw, 100vh * 16 / 9)'
-                    : '100vw'
-                  : '100%',
-                height: fillScreen
-                  ? fullscreenMode === 'contain'
-                    ? 'min(100vh, 100vw * 9 / 16)'
-                    : '100vh'
-                  : '100%',
-                overflow: 'hidden',
-                position:
-                  fillScreen && fullscreenMode === 'contain'
-                    ? 'absolute'
-                    : 'relative',
-                top:
-                  fillScreen && fullscreenMode === 'contain' ? '50%' : 'auto',
-                left:
-                  fillScreen && fullscreenMode === 'contain' ? '50%' : 'auto',
-                transform:
-                  fillScreen && fullscreenMode === 'contain'
-                    ? 'translate(-50%, -50%)'
-                    : 'none',
-              }}
-            >
-              <iframe
-                style={{
-                  backgroundColor: 'transparent',
-                  width:
-                    fillScreen && fullscreenMode === 'cover'
-                      ? 'max(100vw, 100vh * 16 / 9)'
-                      : '100%',
-                  height:
-                    fillScreen && fullscreenMode === 'cover'
-                      ? 'max(100vh, 100vw * 9 / 16)'
-                      : '100%',
-                  position:
-                    fillScreen && fullscreenMode === 'cover'
-                      ? 'absolute'
-                      : 'relative',
-                  top:
-                    fillScreen && fullscreenMode === 'cover' ? '50%' : 'auto',
-                  left:
-                    fillScreen && fullscreenMode === 'cover' ? '50%' : 'auto',
-                  transform:
-                    fillScreen && fullscreenMode === 'cover'
-                      ? 'translate(-50%, -50%)'
-                      : 'none',
-                }}
-                src={embedUrl}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                frameBorder="0"
-                onLoad={handleLoad}
-                onError={handleError}
-              />
-            </div>
-          </div>
-        )
-      ) : null}
-    </div>
-  );
-}
+import type { FullscreenMode, PlayerEngine } from '@/lib/player';
 
 export function Player() {
   const location = useLocation();
@@ -249,20 +50,38 @@ export function Player() {
   });
   const [videoUrl, setVideoUrl] = useState('');
   const [isEditing, setIsEditing] = useState(false);
-  const [cookiesEnabled, setCookiesEnabled] = useState(
-    () => localStorage.getItem('player-cookies-enabled') === 'true'
+  const { settings, update } = usePlayerSettings();
+  const { cookiesEnabled, autoPlayEnabled, loopEnabled } = settings;
+  const engine = settings.engine;
+  const fullscreenMode = settings.fullscreenMode;
+  const forceSquareRatio = settings.forceSquareRatio;
+
+  const playerEngineOptions = useMemo<SegmentedOption<PlayerEngine>[]>(
+    () =>
+      PLAYER_ENGINES.map((descriptor) => ({
+        value: descriptor.id,
+        label: descriptor.label,
+        icon:
+          descriptor.id === 'plyr' ? (
+            <PlayCircle className="h-5 w-5" />
+          ) : undefined,
+      })),
+    []
   );
-  const [autoPlayEnabled, setAutoPlayEnabled] = useState(
-    () => localStorage.getItem('player-autoplay-enabled') === 'true'
-  );
-  const [loopEnabled, setLoopEnabled] = useState(
-    () => localStorage.getItem('player-loop-enabled') === 'true'
-  );
-  const [playerType, setPlayerType] = useState<'normal' | 'youtube' | 'plyr'>(
-    () => {
-      const saved = localStorage.getItem('player-type');
-      return (saved as 'normal' | 'youtube' | 'plyr') || 'youtube';
-    }
+
+  const fullscreenOptions = useMemo<SegmentedOption<FullscreenMode>[]>(
+    () =>
+      FULLSCREEN_MODES.map((mode) => ({
+        value: mode,
+        label: mode === 'cover' ? 'Cover' : 'Contain',
+        icon:
+          mode === 'cover' ? (
+            <Maximize2 className="h-5 w-5" />
+          ) : (
+            <Minimize2 className="h-5 w-5" />
+          ),
+      })),
+    []
   );
   const [youtubePermission, setYoutubePermission] = useState(() => {
     const saved = localStorage.getItem('youtube-permission');
@@ -279,16 +98,6 @@ export function Player() {
   });
   const [shareClicked, setShareClicked] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
-  const [playerIndicatorStyle, setPlayerIndicatorStyle] = useState<{
-    left: number;
-    width: number;
-  }>({ left: 0, width: 0 });
-  const playerBtnRefs = useRef<(HTMLButtonElement | null)[]>([]);
-  const [fullscreenIndicatorStyle, setFullscreenIndicatorStyle] = useState<{
-    left: number;
-    width: number;
-  }>({ left: 0, width: 0 });
-  const fullscreenBtnRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const editInputRef = useRef<HTMLDivElement>(null);
   const videoIdInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -325,9 +134,6 @@ export function Player() {
     ? (aspectInfo?.ratio ?? null)
     : null;
   const isYouTubeMusicVideo = youtubePermission ? !!aspectInfo?.isMusic : false;
-  const [forceSquareRatio, setForceSquareRatio] = useState(() =>
-    isSquareRatioEnabled()
-  );
   const [showSquareRatioTooltip, setShowSquareRatioTooltip] = useState(false);
   const playerAspectRatio =
     forceSquareRatio && isYouTubeMusicVideo ? 1 : videoAspectRatio || 16 / 9;
@@ -343,14 +149,6 @@ export function Player() {
   const playerSettingsPopupRef = useRef<HTMLDivElement>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fillScreen, setFillScreen] = useState(false);
-  const [fullscreenMode, setFullscreenMode] = useState<'contain' | 'cover'>(
-    () => {
-      const saved = localStorage.getItem('fullscreen-mode');
-      return (saved as 'contain' | 'cover') || 'cover';
-    }
-  );
-
-  const isYouTubeType = playerType === 'normal' || playerType === 'youtube';
 
   const isInLibrary = currentVideoId
     ? videos.some((v) => v.id === currentVideoId)
@@ -375,72 +173,8 @@ export function Player() {
     return null;
   };
 
-  // Save player type to localStorage when it changes
-  useEffect(() => {
-    savePreference('player-type', playerType);
-  }, [playerType]);
-
-  // Save cookies preference to localStorage when it changes
-  useEffect(() => {
-    savePreference('player-cookies-enabled', cookiesEnabled);
-  }, [cookiesEnabled]);
-
-  // Save auto-play preference to localStorage when it changes
-  useEffect(() => {
-    savePreference('player-autoplay-enabled', autoPlayEnabled);
-  }, [autoPlayEnabled]);
-
-  // Save loop preference to localStorage when it changes
-  useEffect(() => {
-    savePreference('player-loop-enabled', loopEnabled);
-  }, [loopEnabled]);
-
-  // Save fullscreen mode preference to localStorage when it changes
-  useEffect(() => {
-    savePreference('fullscreen-mode', fullscreenMode);
-  }, [fullscreenMode]);
-
-  // Calculate player indicator position
-  useEffect(() => {
-    const activeIndex = isYouTubeType ? 0 : 1;
-    const playerBtn = playerBtnRefs.current[activeIndex];
-    if (!playerBtn || !showPlayerSettings) return;
-
-    const parent = playerBtn.parentElement;
-    if (!parent) return;
-
-    const parentRect = parent.getBoundingClientRect();
-    if (parentRect.width === 0 || parentRect.height === 0) return;
-
-    const btnRect = playerBtn.getBoundingClientRect();
-    const lineCenter = btnRect.left - parentRect.left + btnRect.width / 2;
-    setPlayerIndicatorStyle({ left: lineCenter - 8, width: 16 });
-  }, [playerType, isYouTubeType, showPlayerSettings]);
-
-  // Calculate fullscreen mode indicator position
-  useEffect(() => {
-    const activeIndex = fullscreenMode === 'cover' ? 0 : 1;
-    const fullscreenBtn = fullscreenBtnRefs.current[activeIndex];
-    if (!fullscreenBtn || !showPlayerSettings) return;
-
-    const parent = fullscreenBtn.parentElement;
-    if (!parent) return;
-
-    const parentRect = parent.getBoundingClientRect();
-    if (parentRect.width === 0 || parentRect.height === 0) return;
-
-    const btnRect = fullscreenBtn.getBoundingClientRect();
-    const lineCenter = btnRect.left - parentRect.left + btnRect.width / 2;
-    setFullscreenIndicatorStyle({ left: lineCenter - 8, width: 16 });
-  }, [fullscreenMode, showPlayerSettings]);
-
-  // Handle cookie toggle - switches between normal and youtube when on YouTube
   const handleCookieToggle = () => {
-    const newCookiesEnabled = !cookiesEnabled;
-    setCookiesEnabled(newCookiesEnabled);
-    if (isYouTubeType) {
-      setPlayerType(newCookiesEnabled ? 'normal' : 'youtube');
-    }
+    update({ cookiesEnabled: !cookiesEnabled });
   };
 
   // Scroll to top when location changes
@@ -450,29 +184,6 @@ export function Player() {
 
   // Handle video from navigation
   // (currentVideoId is initialized from the route above; local edits update it directly)
-
-  useEffect(() => {
-    if (videoAspectRatio || fillScreen) {
-      console.log(
-        '%c[PlyrDbg]',
-        'color:#00bcd4;font-weight:bold',
-        'Player: VideoPlayer mounted',
-        {
-          videoAspectRatio,
-          fillScreen,
-          playerType,
-          currentVideoId,
-          youtubePermission,
-        }
-      );
-    }
-  }, [
-    videoAspectRatio,
-    fillScreen,
-    playerType,
-    currentVideoId,
-    youtubePermission,
-  ]);
 
   // Fetch video details to get aspect ratio
   useEffect(() => {
@@ -742,9 +453,10 @@ export function Player() {
                 }
               >
                 {(currentVideoId || fillScreen) && (
-                  <VideoPlayer
+                  <PlayerSurface
                     videoId={youtubePermission ? currentVideoId : null}
-                    playerType={playerType}
+                    engine={engine}
+                    cookiesEnabled={cookiesEnabled}
                     showPermissionModal={showPermissionModal}
                     onGrantPermission={handleGrantPermission}
                     autoPlayEnabled={autoPlayEnabled}
@@ -1043,190 +755,41 @@ export function Player() {
             <h4 className="text-sm font-medium text-muted-foreground mb-2">
               Player Type
             </h4>
-            <div className="flex flex-nowrap items-center gap-1.5 relative">
-              <button
-                ref={(el) => {
-                  playerBtnRefs.current[0] = el;
-                }}
-                onClick={() =>
-                  setPlayerType(cookiesEnabled ? 'normal' : 'youtube')
-                }
-                onMouseEnter={(e) => {
-                  if (!isYouTubeType) {
-                    e.currentTarget.style.color = 'hsl(var(--foreground))';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (!isYouTubeType) {
-                    e.currentTarget.style.color =
-                      'hsl(var(--muted-foreground))';
-                  }
-                }}
-                className="flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg text-sm font-medium transition-all duration-200 border-none"
-                style={{
-                  color: isYouTubeType
-                    ? 'white'
-                    : 'hsl(var(--muted-foreground))',
-                }}
-              >
-                <span className="text-sm">YouTube</span>
-              </button>
-              <button
-                ref={(el) => {
-                  playerBtnRefs.current[1] = el;
-                }}
-                onClick={() => setPlayerType('plyr')}
-                onMouseEnter={(e) => {
-                  if (playerType !== 'plyr') {
-                    e.currentTarget.style.color = 'hsl(var(--foreground))';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (playerType !== 'plyr') {
-                    e.currentTarget.style.color =
-                      'hsl(var(--muted-foreground))';
-                  }
-                }}
-                className="flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg text-sm font-medium transition-all duration-200 border-none"
-                style={{
-                  color:
-                    playerType === 'plyr'
-                      ? 'white'
-                      : 'hsl(var(--muted-foreground))',
-                }}
-              >
-                <PlayCircle
-                  className="h-5 w-5"
-                  style={{
-                    color:
-                      playerType === 'plyr'
-                        ? 'white'
-                        : 'hsl(var(--muted-foreground))',
-                  }}
-                />
-                <span className="text-sm">Plyr</span>
-              </button>
-              {playerIndicatorStyle.width > 0 && (
-                <div
-                  className="absolute bottom-[-4px] h-0.5 rounded-full transition-all duration-300 ease-out"
-                  style={{
-                    left: playerIndicatorStyle.left,
-                    width: playerIndicatorStyle.width,
-                    backgroundColor: 'white',
-                  }}
-                />
-              )}
-            </div>
+            <SegmentedControl
+              options={playerEngineOptions}
+              value={engine}
+              onChange={(value) => update({ engine: value })}
+              ariaLabel="Player type"
+            />
 
             {/* Fullscreen Mode */}
             <h4 className="text-sm font-medium text-muted-foreground mb-2">
               Fullscreen Mode
             </h4>
-            <div className="flex flex-nowrap items-center gap-1.5 relative">
-              <button
-                ref={(el) => {
-                  fullscreenBtnRefs.current[0] = el;
-                }}
-                onClick={() => setFullscreenMode('cover')}
-                onMouseEnter={(e) => {
-                  if (fullscreenMode !== 'cover') {
-                    e.currentTarget.style.color = 'hsl(var(--foreground))';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (fullscreenMode !== 'cover') {
-                    e.currentTarget.style.color =
-                      'hsl(var(--muted-foreground))';
-                  }
-                }}
-                className="flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg text-sm font-medium transition-all duration-200 border-none"
-                style={{
-                  color:
-                    fullscreenMode === 'cover'
-                      ? 'white'
-                      : 'hsl(var(--muted-foreground))',
-                }}
-              >
-                <Maximize2
-                  className="h-5 w-5"
-                  style={{
-                    color:
-                      fullscreenMode === 'cover'
-                        ? 'white'
-                        : 'hsl(var(--muted-foreground))',
-                  }}
-                />
-                <span className="text-sm">Cover</span>
-              </button>
-              <button
-                ref={(el) => {
-                  fullscreenBtnRefs.current[1] = el;
-                }}
-                onClick={() => setFullscreenMode('contain')}
-                onMouseEnter={(e) => {
-                  if (fullscreenMode !== 'contain') {
-                    e.currentTarget.style.color = 'hsl(var(--foreground))';
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (fullscreenMode !== 'contain') {
-                    e.currentTarget.style.color =
-                      'hsl(var(--muted-foreground))';
-                  }
-                }}
-                className="flex items-center gap-2 px-3 py-2 sm:px-4 rounded-lg text-sm font-medium transition-all duration-200 border-none"
-                style={{
-                  color:
-                    fullscreenMode === 'contain'
-                      ? 'white'
-                      : 'hsl(var(--muted-foreground))',
-                }}
-              >
-                <Minimize2
-                  className="h-5 w-5"
-                  style={{
-                    color:
-                      fullscreenMode === 'contain'
-                        ? 'white'
-                        : 'hsl(var(--muted-foreground))',
-                  }}
-                />
-                <span className="text-sm">Contain</span>
-              </button>
-              {fullscreenIndicatorStyle.width > 0 && (
-                <div
-                  className="absolute bottom-[-4px] h-0.5 rounded-full transition-all duration-300 ease-out"
-                  style={{
-                    left: fullscreenIndicatorStyle.left,
-                    width: fullscreenIndicatorStyle.width,
-                    backgroundColor: 'white',
-                  }}
-                />
-              )}
-            </div>
+            <SegmentedControl
+              options={fullscreenOptions}
+              value={fullscreenMode}
+              onChange={(value) => update({ fullscreenMode: value })}
+              ariaLabel="Fullscreen mode"
+            />
 
             {/* Cookies */}
             <div className="relative flex items-center">
               <button
-                onClick={isYouTubeType ? handleCookieToggle : undefined}
-                disabled={!isYouTubeType}
-                className={`flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none ${!isYouTubeType ? 'opacity-50' : 'cursor-pointer'}`}
+                onClick={handleCookieToggle}
+                className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
                 style={{
                   color: cookiesEnabled
                     ? 'white'
                     : 'hsl(var(--muted-foreground))',
                 }}
                 onMouseEnter={(e) => {
-                  if (isYouTubeType) {
-                    e.currentTarget.style.color = 'hsl(var(--foreground))';
-                  }
+                  e.currentTarget.style.color = 'hsl(var(--foreground))';
                 }}
                 onMouseLeave={(e) => {
-                  if (isYouTubeType) {
-                    e.currentTarget.style.color = cookiesEnabled
-                      ? 'white'
-                      : 'hsl(var(--muted-foreground))';
-                  }
+                  e.currentTarget.style.color = cookiesEnabled
+                    ? 'white'
+                    : 'hsl(var(--muted-foreground))';
                 }}
               >
                 <Cookie className="h-5 w-5" />
@@ -1248,7 +811,8 @@ export function Player() {
                 <div className="absolute left-0 bottom-full mb-2 z-50 w-64 p-3 bg-popover border border-border rounded-lg shadow-lg text-sm">
                   <p className="font-semibold text-foreground">Cookies</p>
                   <p className="text-muted-foreground mt-1">
-                    Only available with the YouTube player
+                    Play through youtube.com so YouTube can set cookies, instead
+                    of the privacy-enhanced youtube-nocookie.com host.
                   </p>
                 </div>
               )}
@@ -1257,7 +821,7 @@ export function Player() {
             {/* Autoplay */}
             <div className="relative flex items-center">
               <button
-                onClick={() => setAutoPlayEnabled(!autoPlayEnabled)}
+                onClick={() => update({ autoPlayEnabled: !autoPlayEnabled })}
                 className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
                 style={{
                   color: autoPlayEnabled
@@ -1281,7 +845,7 @@ export function Player() {
             {/* Loop */}
             <div className="relative flex items-center">
               <button
-                onClick={() => setLoopEnabled(!loopEnabled)}
+                onClick={() => update({ loopEnabled: !loopEnabled })}
                 className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
                 style={{
                   color: loopEnabled ? 'white' : 'hsl(var(--muted-foreground))',
@@ -1304,12 +868,7 @@ export function Player() {
             <div className="relative flex items-center">
               <button
                 onClick={() => {
-                  const newValue = !forceSquareRatio;
-                  setForceSquareRatio(newValue);
-                  localStorage.setItem(
-                    SQUARE_RATIO_STORAGE_KEY,
-                    String(newValue)
-                  );
+                  update({ forceSquareRatio: !forceSquareRatio });
                 }}
                 className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
                 style={{
