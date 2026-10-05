@@ -3,18 +3,13 @@
 # The app is a static PWA served by nginx. It joins the shared "edge" network
 # owned by the standalone reverse proxy; it publishes no ports itself.
 #
-#   docker compose pull && docker compose up -d
+#   docker compose -f deploy/compose.yaml --profile deploy pull
+#   docker compose -f deploy/compose.yaml --profile deploy up -d
 #
-# Continuous deployment: the `watchtower` service polls the registry and
-# recreates only the labelled `veodee` container when the published image
-# changes. We use the maintained fork `nickfedor/watchtower` because
-# `containrrr/watchtower` was archived in Dec 2025.
-#
-# One-time host setup:
-#   1. Authenticate to GHCR so private images can be pulled (skip if the
-#      package is public). Store it at the path mounted below:
-#        docker login ghcr.io -u <github-user> -p <token with read:packages>
-#   2. docker compose pull && docker compose up -d
+# Continuous deployment: `--profile deploy` adds freshdock, which recreates the
+# opted-in `veodee` container when a newer image is published — no inbound
+# access, no SSH credentials. Updates are health-gated with automatic rollback.
+# Uses the same updater as the other apps on this host.
 name: veodee
 
 services:
@@ -24,31 +19,29 @@ services:
       edge:
         aliases:
           - veodee
-    restart: unless-stopped
-    # Opt this container into Watchtower. With --label-enable, Watchtower only
-    # updates containers carrying this label, so nothing else on the host is
-    # touched (including Watchtower itself, which stays pinned).
+    # freshdock only keeps an update if the new container becomes healthy.
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1/ || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    # Opt in to freshdock; `live` updates on every new digest.
     labels:
-      com.centurylinklabs.watchtower.enable: "true"
+      - "freshdock.enable=true"
+      - "freshdock.mode=live"
+    restart: unless-stopped
 
-  watchtower:
-    # Pinned on purpose: this container holds root-equivalent access via the
-    # Docker socket, so upgrades are deliberate. Bump the tag to update.
-    image: nickfedor/watchtower:1.22.3
-    command:
-      - --label-enable
-      - --cleanup
-      - --interval
-      - "300"
-      - --update-on-start
-    environment:
-      # Registry auth is read from /config/config.json.
-      DOCKER_CONFIG: /config
+  # Pull-based auto-updater. Needs a writable Docker socket; never updates
+  # itself (freshdock.mode=off).
+  freshdock:
+    image: ghcr.io/turbootzz/freshdock:latest
+    profiles: ["deploy"]
+    command: ["run"]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      # GHCR credentials from the host (`docker login ghcr.io`). Mount the
-      # directory, not the file, so refreshed credentials propagate.
-      - ${HOST_DOCKER_CONFIG_DIR:-/root/.docker}:/config:ro
+    labels:
+      - "freshdock.mode=off"
     restart: unless-stopped
 
 networks:
