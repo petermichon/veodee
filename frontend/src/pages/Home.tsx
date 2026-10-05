@@ -238,7 +238,6 @@ export function Home() {
               onPlay={handlePlayVideo}
               onRemove={handleRemoveVideo}
               layout="grid"
-              enableMaxresThumbnails={true}
               onSetBackground={handleSetBackground}
               ratio={activePlaylist?.ratio ?? '16:9'}
               currentBackgroundVideoId={currentBackgroundVideoId}

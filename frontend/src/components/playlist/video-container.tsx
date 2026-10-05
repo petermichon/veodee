@@ -11,7 +11,6 @@ interface VideoContainerProps {
   loadThumbnails?: boolean;
   onLoadingChange?: (isLoading: boolean) => void;
   layout?: 'grid' | 'list';
-  enableMaxresThumbnails?: boolean;
   onSetBackground?: (videoId: string) => void;
   currentBackgroundVideoId?: string | null;
   ratio?: '16:9' | '1:1';
@@ -25,7 +24,6 @@ export const VideoContainer = memo(function VideoContainer({
   loadThumbnails = true,
   onLoadingChange,
   layout = 'grid',
-  enableMaxresThumbnails = true,
   onSetBackground,
   currentBackgroundVideoId,
   ratio = '16:9',
@@ -149,7 +147,6 @@ export const VideoContainer = memo(function VideoContainer({
               onRemove={onRemove}
               onUpdate={onUpdate}
               loadThumbnails={loadThumbnails}
-              enableMaxresThumbnails={enableMaxresThumbnails}
               onSetBackground={onSetBackground}
               currentBackgroundVideoId={currentBackgroundVideoId}
               ratio={ratio}

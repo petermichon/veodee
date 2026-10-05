@@ -11,8 +11,7 @@ import {
   MoreVertical,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useThumbnailQuality } from '@/hooks/use-thumbnail-quality';
-import { getYouTubeThumbnailUrl } from '@/lib/color-extractor';
+import { VideoThumbnail } from '@/components/playlist/video-thumbnail';
 import type { YouTubeVideoDetails } from '@/services/youtube-api';
 import type { Video } from '@/types/index';
 
@@ -26,7 +25,6 @@ interface VideoItemProps {
   onRemove?: (videoId: string) => void;
   onUpdate?: (videoId: string, updates: Partial<Video>) => void;
   loadThumbnails?: boolean;
-  enableMaxresThumbnails?: boolean;
   onSetBackground?: (videoId: string) => void;
   currentBackgroundVideoId?: string | null;
   ratio?: '16:9' | '1:1';
@@ -40,7 +38,6 @@ export const VideoItem = memo(function VideoItem({
   onRemove,
   onUpdate,
   loadThumbnails = true,
-  enableMaxresThumbnails = true,
   onSetBackground,
   currentBackgroundVideoId,
   ratio = '16:9',
@@ -48,10 +45,9 @@ export const VideoItem = memo(function VideoItem({
   // Check if this is fallback data (no real YouTube details)
   const isFallbackData =
     !videoDetails?.title || videoDetails.title === video.id;
-  const thumbnailQuality = useThumbnailQuality(
-    video.id,
-    enableMaxresThumbnails && !isFallbackData
-  );
+  // Every hqdefault is a 4:3 canvas with the video letterboxed, so a 1:1 card
+  // crops that bar off for all videos, music or not.
+  const cropLetterbox = ratio === '1:1';
   const [isEditing, setIsEditing] = useState(false);
   const [editVideoId, setEditVideoId] = useState(video.id);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -136,7 +132,7 @@ export const VideoItem = memo(function VideoItem({
   };
 
   const confirmRemove = () => {
-    onRemove(video.id);
+    onRemove?.(video.id);
     setRemovePrompt(false);
   };
 
@@ -228,10 +224,10 @@ export const VideoItem = memo(function VideoItem({
               <div className="flex gap-3">
                 <div className="w-24 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-muted">
                   {loadThumbnails && !isFallbackData ? (
-                    <img
-                      src={getYouTubeThumbnailUrl(video.id, thumbnailQuality)}
+                    <VideoThumbnail
+                      videoId={video.id}
+                      src={details.thumbnail}
                       alt={details.title}
-                      loading="lazy"
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -282,10 +278,11 @@ export const VideoItem = memo(function VideoItem({
           {/* Thumbnail Container */}
           <div className={thumbnailClasses}>
             {loadThumbnails && !isFallbackData ? (
-              <img
-                src={getYouTubeThumbnailUrl(video.id, thumbnailQuality)}
+              <VideoThumbnail
+                videoId={video.id}
+                src={details.thumbnail}
+                cropLetterbox={cropLetterbox}
                 alt={details.title}
-                loading="lazy"
                 className="w-full h-full object-cover"
               />
             ) : (
@@ -459,10 +456,11 @@ export const VideoItem = memo(function VideoItem({
           {/* Thumbnail */}
           <div className={`${thumbnailClasses} relative`}>
             {loadThumbnails && !isFallbackData ? (
-              <img
-                src={getYouTubeThumbnailUrl(video.id, thumbnailQuality)}
+              <VideoThumbnail
+                videoId={video.id}
+                src={details.thumbnail}
+                cropLetterbox={cropLetterbox}
                 alt={details.title}
-                loading="lazy"
                 className={`w-full h-full object-cover transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                 onLoad={() => setImageLoaded(true)}
               />
