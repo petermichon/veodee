@@ -9,8 +9,8 @@ import type { ComponentType } from 'react';
 export interface PlayerRendererProps {
   videoId: string;
   cookiesEnabled: boolean;
-  autoPlayEnabled: boolean;
-  loopEnabled: boolean;
+  autoPlay: boolean;
+  loop: boolean;
   forcedAspectRatio: number | null;
   onReady: () => void;
   onError: (error: Error) => void;

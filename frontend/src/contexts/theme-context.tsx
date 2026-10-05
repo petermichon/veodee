@@ -75,7 +75,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   useEffect(() => {
-    const updateFavicon = (isDark) => {
+    const updateFavicon = (isDark: boolean) => {
       const favicon = document.querySelector(
         'link[rel="icon"]'
       ) as HTMLLinkElement | null;

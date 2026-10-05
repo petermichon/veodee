@@ -24,7 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { usePlayerSettings } from '@/hooks/use-player-settings';
 import type { Video } from '@/types/index';
 import { getYouTubeThumbnailUrl } from '@/lib/color-extractor';
-import { isYouTubeHostedUrl } from '@/lib/youtube';
+import { isYouTubeHostedUrl, isYouTubeMusicVideo } from '@/lib/youtube';
 import {
   FULLSCREEN_MODES,
   PLAYER_ENGINES,
@@ -51,7 +51,7 @@ export function Player() {
   const [videoUrl, setVideoUrl] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const { settings, update } = usePlayerSettings();
-  const { cookiesEnabled, autoPlayEnabled, loopEnabled } = settings;
+  const { cookiesEnabled, autoPlay, loop } = settings;
   const engine = settings.engine;
   const fullscreenMode = settings.fullscreenMode;
   const forceSquareRatio = settings.forceSquareRatio;
@@ -129,10 +129,10 @@ export function Player() {
   const videoAspectRatio = youtubePermission
     ? (aspectInfo?.ratio ?? null)
     : null;
-  const isYouTubeMusicVideo = youtubePermission ? !!aspectInfo?.isMusic : false;
+  const isMusicVideo = youtubePermission ? !!aspectInfo?.isMusic : false;
   const [showSquareRatioTooltip, setShowSquareRatioTooltip] = useState(false);
   const playerAspectRatio =
-    forceSquareRatio && isYouTubeMusicVideo ? 1 : videoAspectRatio || 16 / 9;
+    forceSquareRatio && isMusicVideo ? 1 : videoAspectRatio || 16 / 9;
   // Fit the player inside a 16:9 envelope (so non-16:9 videos don't grow the
   // layout on wide screens), while the min-size floor below still applies.
   const playerFitWidth =
@@ -189,12 +189,10 @@ export function Player() {
     YouTubeAPI.getVideoDetails(currentVideoId).then((details) => {
       if (cancelled) return;
       let ratio: number | null = null;
-      let isMusic = false;
       if (details && details.width && details.height) {
         ratio = details.width / details.height;
-        // Detect YouTube Music videos (200x150 = 4:3 ratio)
-        isMusic = details.width === 200 && details.height === 150;
       }
+      const isMusic = isYouTubeMusicVideo(details);
       setAspectByVideo((prev) => ({
         ...prev,
         [currentVideoId]: { ratio, isMusic },
@@ -455,10 +453,10 @@ export function Player() {
                     cookiesEnabled={cookiesEnabled}
                     showPermissionModal={showPermissionModal}
                     onGrantPermission={handleGrantPermission}
-                    autoPlayEnabled={autoPlayEnabled}
-                    loopEnabled={loopEnabled}
+                    autoPlay={autoPlay}
+                    loop={loop}
                     forcedAspectRatio={
-                      forceSquareRatio && isYouTubeMusicVideo ? 1 : null
+                      forceSquareRatio && isMusicVideo ? 1 : null
                     }
                     fillScreen={fillScreen}
                     fullscreenMode={fullscreenMode}
@@ -817,18 +815,16 @@ export function Player() {
             {/* Autoplay */}
             <div className="relative flex items-center">
               <button
-                onClick={() => update({ autoPlayEnabled: !autoPlayEnabled })}
+                onClick={() => update({ autoPlay: !autoPlay })}
                 className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
                 style={{
-                  color: autoPlayEnabled
-                    ? 'white'
-                    : 'hsl(var(--muted-foreground))',
+                  color: autoPlay ? 'white' : 'hsl(var(--muted-foreground))',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = 'hsl(var(--foreground))';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.color = autoPlayEnabled
+                  e.currentTarget.style.color = autoPlay
                     ? 'white'
                     : 'hsl(var(--muted-foreground))';
                 }}
@@ -841,16 +837,16 @@ export function Player() {
             {/* Loop */}
             <div className="relative flex items-center">
               <button
-                onClick={() => update({ loopEnabled: !loopEnabled })}
+                onClick={() => update({ loop: !loop })}
                 className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors border-none cursor-pointer"
                 style={{
-                  color: loopEnabled ? 'white' : 'hsl(var(--muted-foreground))',
+                  color: loop ? 'white' : 'hsl(var(--muted-foreground))',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = 'hsl(var(--foreground))';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.color = loopEnabled
+                  e.currentTarget.style.color = loop
                     ? 'white'
                     : 'hsl(var(--muted-foreground))';
                 }}

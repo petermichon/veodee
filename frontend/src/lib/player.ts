@@ -227,7 +227,10 @@ export function buildYouTubeEmbedUrl({
   return `${youtubeEmbedBaseUrl(videoId, cookiesEnabled)}?${params.toString()}`;
 }
 
-export interface YouTubeEngineOptions {
+// The Video.js YouTube adapter types its engine options as an object with an
+// open index signature, so extend Record to stay assignable while still
+// documenting the parameters we set.
+export interface YouTubeEngineOptions extends Record<string, unknown> {
   rel: 0 | 1;
   iv_load_policy?: 1 | 3;
   origin?: string;

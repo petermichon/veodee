@@ -8,16 +8,16 @@ import type { PlayerRendererProps } from '../types';
 export default function IframePlayer({
   videoId,
   cookiesEnabled,
-  autoPlayEnabled,
-  loopEnabled,
+  autoPlay,
+  loop,
   onReady,
   onError,
 }: PlayerRendererProps) {
   const embedUrl = buildYouTubeEmbedUrl({
     videoId,
     cookiesEnabled,
-    autoPlay: autoPlayEnabled,
-    loop: loopEnabled,
+    autoPlay,
+    loop,
   });
 
   // Defer readiness by two frames so the first painted frame is in the embed

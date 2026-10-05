@@ -9,8 +9,8 @@ export interface PlayerSurfaceProps {
   videoId: string | null;
   engine: PlayerEngine;
   cookiesEnabled: boolean;
-  autoPlayEnabled: boolean;
-  loopEnabled: boolean;
+  autoPlay: boolean;
+  loop: boolean;
   forcedAspectRatio: number | null;
   fillScreen: boolean;
   fullscreenMode: FullscreenMode;
@@ -61,8 +61,8 @@ export function PlayerSurface({
   videoId,
   engine,
   cookiesEnabled,
-  autoPlayEnabled,
-  loopEnabled,
+  autoPlay,
+  loop,
   forcedAspectRatio,
   fillScreen,
   fullscreenMode,
@@ -77,8 +77,8 @@ export function PlayerSurface({
     videoId,
     engine,
     cookiesEnabled,
-    autoPlayEnabled,
-    loopEnabled,
+    autoPlay,
+    loop,
     retryKey,
   ].join(':');
   const [previousResetKey, setPreviousResetKey] = useState(resetKey);
@@ -145,8 +145,8 @@ export function PlayerSurface({
                 key={resetKey}
                 videoId={videoId}
                 cookiesEnabled={cookiesEnabled}
-                autoPlayEnabled={autoPlayEnabled}
-                loopEnabled={loopEnabled}
+                autoPlay={autoPlay}
+                loop={loop}
                 forcedAspectRatio={forcedAspectRatio}
                 onReady={() => setIsLoading(false)}
                 onError={(err) => {

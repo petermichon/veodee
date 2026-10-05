@@ -76,6 +76,17 @@ export async function fetchYouTubeVideoData(
 }
 
 /**
+ * Whether oEmbed dimensions identify a YouTube Music art track. These report a
+ * 4:3 (200x150) player size, unlike the 16:9 (200x113) of regular videos, and
+ * their maxres thumbnail is a square album cover that a 1:1 card can crop to.
+ */
+export function isYouTubeMusicVideo(
+  details?: { width?: number; height?: number } | null
+): boolean {
+  return details?.width === 200 && details?.height === 150;
+}
+
+/**
  * Gets the YouTube thumbnail URL for a video ID
  */
 export function getYouTubeThumbnailUrl(

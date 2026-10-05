@@ -12,8 +12,8 @@ import type { PlayerRendererProps } from '../types';
 export default function VideoJsPlayer({
   videoId,
   cookiesEnabled,
-  autoPlayEnabled,
-  loopEnabled,
+  autoPlay,
+  loop,
   onReady,
   onError,
 }: PlayerRendererProps) {
@@ -42,7 +42,7 @@ export default function VideoJsPlayer({
   const source = buildVideoJsYouTubeSource({
     videoId,
     cookiesEnabled,
-    loop: loopEnabled,
+    loop,
     origin: typeof window === 'undefined' ? undefined : window.location.origin,
   });
 
@@ -51,10 +51,10 @@ export default function VideoJsPlayer({
       <VideoSkin style={{ width: '100%', height: '100%' }}>
         <YouTubeVideo
           source={source}
-          autoplay={autoPlayEnabled}
-          muted={autoPlayEnabled}
-          defaultMuted={autoPlayEnabled}
-          loop={loopEnabled}
+          autoplay={autoPlay}
+          muted={autoPlay}
+          defaultMuted={autoPlay}
+          loop={loop}
           playsInline
           onLoadedMetadata={markReady}
           onPlaying={markReady}

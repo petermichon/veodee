@@ -2,10 +2,26 @@ import { describe, it, expect } from 'vitest';
 import {
   extractYouTubeVideoId,
   isYouTubeHostedUrl,
+  isYouTubeMusicVideo,
   getYouTubeThumbnailUrl,
 } from './youtube';
 
 const VIDEO_ID = 'dQw4w9WgXcQ';
+
+describe('isYouTubeMusicVideo', () => {
+  it('detects the 4:3 oEmbed size of music art tracks', () => {
+    expect(isYouTubeMusicVideo({ width: 200, height: 150 })).toBe(true);
+  });
+
+  it('rejects the 16:9 oEmbed size of regular videos', () => {
+    expect(isYouTubeMusicVideo({ width: 200, height: 113 })).toBe(false);
+  });
+
+  it('rejects missing dimensions', () => {
+    expect(isYouTubeMusicVideo(undefined)).toBe(false);
+    expect(isYouTubeMusicVideo({})).toBe(false);
+  });
+});
 
 describe('extractYouTubeVideoId', () => {
   it('accepts a bare 11-character video ID', () => {

@@ -46,8 +46,8 @@ function ensureYouTubeApi(): Promise<void> {
 export default function PlyrPlayer({
   videoId,
   cookiesEnabled,
-  autoPlayEnabled,
-  loopEnabled,
+  autoPlay,
+  loop,
   forcedAspectRatio,
   onReady,
   onError,
@@ -108,9 +108,9 @@ export default function PlyrPlayer({
         }
 
         const player = new Plyr(playerElement as HTMLElement, {
-          autoplay: autoPlayEnabled,
-          muted: autoPlayEnabled,
-          loop: { active: loopEnabled },
+          autoplay: autoPlay,
+          muted: autoPlay,
+          loop: { active: loop },
           controls: [
             'play-large',
             'play',
@@ -129,7 +129,7 @@ export default function PlyrPlayer({
             rel: 0,
             iv_load_policy: 3,
           },
-          ratio: forcedAspectRatio ? `${forcedAspectRatio}:1` : null,
+          ratio: forcedAspectRatio ? `${forcedAspectRatio}:1` : undefined,
         });
         playerRef.current = player;
 
@@ -184,8 +184,8 @@ export default function PlyrPlayer({
           const fallback = window.setTimeout(reveal, 5000);
           cleanups.push(() => clearTimeout(fallback));
         });
-        player.on('error', (err) => {
-          markError(err as Error);
+        player.on('error', () => {
+          markError(new Error('Playback error'));
         });
       } catch (err) {
         markError(err as Error);
@@ -206,13 +206,7 @@ export default function PlyrPlayer({
         playerRef.current = null;
       }
     };
-  }, [
-    videoId,
-    cookiesEnabled,
-    autoPlayEnabled,
-    loopEnabled,
-    forcedAspectRatio,
-  ]);
+  }, [videoId, cookiesEnabled, autoPlay, loop, forcedAspectRatio]);
 
   return <div ref={containerRef} className="w-full h-full" />;
 }

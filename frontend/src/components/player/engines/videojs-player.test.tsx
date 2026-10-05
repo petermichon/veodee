@@ -1,13 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import type { ReactNode } from 'react';
 
 const hoisted = vi.hoisted(() => ({
   videoProps: undefined as Record<string, unknown> | undefined,
 }));
 
 vi.mock('@videojs/react/video', () => ({
-  VideoPlayer: ({ children }: { children?: unknown }) => <div>{children}</div>,
-  VideoSkin: ({ children }: { children?: unknown }) => <div>{children}</div>,
+  VideoPlayer: ({ children }: { children?: ReactNode }) => (
+    <div>{children}</div>
+  ),
+  VideoSkin: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
 }));
 
 vi.mock('@videojs/react/media/youtube-video', () => ({
@@ -36,8 +39,8 @@ function setup(overrides: Partial<PlayerRendererProps> = {}) {
   const props: PlayerRendererProps = {
     videoId: 'aqz-KE-bpKQ',
     cookiesEnabled: false,
-    autoPlayEnabled: false,
-    loopEnabled: false,
+    autoPlay: false,
+    loop: false,
     forcedAspectRatio: null,
     onReady: vi.fn(),
     onError: vi.fn(),
@@ -55,8 +58,8 @@ describe('VideoJsPlayer', () => {
   it('maps props onto the YouTube adapter source and options', () => {
     setup({
       cookiesEnabled: true,
-      autoPlayEnabled: true,
-      loopEnabled: true,
+      autoPlay: true,
+      loop: true,
     });
 
     const source = hoisted.videoProps?.source as {
